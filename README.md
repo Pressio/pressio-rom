@@ -17,7 +17,7 @@ you might find useful some of the components of the library.
 
 Click below to checkout the documentation:
 
-<a href="https://pressio.github.io/pressio" target="_blank">
+<a href="https://pressio.github.io/pressio-rom" target="_blank">
     <img src='./logos/logo-readme.svg' width='97%'>
 </a>
 

@@ -1,1 +1,1 @@
-Version is defined in lines 52-54 of pressio/include/pressio/macros.hpp
+Version is defined in lines 52-54 of pressio-rom/include/pressio/macros.hpp

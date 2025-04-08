@@ -86,7 +86,7 @@ jobs:
             -I/usr/include/eigen3 \
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio/include \
+            -I${GITHUB_WORKSPACE}/pressio-rom/include \
             -c main.cpp                \
           && $CXX --std=c++17 -o pressio-example main.o \
           && ./pressio-example
@@ -99,7 +99,7 @@ jobs:
             -I/usr/include/eigen3 \
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio/include \
+            -I${GITHUB_WORKSPACE}/pressio-rom/include \
             -c main_with_defines.cpp   \
           && $CXX --std=c++17 -o pressio-example main.o \
           && ./pressio-example

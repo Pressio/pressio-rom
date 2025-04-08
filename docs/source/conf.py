@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # The master toctree document.
 master_doc = "index"
 
-project = 'Pressio'
+project = 'Pressio-ROM'
 # copyright = f'{datetime.datetime.now().year}, 2021, National Technology & Engineering Solutions of Sandia, LLC (NTESS)'
 copyright = u"2021, National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
 author = 'Francesco Rizzi'

@@ -82,7 +82,7 @@ jobs:
             -I/kokkos-kernels/install/include \
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio/include \
+            -I${GITHUB_WORKSPACE}/pressio-rom/include \
             -c main.cpp
 
       - name: Example - include only with embedded definitions
@@ -95,7 +95,7 @@ jobs:
             -I/kokkos-kernels/install/include \
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio/include \
+            -I${GITHUB_WORKSPACE}/pressio-rom/include \
             -c main_with_defines.cpp
 
       - name: Configure Tests
