@@ -3,10 +3,10 @@
 
 .. include:: mydefs.rst
 
-pressio C++ library
+pressio-rom C++ library
 ===================
 
-Documentation of the `C++ library <https://github.com/Pressio/pressio>`__, one element of the `Pressio ecosystem <https://pressio.github.io/>`_.
+Documentation of the `C++ library <https://github.com/Pressio/pressio-rom>`__, one element of the `Pressio ecosystem <https://pressio.github.io/>`_.
 
 This work was started with a focus on projection-based reduced-order models (ROMs),
 which is a strongly **multidisciplinary** topic.
@@ -38,7 +38,7 @@ in version ``1.0.0`` a uniform maturity level across
 the ``rom``, ``ode``, and ``solvers`` components. Please keep this in mind while browsing
 the documentation and the code.
 
-The supported capabilities of ``Pressio/pressio`` are included in the table below.
+The supported capabilities of ``pressio-rom`` are included in the table below.
 Each component (level) of the stack depends on the ones below it.
 
 |
@@ -74,10 +74,10 @@ These components depend on the `Pressio/pressio-ops <https://github.com/Pressio/
 Get Started
 -----------
 
-* `Configure pressio <configuration.html>`_: (currently) it is a header-only library, so should be trivial
+* `Configure pressio-rom <configuration.html>`_: (currently) it is a header-only library, so should be trivial
 
 * Explore our `end-to-end ROM demos <https://pressio.github.io/pressio-tutorials/endtoend/readthisfirst.html>`_ to
-  see ``pressio/rom`` in action and to experiment directly
+  see ``pressio-rom`` in action and to experiment directly
 
 * Explore the `tutorials showing the individual capabilities <https://pressio.github.io/pressio-tutorials>`_
 
@@ -85,7 +85,7 @@ Get Started
 Generic programming and concepts
 --------------------------------
 
-Arguably the main foundation of pressio is the use of
+Arguably the main foundation of pressio-rom is the use of
 generic programming--*or, more humbly, we can at least say that it is what we strive for*.
 Since the early development stages, we have relied on concept-driven design.
 Note, that, if you have used or use C++ templates, you *have* used
@@ -95,7 +95,7 @@ C++20 concepts are, in some sense, a way to *explicitly* formalize those expecta
 
 
 Until we can stably upgrade to C++20, we cannot by default use C++20 concepts,
-so we currently guard the concepts in pressio inside a
+so we currently guard the concepts in pressio-rom inside a
 preprocessor directive ``#ifdef PRESSIO_ENABLE_CXX20``.
 The behavior is as follows:
 
@@ -167,6 +167,6 @@ open an issue on `github <https://github.com/Pressio/pressio>`_.
    :hidden:
 
    Tutorials <https://pressio.github.io/pressio-tutorials>
-   GitHub Repo <https://github.com/Pressio/pressio>
-   Open an issue/feature req. <https://github.com/Pressio/pressio/issues>
+   GitHub Repo <https://github.com/Pressio/pressio-rom>
+   Open an issue/feature req. <https://github.com/Pressio/pressio-rom/issues>
    license

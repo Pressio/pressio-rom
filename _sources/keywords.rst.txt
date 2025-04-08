@@ -46,7 +46,7 @@ The following options control enabling TPLs:
 Obviously, the choice of which TPLs to enable is related to
 your application's dependency requirements.
 For example, if you have an application that relies on
-Trilinos data structures and want to use ``pressio``\ ,
+Trilinos data structures and want to use ``pressio-rom``\ ,
 then it makes sense to enable the Trilinos dependency.
 On the contrary, if you have an application that relies only on
 Eigen data structures, then it makes sense to only leave only Eigen on
@@ -54,7 +54,7 @@ and disable the rest.
 
 Also, we note that some of the cmake variables listed above are connected
 and cannot be turned on individualy.
-For example, if we enable Trilinos then ``pressio`` automatically
+For example, if we enable Trilinos then ``pressio-rom`` automatically
 enables also Kokkos, BLAS, LAPACK and MPI.
 
 

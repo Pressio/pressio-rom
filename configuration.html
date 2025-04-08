@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CMake Keywords" href="keywords.html" /><link rel="prev" title="pressio C++ library" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CMake Keywords" href="keywords.html" /><link rel="prev" title="pressio-rom C++ library" href="index.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
-        <title>Configuration and Dependencies - Pressio-0.15.0</title>
+        <title>Configuration and Dependencies - Pressio-ROM-0.15.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -131,7 +131,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Pressio-0.15.0</div></a>
+      <a href="index.html"><div class="brand">Pressio-ROM-0.15.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -157,7 +157,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Pressio-0.15.0</span>
+  <span class="sidebar-brand-text">Pressio-ROM-0.15.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -214,8 +214,8 @@
 <p class="caption" role="heading"><span class="caption-text">Miscellanea</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://pressio.github.io/pressio-tutorials">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Pressio/pressio">GitHub Repo</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Pressio/pressio/issues">Open an issue/feature req.</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Pressio/pressio-rom">GitHub Repo</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Pressio/pressio-rom/issues">Open an issue/feature req.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 
@@ -253,20 +253,20 @@
 <h1>Configuration and Dependencies<a class="headerlink" href="#configuration-and-dependencies" title="Permalink to this heading">#</a></h1>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>pressio is header-only, so it does not need to be precompiled and linked to.</p>
+<p>pressio-rom is header-only, so it does not need to be precompiled and linked to.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>To use pressio, you need at least a C++17 compiler.</p>
+<p>To use pressio-rom, you need at least a C++17 compiler.</p>
 </div>
 <section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">#</a></h2>
-<p>Some parts of <code class="docutils literal notranslate"><span class="pre">pressio</span></code> contain code and implementations
+<p>Some parts of <code class="docutils literal notranslate"><span class="pre">pressio-rom</span></code> contain code and implementations
 that are specific to third-party libraries (TPLs).
 The main reason for doing this is that we aim, where possible,
-to alleviate the user from writing custom operations and allow <code class="docutils literal notranslate"><span class="pre">pressio</span></code> to decide when and how to leverage
+to alleviate the user from writing custom operations and allow <code class="docutils literal notranslate"><span class="pre">pressio-rom</span></code> to decide when and how to leverage
 the native libraries’ operations to obtain the best performance.
-This should facilitate the integration and use of <code class="docutils literal notranslate"><span class="pre">pressio</span></code> by existing applications.
+This should facilitate the integration and use of <code class="docutils literal notranslate"><span class="pre">pressio-rom</span></code> by existing applications.
 This is a growing capability and we currently only
 provide built-in support to some external HPC libraries (see below).
 Obviously, these TPLs-specific specializations need to be guarded with
@@ -329,12 +329,12 @@ and solving the (dense) ROM problem.</p>
 </section>
 <section id="in-practice-what-are-the-steps-to-get-and-use-pressio">
 <h2>In practice, what are the steps to get and use Pressio?<a class="headerlink" href="#in-practice-what-are-the-steps-to-get-and-use-pressio" title="Permalink to this heading">#</a></h2>
-<p>1. Clone <a class="reference external" href="https://github.com/Pressio/pressio">pressio</a> (defaults to the main branch),
-or you can pick a <a class="reference external" href="https://github.com/Pressio/pressio/releases">release version</a></p>
+<p>1. Clone <a class="reference external" href="https://github.com/Pressio/pressio-rom">pressio-rom</a> (defaults to the main branch),
+or you can pick a <a class="reference external" href="https://github.com/Pressio/pressio-rom/releases">release version</a></p>
 <ol class="arabic simple" start="2">
 <li><p>Clone <a class="reference external" href="https://github.com/Pressio/pressio-ops">pressio-ops</a> and, optionally, <a class="reference external" href="https://github.com/Pressio/pressio-log">pressio-log</a></p></li>
-<li><p>Add the <code class="docutils literal notranslate"><span class="pre">pressio/include</span></code>, <code class="docutils literal notranslate"><span class="pre">pressio-ops/include</span></code>, and (optionally) <code class="docutils literal notranslate"><span class="pre">pressio-log/include</span></code> to your project’s include directories.</p></li>
-<li><p>Use the Pressio library</p></li>
+<li><p>Add the <code class="docutils literal notranslate"><span class="pre">pressio-rom/include</span></code>, <code class="docutils literal notranslate"><span class="pre">pressio-ops/include</span></code>, and (optionally) <code class="docutils literal notranslate"><span class="pre">pressio-log/include</span></code> to your project’s include directories.</p></li>
+<li><p>Use the Pressio ecosystem</p></li>
 </ol>
 <p>Before including any Pressio files, be sure to identify any third-party dependencies as discussed above.
 You can define macros to enable or disable code related to these dependencies.</p>
@@ -365,7 +365,7 @@ details, can be found in the <a class="reference external" href="https://github.
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h2>
 <p>The following steps explain how to build and runs the Pressio tests.</p>
 <ol class="arabic simple">
-<li><p>Begin by cloning <a class="reference external" href="https://github.com/Pressio/pressio">pressio</a>.</p></li>
+<li><p>Begin by cloning <a class="reference external" href="https://github.com/Pressio/pressio-rom">pressio-rom</a>.</p></li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -377,40 +377,38 @@ CMake variable is turned on.</p>
 <ol class="arabic simple" start="2">
 <li><p>Create a build directory.</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;where-you-cloned-pressio&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;where-you-cloned-pressio-rom&gt;
 mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mkdir<span class="w"> </span>install
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Use cmake to configure by passing to the command line the target list of CMake variables to define.</p></li>
+<li><p>Use CMake to configure by passing to the command line the target list of CMake variables to define.</p></li>
 </ol>
 <p>For example, suppose we want to enable support for Trilinos and the logger. We would do:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PRESSIO_SRC</span><span class="o">=</span>&lt;where-you-cloned-pressio&gt;
-<span class="nb">cd</span><span class="w"> </span>&lt;where-you-cloned-pressio&gt;/build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PRESSIO_ROM_SRC</span><span class="o">=</span>&lt;where-you-cloned-pressio-rom&gt;
+<span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">PRESSIO_ROM_SRC</span><span class="si">}</span>/build
 
 cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">PRESSIO_ENABLE_TPL_TRILINOS</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>-D<span class="w"> </span><span class="nv">PRESSIO_ENABLE_LOGGING</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>-D<span class="w"> </span><span class="nv">PRESSIO_ENABLE_TESTS</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span><span class="si">${</span><span class="nv">PRESSIO_SRC</span><span class="si">}</span>
+<span class="w">      </span><span class="si">${</span><span class="nv">PRESSIO_ROM_SRC</span><span class="si">}</span>
 
 make<span class="w"> </span><span class="c1"># tests are built</span>
 </pre></div>
 </div>
-<p>Note that this step <strong>only builds tests</strong> because <code class="docutils literal notranslate"><span class="pre">pressio</span></code> is header-only.
-If you want, inspect the file <code class="docutils literal notranslate"><span class="pre">&lt;where-you-cloned-pressio&gt;/install/pressio_cmake_config.h</span></code>
-which contains the CMake variables configuration.</p>
+<p>Note that this step <strong>only builds tests</strong> because <code class="docutils literal notranslate"><span class="pre">pressio-rom</span></code> is header-only.</p>
 <p>By default, this step will also clone and link to the <code class="docutils literal notranslate"><span class="pre">Pressio/pressio-ops</span></code> library,
-which contains essential operations for <code class="docutils literal notranslate"><span class="pre">pressio</span></code>.</p>
+which contains essential operations for <code class="docutils literal notranslate"><span class="pre">pressio-ROM</span></code>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Since the tests assume the role of an application using pressio, they will need
+<p>Since the tests assume the role of an application using pressio-rom, they will need
 to link against any TPLs that you enable. To specify the location of a library,
 use the following CMake variable: <code class="docutils literal notranslate"><span class="pre">-D</span> <span class="pre">&lt;tpl&gt;_DIR=/path/to/tpl/install</span></code>.</p>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Run the tests</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;where-you-cloned-pressio&gt;/build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;where-you-cloned-pressio-rom&gt;/build
 ctest<span class="w"> </span>-j<span class="w"> </span>&lt;np&gt;
 </pre></div>
 </div>
@@ -452,7 +450,7 @@ ctest<span class="w"> </span>-j<span class="w"> </span>&lt;np&gt;
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on Mar 31, 2025</div>
+              Last updated on Apr 08, 2025</div>
           </div>
           <div class="right-details">
             <div class="icons">

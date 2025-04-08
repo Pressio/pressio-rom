@@ -14,13 +14,13 @@ notions that are at the core of our design approach.
 ``concept = syntactic constraints + semantics``
 -----------------------------------------------
 
-In pressio, we follow the approach in "Design of Concept Libraries for C++" (2011)
+In pressio-rom, we follow the approach in "Design of Concept Libraries for C++" (2011)
 in defining a concept to be a *meaningful combination of syntactic requirements + axioms/semantics*.
 Pure syntax can be fully specified and checked by compilers supporting C++20.
 On the contrary, axioms/semantics properties cannot be spelled out and statically checked.
 Axioms are, in fact, invariants *assumed* to hold. In the C++ standard, axioms
 and semantics are specified/listed as comments. Here, we adopt a different
-approach to present axioms (similar to "Design of Concept Libraries for C++", 2011)),
+approach to present axioms (similar to "Design of Concept Libraries for C++", 2011),
 that we believe benefits readability: axioms are explicitly listed using
 the keyword "axiom". Note, however, that if you want to compile the concepts below
 using a C++20 compiler, you have to comment out all axioms.

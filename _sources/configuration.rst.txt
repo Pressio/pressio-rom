@@ -6,21 +6,21 @@ Configuration and Dependencies
 
 .. tip::
 
-    pressio is header-only, so it does not need to be precompiled and linked to.
+    pressio-rom is header-only, so it does not need to be precompiled and linked to.
 
 .. warning::
 
-    To use pressio, you need at least a C++17 compiler.
+    To use pressio-rom, you need at least a C++17 compiler.
 
 Dependencies
 ------------
 
-Some parts of ``pressio`` contain code and implementations
+Some parts of ``pressio-rom`` contain code and implementations
 that are specific to third-party libraries (TPLs).
 The main reason for doing this is that we aim, where possible,
-to alleviate the user from writing custom operations and allow ``pressio`` to decide when and how to leverage
+to alleviate the user from writing custom operations and allow ``pressio-rom`` to decide when and how to leverage
 the native libraries' operations to obtain the best performance.
-This should facilitate the integration and use of ``pressio`` by existing applications.
+This should facilitate the integration and use of ``pressio-rom`` by existing applications.
 This is a growing capability and we currently only
 provide built-in support to some external HPC libraries (see below).
 Obviously, these TPLs-specific specializations need to be guarded with
@@ -70,16 +70,18 @@ default choice for instantiating the ROM data structures
 and solving the (dense) ROM problem.
 
 In practice, what are the steps to get and use Pressio?
-----------------------------------------------------------------
+-------------------------------------------------------
 
-1. Clone `pressio <https://github.com/Pressio/pressio>`_ (defaults to the main branch),
-or you can pick a `release version <https://github.com/Pressio/pressio/releases>`_
+.. TODO: Add spack instructions once merged
+
+1. Clone `pressio-rom <https://github.com/Pressio/pressio-rom>`_ (defaults to the main branch),
+or you can pick a `release version <https://github.com/Pressio/pressio-rom/releases>`_
 
 2. Clone `pressio-ops <https://github.com/Pressio/pressio-ops>`_ and, optionally, `pressio-log <https://github.com/Pressio/pressio-log>`_
 
-3. Add the ``pressio/include``, ``pressio-ops/include``, and (optionally) ``pressio-log/include`` to your project's include directories.
+3. Add the ``pressio-rom/include``, ``pressio-ops/include``, and (optionally) ``pressio-log/include`` to your project's include directories.
 
-4. Use the Pressio library
+4. Use the Pressio ecosystem
 
 Before including any Pressio files, be sure to identify any third-party dependencies as discussed above.
 You can define macros to enable or disable code related to these dependencies.
@@ -114,7 +116,7 @@ Testing
 
 The following steps explain how to build and runs the Pressio tests.
 
-1. Begin by cloning `pressio <https://github.com/Pressio/pressio>`_.
+1. Begin by cloning `pressio-rom <https://github.com/Pressio/pressio-rom>`_.
 
 .. tip::
 
@@ -128,35 +130,33 @@ The following steps explain how to build and runs the Pressio tests.
 
 .. code-block:: bash
 
-   cd <where-you-cloned-pressio>
+   cd <where-you-cloned-pressio-rom>
    mkdir build && mkdir install
 
-3. Use cmake to configure by passing to the command line the target list of CMake variables to define.
+3. Use CMake to configure by passing to the command line the target list of CMake variables to define.
 
 For example, suppose we want to enable support for Trilinos and the logger. We would do:
 
 .. code-block:: bash
 
-   export PRESSIO_SRC=<where-you-cloned-pressio>
-   cd <where-you-cloned-pressio>/build
+   export PRESSIO_ROM_SRC=<where-you-cloned-pressio-rom>
+   cd ${PRESSIO_ROM_SRC}/build
 
    cmake -D PRESSIO_ENABLE_TPL_TRILINOS=ON \
          -D PRESSIO_ENABLE_LOGGING=ON \
          -D PRESSIO_ENABLE_TESTS=ON \
-         ${PRESSIO_SRC}
+         ${PRESSIO_ROM_SRC}
 
    make # tests are built
 
-Note that this step **only builds tests** because ``pressio`` is header-only.
-If you want, inspect the file ``<where-you-cloned-pressio>/install/pressio_cmake_config.h``
-which contains the CMake variables configuration.
+Note that this step **only builds tests** because ``pressio-rom`` is header-only.
 
 By default, this step will also clone and link to the ``Pressio/pressio-ops`` library,
-which contains essential operations for ``pressio``.
+which contains essential operations for ``pressio-ROM``.
 
 .. tip::
 
-  Since the tests assume the role of an application using pressio, they will need
+  Since the tests assume the role of an application using pressio-rom, they will need
   to link against any TPLs that you enable. To specify the location of a library,
   use the following CMake variable: ``-D <tpl>_DIR=/path/to/tpl/install``.
 
@@ -164,5 +164,5 @@ which contains essential operations for ``pressio``.
 
 .. code-block:: bash
 
-  cd <where-you-cloned-pressio>/build
+  cd <where-you-cloned-pressio-rom>/build
   ctest -j <np>
