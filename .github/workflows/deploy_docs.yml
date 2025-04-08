@@ -8,7 +8,7 @@ jobs:
   build-and-deploy-docs:
     runs-on: ubuntu-latest
     env:
-      docs-directory: /home/runner/work/pressio-rom/docs
+      docs-directory: ${{ github.workspace }}/docs
       python-version: '3.10'
 
     steps:
