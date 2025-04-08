@@ -2,13 +2,13 @@ name: Deploy docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 739-fix-documentation-pipeline-after-renaming-repository ]
 
 jobs:
   build-and-deploy-docs:
     runs-on: ubuntu-latest
     env:
-      docs-directory: /home/runner/work/pressio/pressio/docs
+      docs-directory: /home/runner/work/pressio/pressio-rom/docs
       python-version: '3.10'
 
     steps:
