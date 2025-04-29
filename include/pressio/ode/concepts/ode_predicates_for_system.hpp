@@ -161,5 +161,6 @@ struct has_const_create_discrete_jacobian_method_return_result<
     >
   > : std::true_type{};
 
+
 }}
 #endif  // PRESSIO_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_

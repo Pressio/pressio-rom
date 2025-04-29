@@ -163,5 +163,31 @@ struct has_const_discrete_residual_jacobian_method<
     >
   > : std::true_type{};
 
+template <
+  class T, class StepType, class IndVarType, class = void
+  >
+struct has_const_pre_step_hook_method
+  : std::false_type{};
+
+template <class T, class StepType, class IndVarType>
+struct has_const_pre_step_hook_method<
+  T, StepType, IndVarType,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T const>().preStepHook
+       (
+	std::declval<StepType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<IndVarType const &>()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+
 }}
 #endif  // PRESSIO_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
