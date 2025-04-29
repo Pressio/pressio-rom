@@ -163,6 +163,5 @@ struct has_const_discrete_residual_jacobian_method<
     >
   > : std::true_type{};
 
-
 }}
 #endif  // PRESSIO_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
