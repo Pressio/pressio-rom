@@ -57,7 +57,7 @@ public:
   void preStepHook(StepIntType sc, double time, double dt) const
   {
     // this should be called only once per time step
-    std::cout << "hook: " << sc << " " << time << " " << dt << "\n";
+    PRESSIOLOG_INFO("hook: {} {} {}\n", sc, time, dt);
 
     EXPECT_TRUE(sc <= 3);
     EXPECT_DOUBLE_EQ(dt, 2.);
