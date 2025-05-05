@@ -123,6 +123,14 @@ public:
 
     updateAuxiliaryStorage<numAuxStates>(odeState);
 
+    using sys_type = mpl::remove_cvref_t<SystemType>;
+    if constexpr (has_const_pre_step_hook_method<
+		  sys_type, typename StepCount::value_type, IndVarType
+		  >::value)
+    {
+      systemObj_.get().preStepHook(stepNumber_, stepStartVal.get(), dt_);
+    }
+
     try{
       solver.solve(*this, odeState, std::forward<Args>(args)...);
     }

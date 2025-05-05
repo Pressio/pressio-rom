@@ -66,7 +66,8 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main6.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main7.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main8.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main9.cc)
+    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main9.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main10.cc)
   add_serial_utest(${TESTING_LEVEL}_rom_lspg_unsteady ${SOURCES_LSPG_UNSTEADY})
 
   add_serial_utest(${TESTING_LEVEL}_rom_linear linear_rom.cc)

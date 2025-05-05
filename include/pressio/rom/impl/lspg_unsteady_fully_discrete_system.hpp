@@ -100,6 +100,16 @@ public:
     return J;
   }
 
+  template<class StepIntType>
+  std::enable_if_t<
+    ::pressio::ode::has_const_pre_step_hook_method<
+      mpl::remove_cvref_t<FomSystemType>, StepIntType, IndVarType
+      >::value
+    >
+  preStepHook(StepIntType stepNumber, IndVarType time, IndVarType dt) const{
+    fomSystem_.get().preStepHook(stepNumber, time, dt);
+  }
+
   template<typename step_t, std::size_t _n = n>
   std::enable_if_t< (_n==2) >
   discreteResidualAndJacobian(const step_t & currentStepNumber,
