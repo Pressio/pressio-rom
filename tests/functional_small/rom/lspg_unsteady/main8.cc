@@ -145,6 +145,7 @@ struct MyFakeSolver
 
     for (int k=1; k<=5; ++k){
       try{
+        PRESSIOLOG_INFO("solver: {}", k);
 	sys.residualAndJacobian(state, R, &J);
       }
       catch (::pressio::eh::ResidualEvaluationFailureUnrecoverable const &e){

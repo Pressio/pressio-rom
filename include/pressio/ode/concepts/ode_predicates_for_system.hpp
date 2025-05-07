@@ -162,14 +162,16 @@ struct has_const_create_discrete_jacobian_method_return_result<
   > : std::true_type{};
 
 template <
-  class T, class StepType, class IndVarType, class = void
+  class T, int n,
+  class StepType, class IndVarType, class state_t,
+  class = void
   >
 struct has_const_pre_step_hook_method
   : std::false_type{};
 
-template <class T, class StepType, class IndVarType>
+template <class T, class StepType, class IndVarType, class state_t>
 struct has_const_pre_step_hook_method<
-  T, StepType, IndVarType,
+  T, 1, StepType, IndVarType, state_t,
   std::enable_if_t<
     std::is_void<
       decltype
@@ -178,7 +180,52 @@ struct has_const_pre_step_hook_method<
        (
 	std::declval<StepType const &>(),
 	std::declval<IndVarType const &>(),
-	std::declval<IndVarType const &>()
+	std::declval<IndVarType const &>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class StepType, class IndVarType, class state_t>
+struct has_const_pre_step_hook_method<
+  T, 2, StepType, IndVarType, state_t,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T const>().preStepHook
+       (
+	std::declval<StepType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class StepType, class IndVarType, class state_t>
+struct has_const_pre_step_hook_method<
+  T, 3, StepType, IndVarType, state_t,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T const>().preStepHook
+       (
+	std::declval<StepType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>(),
+	std::declval<state_t const&>()
 	)
        )
       >::value

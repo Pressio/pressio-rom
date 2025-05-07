@@ -123,13 +123,8 @@ public:
 
     updateAuxiliaryStorage<numAuxStates>(odeState);
 
-    using sys_type = mpl::remove_cvref_t<SystemType>;
-    if constexpr (has_const_pre_step_hook_method<
-		  sys_type, typename StepCount::value_type, IndVarType
-		  >::value)
-    {
-      systemObj_.get().preStepHook(stepNumber_, stepStartVal.get(), dt_);
-    }
+    callPreStepHookIfApplicable<numAuxStates>(stepStartVal.get(), stepNumber.get(),
+					      stepSize.get(), odeState);
 
     try{
       solver.solve(*this, odeState, std::forward<Args>(args)...);
@@ -201,6 +196,78 @@ public:
   }
 
 private:
+  template<std::size_t nAux>
+  std::enable_if_t<nAux==1>
+  callPreStepHookIfApplicable
+  (IndVarType stepStartVal,
+   typename StepCount::value_type stepNumber,
+   IndVarType dt,
+   const StateType & odeState)
+  {
+    if constexpr (has_const_pre_step_hook_method<
+		  mpl::remove_cvref_t<SystemType>, nAux,
+		  typename StepCount::value_type, IndVarType, state_type
+		  >::value)
+    {
+      const auto & yn = stencilStates_(ode::n());
+      systemObj_.get().preStepHook(stepNumber, stepStartVal, dt,
+				   odeState, yn);
+    }
+  }
+
+  template<std::size_t nAux>
+  std::enable_if_t<nAux==2>
+  callPreStepHookIfApplicable
+  (IndVarType stepStartVal,
+   typename StepCount::value_type stepNumber,
+   IndVarType dt,
+   const StateType & odeState)
+  {
+    if constexpr (has_const_pre_step_hook_method<
+		  mpl::remove_cvref_t<SystemType>, nAux,
+		  typename StepCount::value_type, IndVarType, state_type
+		  >::value)
+    {
+      const auto & yn = stencilStates_(ode::n());
+      const auto & ynm1 = stencilStates_(ode::nMinusOne());
+      systemObj_.get().preStepHook(stepNumber, stepStartVal, dt,
+				   odeState, yn, ynm1);
+    }
+  }
+
+  template<std::size_t nAux>
+  std::enable_if_t<nAux==3>
+  callPreStepHookIfApplicable
+  (IndVarType stepStartVal,
+   typename StepCount::value_type stepNumber,
+   IndVarType dt,
+   const StateType & odeState)
+  {
+    if constexpr (has_const_pre_step_hook_method<
+		  mpl::remove_cvref_t<SystemType>, nAux,
+		  typename StepCount::value_type, IndVarType, state_type
+		  >::value)
+    {
+      const auto & yn = stencilStates_(ode::n());
+      const auto & ynm1 = stencilStates_(ode::nMinusOne());
+      const auto & ynm2 = stencilStates_(ode::nMinusTwo());
+      systemObj_.get().preStepHook(stepNumber, stepStartVal, dt,
+				   odeState, yn, ynm1, ynm2);
+    }
+  }
+
+  template<std::size_t nAux>
+  std::enable_if_t<nAux==4>
+  callPreStepHookIfApplicable
+  (IndVarType stepStartVal,
+   typename StepCount::value_type stepNumber,
+   IndVarType dt,
+   const StateType & odeState)
+  {
+    throw std::runtime_error("missing impl 4");
+  }
+
+
   // one aux states
   template<std::size_t nAux>
   std::enable_if_t<nAux==1>
