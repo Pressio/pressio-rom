@@ -46,7 +46,6 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main2.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main3.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main4.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main5.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main6.cc)
   add_serial_utest(${TESTING_LEVEL}_rom_galerkin_unsteady_implicit ${SOURCES_GALERKIN_UNSTEADY_IMP})
 
@@ -66,7 +65,6 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main6.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main7.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main8.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main9.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main10.cc)
   add_serial_utest(${TESTING_LEVEL}_rom_lspg_unsteady ${SOURCES_LSPG_UNSTEADY})
 

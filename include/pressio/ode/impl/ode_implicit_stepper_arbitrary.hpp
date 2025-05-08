@@ -61,6 +61,9 @@ template<
   >
 class StepperArbitrary
 {
+  static_assert(n_states == 2,
+		"StepperArbitrary currently only supports 2 total states");
+
 public:
   // required
   using independent_variable_type = IndVarType;
@@ -68,7 +71,8 @@ public:
   using residual_type	= ResidualType;
   using jacobian_type	= JacobianType;
 
-  // numAuxStates is the number of auxiliary states needed, so all other beside y_n
+  // numAuxStates is the number of **auxiliary** states needed,
+  // so total states - 1
   static constexpr std::size_t numAuxStates = n_states - 1;
   using tag_name = ::pressio::ode::ImplicitArbitrary;
   using stencil_states_t = ImplicitStencilStatesStaticContainer<StateType, numAuxStates>;
@@ -159,49 +163,7 @@ public:
     }
   }
 
-  // 2 aux states, 3 total states
-  template< std::size_t _numAuxStates = numAuxStates>
-  std::enable_if_t< _numAuxStates==2 >
-  residualAndJacobian(const state_type & odeState,
-		      residual_type & R,
-		      std::optional<jacobian_type*> Jo) const
-  {
-    const auto & yn = stencilStates_(ode::n());
-    const auto & ynm1 = stencilStates_(ode::nMinusOne());
-
-    try{
-      systemObj_.get().discreteResidualAndJacobian
-	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo,
-	 odeState, yn, ynm1);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-  }
-
-  // 3 aux states, 4 total states
-  template< std::size_t _numAuxStates = numAuxStates>
-  std::enable_if_t< _numAuxStates==3 >
-  residualAndJacobian(const state_type & odeState,
-		      residual_type & R,
-		      std::optional<jacobian_type*> Jo) const
-  {
-    const auto & yn = stencilStates_(ode::n());
-    const auto & ynm1 = stencilStates_(ode::nMinusOne());
-    const auto & ynm2 = stencilStates_(ode::nMinusTwo());
-
-    try{
-      systemObj_.get().discreteResidualAndJacobian
-	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo,
-	 odeState, yn, ynm1, ynm2);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-  }
-
 private:
-  // one aux states
   template<std::size_t nAux>
   std::enable_if_t<nAux==1>
   updateAuxiliaryStorage(const StateType & odeState)
@@ -218,56 +180,6 @@ private:
     auto & y_n = stencilStates_(ode::n());
     ::pressio::ops::deep_copy(odeState, y_n);
     ::pressio::ops::deep_copy(y_n, recoveryState_);
-  }
-
-  // two aux states
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==2>
-  updateAuxiliaryStorage(const StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    ::pressio::ops::deep_copy(recoveryState_, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_n);
-    ::pressio::ops::deep_copy(y_n, odeState);
-  }
-
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==2>
-  rollBackStates(StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    ::pressio::ops::deep_copy(odeState, y_n);
-    ::pressio::ops::deep_copy(y_n, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, recoveryState_);
-  }
-
-  // three aux states
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==3>
-  updateAuxiliaryStorage(const StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    auto & y_nm2 = stencilStates_(ode::nMinusTwo());
-    ::pressio::ops::deep_copy(recoveryState_, y_nm2);
-    ::pressio::ops::deep_copy(y_nm2, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_n);
-    ::pressio::ops::deep_copy(y_n, odeState);
-  }
-
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==3>
-  rollBackStates(StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    auto & y_nm2 = stencilStates_(ode::nMinusTwo());
-    ::pressio::ops::deep_copy(odeState, y_n);
-    ::pressio::ops::deep_copy(y_n, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_nm2);
-    ::pressio::ops::deep_copy(y_nm2, recoveryState_);
   }
 };
 

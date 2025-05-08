@@ -145,18 +145,6 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ode_steppers_implicit
     arbitrary_stepper_1_aux_state_with_step_recovery.cc "PASSED")
 
-  # arbitrary stepper 2 states, step recovery
-  add_serial_exe_and_test(
-    integrate_to_time_with_failure_arbitrary_stepper_2_aux_state
-    ode_steppers_implicit
-    arbitrary_stepper_2_aux_state_with_step_recovery.cc "PASSED")
-
-  # arbitrary stepper 3 states, step recovery
-  add_serial_exe_and_test(
-    integrate_to_time_with_failure_arbitrary_stepper_3_aux_state
-    ode_steppers_implicit
-    arbitrary_stepper_3_aux_state_with_step_recovery.cc "PASSED")
-
   add_serial_utest(ode_adjoint_logic_1
     ${CMAKE_CURRENT_SOURCE_DIR}/adjoint_logic_1.cc)
   add_serial_utest(ode_adjoint_logic_2

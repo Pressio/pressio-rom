@@ -176,13 +176,37 @@ auto create_cranknicolson_stepper(Args && ... args){
 				 std::forward<Args>(args)...);
 }
 
-
-//
-// num of states as template arg constructs the arbitrary stepper
-//
+/**
+ * Constructs and returns a stepper for doing implicit time integration on
+ * a user-defined system that conforms to Pressio's Fully Discrete
+ * API with Jacobian support.
+ *
+ * - TotalNumberOfDesiredStates:
+ *   This represents the number of discrete solution states used by the stepper.
+ *   Must be exactly 2 for now.
+ *
+ * - system:
+ *     A forwarding reference to the user-defined system. This system is passed to
+ *     the stepper and will be used during time integration to evaluate the discrete
+ *     residual and Jacobian. Forwarding preserves whether the system is an lvalue or rvalue.
+ *     Its type must conform to the RealValuedFullyDiscreteSystemWithJacobian concept.
+ *
+ * Static Assertions:
+ * - Ensures that TotalNumberOfDesiredStates is exactly 2.
+ * - system satisfies the RealValuedFullyDiscreteSystemWithJacobian concept
+ *
+ * Returns:
+ * - The stepper instance. Note that the type of this stepper is unspecified and
+ *   users should not rely on it, but should only rely on its interface.
+ *   This stepper object can be used to advance the system in
+ *   time using an implicit scheme.
+ *
+ */
 template<int TotalNumberOfDesiredStates, class SystemType>
 auto create_implicit_stepper(SystemType && system)
 {
+  static_assert(TotalNumberOfDesiredStates == 2,
+		"create_implicit_stepper currently only supports 2 total states");
 
   using system_type = mpl::remove_cvref_t<SystemType>;
   static_assert(RealValuedFullyDiscreteSystemWithJacobian<system_type, TotalNumberOfDesiredStates>::value,
