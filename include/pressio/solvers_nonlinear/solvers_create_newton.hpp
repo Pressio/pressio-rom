@@ -56,7 +56,7 @@
 #include "./impl/diagnostics.hpp"
 #include "./impl/functions.hpp"
 #include "./impl/updaters.hpp"
-#include "./impl/root_finder.cpp"
+#include "./impl/root_finder.hpp"
 
 namespace pressio{
 
