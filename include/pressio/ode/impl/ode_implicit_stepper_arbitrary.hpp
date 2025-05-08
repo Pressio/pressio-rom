@@ -68,7 +68,7 @@ public:
   using residual_type	= ResidualType;
   using jacobian_type	= JacobianType;
 
-  // numAuxStates is the number of auxiliary states needed, so all other beside y_n
+  // numAuxStates is the number of **auxiliary** states needed
   static constexpr std::size_t numAuxStates = n_states - 1;
   using tag_name = ::pressio::ode::ImplicitArbitrary;
   using stencil_states_t = ImplicitStencilStatesStaticContainer<StateType, numAuxStates>;
