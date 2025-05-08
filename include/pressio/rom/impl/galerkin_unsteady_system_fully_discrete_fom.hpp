@@ -92,36 +92,6 @@ public:
     computeReducedOperators(galerkinResidual, galerkinJacobian);
   }
 
-  template<typename step_t, std::size_t _n = n>
-  std::enable_if_t< (_n==3) >
-  discreteResidualAndJacobian(const step_t & currentStepNumber,
-			      const independent_variable_type & time_np1,
-			      const independent_variable_type & dt,
-			      discrete_residual_type & galerkinResidual,
-			      std::optional<discrete_jacobian_type *> galerkinJacobian,
-			      const state_type & galerkin_state_np1,
-			      const state_type & galerkin_state_n,
-			      const state_type & galerkin_state_nm1) const
-  {
-    doFomStatesReconstruction(currentStepNumber, galerkin_state_np1,
-			      galerkin_state_n, galerkin_state_nm1);
-
-    const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
-    const auto & yn   = fomStatesManager_(::pressio::ode::n());
-    const auto & ynm1 = fomStatesManager_(::pressio::ode::nMinusOne());
-    const bool computeJacobian = bool(galerkinJacobian);
-
-    try{
-      queryFomOperators(currentStepNumber, time_np1, dt, computeJacobian, ynp1, yn, ynm1);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-
-    computeReducedOperators(galerkinResidual, galerkinJacobian);
-  }
-
-
 private:
   template<typename step_t, class ...States>
   void queryFomOperators(const step_t & currentStepNumber,
@@ -171,13 +141,6 @@ private:
   }
 
   void doFomStatesReconstruction(const int32_t & step_number,
-				 const state_type & galerkin_state_np1) const
-  {
-    fomStatesManager_.reconstructAtWithoutStencilUpdate(galerkin_state_np1,
-							::pressio::ode::nPlusOne());
-  }
-
-  void doFomStatesReconstruction(const int32_t & step_number,
 				 const state_type & galerkin_state_np1,
 				 const state_type & galerkin_state_n) const
   {
@@ -198,15 +161,6 @@ private:
 						       ::pressio::ode::n());
       stepTracker_ = step_number;
     }
-  }
-
-  void doFomStatesReconstruction(const int32_t & step_number,
-				 const state_type & galerkin_state_np1,
-				 const state_type & galerkin_state_n,
-				 const state_type & galerkin_state_nm1) const
-  {
-    (void)galerkin_state_nm1;
-    doFomStatesReconstruction(step_number, galerkin_state_np1, galerkin_state_n);
   }
 
 protected:

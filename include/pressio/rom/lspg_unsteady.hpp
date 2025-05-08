@@ -228,6 +228,8 @@ template<
 auto create_unsteady_problem(const TrialSubspaceType & trialSpace,     /*(6)*/
 			     const FomSystemType & fomSystem)
 {
+  static_assert(TotalNumberOfDesiredStates == 2,
+		"lspg::create_unsteady_problem currently only supports 2 total states");
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;

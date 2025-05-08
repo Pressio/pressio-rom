@@ -135,41 +135,7 @@ public:
     }
   }
 
-  template<typename step_t, std::size_t _n = n>
-  std::enable_if_t< (_n==3) >
-  discreteResidualAndJacobian(const step_t & currentStepNumber,
-			      const independent_variable_type & time_np1,
-			      const independent_variable_type & dt,
-			      discrete_residual_type & R,
-			      std::optional<discrete_jacobian_type*> Jo,
-			      const state_type & lspg_state_np1,
-			      const state_type & lspg_state_n,
-			      const state_type & lspg_state_nm1) const
-  {
-    doFomStatesReconstruction(currentStepNumber, lspg_state_np1,
-			      lspg_state_n, lspg_state_nm1);
-    const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
-    const auto & yn   = fomStatesManager_(::pressio::ode::n());
-    const auto & ynm1 = fomStatesManager_(::pressio::ode::nMinusOne());
-    const auto phi = trialSubspace_.get().basisOfTranslatedSpace();
-
-    try{
-      fomSystem_.get().discreteTimeResidualAndJacobianAction(currentStepNumber, time_np1, dt,
-							     R, phi, Jo, ynp1, yn, ynm1);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-  }
-
 private:
-  void doFomStatesReconstruction(const int32_t & step_number,
-				 const state_type & lspg_state_np1) const
-  {
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
-							   ::pressio::ode::nPlusOne());
-  }
-
   void doFomStatesReconstruction(const int32_t & step_number,
 				 const state_type & lspg_state_np1,
 				 const state_type & lspg_state_n) const
@@ -191,15 +157,6 @@ private:
 							  ::pressio::ode::n());
       stepTracker_ = step_number;
     }
-  }
-
-  void doFomStatesReconstruction(const int32_t & step_number,
-				 const state_type & lspg_state_np1,
-				 const state_type & lspg_state_n,
-				 const state_type & lspg_state_nm1) const
-  {
-    (void)lspg_state_nm1;
-    doFomStatesReconstruction(step_number, lspg_state_np1, lspg_state_n);
   }
 
 protected:
