@@ -54,7 +54,9 @@ public:
   }
 
   template<class StepIntType>
-  void preStepHook(StepIntType sc, double time, double dt) const
+  void preStepHook(StepIntType sc, double time, double dt, 
+                   const state_type & /*unused*/,
+                   const state_type & /*unused*/) const
   {
     // this should be called only once per time step
     PRESSIOLOG_INFO("hook: {} {} {}\n", sc, time, dt);

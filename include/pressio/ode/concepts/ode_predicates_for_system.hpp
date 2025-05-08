@@ -161,15 +161,17 @@ struct has_const_create_discrete_jacobian_method_return_result<
     >
   > : std::true_type{};
 
+
 template <
-  class T, class StepType, class IndVarType, class = void
+  class T, int numStates, class StepType, class IndVarType, class StateType,
+  class = void
   >
 struct has_const_pre_step_hook_method
   : std::false_type{};
 
-template <class T, class StepType, class IndVarType>
+template <class T, class StepType, class IndVarType, class StateType>
 struct has_const_pre_step_hook_method<
-  T, StepType, IndVarType,
+  T, 2, StepType, IndVarType, StateType,
   std::enable_if_t<
     std::is_void<
       decltype
@@ -178,7 +180,9 @@ struct has_const_pre_step_hook_method<
        (
 	std::declval<StepType const &>(),
 	std::declval<IndVarType const &>(),
-	std::declval<IndVarType const &>()
+	std::declval<IndVarType const &>(),
+	std::declval<StateType const&>(),
+	std::declval<StateType const&>()
 	)
        )
       >::value

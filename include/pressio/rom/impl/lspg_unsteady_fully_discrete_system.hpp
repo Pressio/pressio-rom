@@ -64,6 +64,7 @@ class LspgFullyDiscreteSystem
 {
   using raw_step_type = typename ::pressio::ode::StepCount::value_type;
   static_assert(std::is_signed<raw_step_type>::value, "");
+  using fom_state_type = typename TrialSubspaceType::full_state_type;
 
 public:
   // required
@@ -100,14 +101,28 @@ public:
     return J;
   }
 
-  template<class StepIntType>
-  std::enable_if_t<
-    ::pressio::ode::has_const_pre_step_hook_method<
-      mpl::remove_cvref_t<FomSystemType>, StepIntType, IndVarType
-      >::value
-    >
-  preStepHook(StepIntType stepNumber, IndVarType time, IndVarType dt) const{
-    fomSystem_.get().preStepHook(stepNumber, time, dt);
+  template<class StepIntType, std::size_t _n = n>
+  std::enable_if_t< (_n == 2)>
+  preStepHook(StepIntType stepNumber,
+	      IndVarType time, IndVarType dt,
+	      const state_type & lspg_state_np1,
+	      const state_type & lspg_state_n) const
+  {
+    /* this method is called once before starting a step, so we need to update
+       the proposed state and the previous state */
+    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
+     							      ::pressio::ode::nPlusOne());
+    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_n,
+							      ::pressio::ode::n());
+
+    static constexpr bool hashook = ::pressio::ode::has_const_pre_step_hook_method<
+      mpl::remove_cvref_t<FomSystemType>, _n, StepIntType, IndVarType, fom_state_type
+      >::value;
+    if constexpr(hashook){
+      const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
+      const auto & yn   = fomStatesManager_(::pressio::ode::n());
+      fomSystem_.get().preStepHook(stepNumber, time, dt, ynp1, yn);
+    }
   }
 
   template<typename step_t, std::size_t _n = n>
@@ -120,7 +135,16 @@ public:
 			      const state_type & lspg_state_np1,
 			      const state_type & lspg_state_n) const
   {
-    doFomStatesReconstruction(currentStepNumber, lspg_state_np1, lspg_state_n);
+    /* the FOM state corresponding to the new predicted state has to be
+     * recomputed every time since this method is called at every update
+     * of the solution inside a non-linear solve loop
+     * Note that here we don't reconstruct at "n" because that state was
+     * reconstructed inside the preStepHook and has not changed inside the
+     * solver loop
+     */
+    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
+							      ::pressio::ode::nPlusOne());
+
     const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
     const auto & yn   = fomStatesManager_(::pressio::ode::n());
     const auto phi = trialSubspace_.get().basisOfTranslatedSpace();
@@ -135,36 +159,7 @@ public:
     }
   }
 
-private:
-  void doFomStatesReconstruction(const int32_t & step_number,
-				 const state_type & lspg_state_np1,
-				 const state_type & lspg_state_n) const
-  {
-    /* the FOM state corresponding to the new predicted state has to be
-     * recomputed every time regardless of the time step chaning or not,
-     *  since we might be inside a non-linear solve
-     * where the time step does not change but this residual method
-     * is called multiple times. */
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
-							   ::pressio::ode::nPlusOne());
-
-    /* previous FOM states should only be recomputed when the time step changes.
-     * The method below does not recompute all previous states, but only
-     * recomputes the n-th state and updates/shifts back all the other
-     * FOM states stored. */
-    if (stepTracker_ != step_number){
-      fomStatesManager_.get().reconstructAtWithStencilUpdate(lspg_state_n,
-							  ::pressio::ode::n());
-      stepTracker_ = step_number;
-    }
-  }
-
 protected:
-  // storedStep is used to keep track of which step we are at.
-  // used to decide if we need to update/recompute the previous FOM states or not.
-  // To avoid recomputing previous FOM states if we are not in a new time step.
-  mutable raw_step_type stepTracker_ = -1;
-
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
   std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;

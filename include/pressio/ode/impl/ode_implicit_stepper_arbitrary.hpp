@@ -78,9 +78,13 @@ public:
   using stencil_states_t = ImplicitStencilStatesStaticContainer<StateType, numAuxStates>;
 
 private:
-  IndVarType rhsEvaluationTime_  = {};
-  IndVarType dt_ = {};
   typename StepCount::value_type stepNumber_  = {};
+  IndVarType dt_ = {};
+  // for implicit integration, the time at the start of a step is
+  // not equal to the time needed to evalaute the residual/jacobian.
+  // so we keep track of both
+  IndVarType timeAtStepStart_  = {};
+  IndVarType rhsEvaluationTime_  = {};
 
   ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
   stencil_states_t stencilStates_;
@@ -121,19 +125,17 @@ public:
 		  Args && ...args)
   {
     PRESSIOLOG_DEBUG("arbitrary stepper: do step");
-    dt_ = stepSize.get();
-    rhsEvaluationTime_ = stepStartVal.get() + dt_;
-    stepNumber_ = stepNumber.get();
 
+    // cache things before starting the step
+    stepNumber_ = stepNumber.get();
+    dt_ = stepSize.get();
+    timeAtStepStart_ = stepStartVal.get();
+    rhsEvaluationTime_ = stepStartVal.get() + dt_;
+
+    // need to update auxiliary things **before** starting the step
     updateAuxiliaryStorage<numAuxStates>(odeState);
 
-    using sys_type = mpl::remove_cvref_t<SystemType>;
-    if constexpr (has_const_pre_step_hook_method<
-		  sys_type, typename StepCount::value_type, IndVarType
-		  >::value)
-    {
-      systemObj_.get().preStepHook(stepNumber_, stepStartVal.get(), dt_);
-    }
+    callPreStepHookIfApplicable(odeState);
 
     try{
       solver.solve(*this, odeState, std::forward<Args>(args)...);
@@ -164,6 +166,19 @@ public:
   }
 
 private:
+  void callPreStepHookIfApplicable(const StateType & odeState)
+  {
+    if constexpr (numAuxStates == 1 && has_const_pre_step_hook_method<
+		  mpl::remove_cvref_t<SystemType>, n_states,
+		  typename StepCount::value_type, IndVarType, state_type
+		  >::value)
+    {
+      const auto & yn = stencilStates_(ode::n());
+      systemObj_.get().preStepHook(stepNumber_, timeAtStepStart_, dt_,
+				   odeState, yn);
+    }
+  }
+
   template<std::size_t nAux>
   std::enable_if_t<nAux==1>
   updateAuxiliaryStorage(const StateType & odeState)
