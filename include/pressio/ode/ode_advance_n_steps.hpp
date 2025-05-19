@@ -50,7 +50,6 @@
 #define PRESSIO_ODE_ODE_ADVANCE_N_STEPS_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
-#include "./impl/ode_advance_noop_guesser.hpp"
 #include "./impl/ode_advance_n_steps.hpp"
 #include "./impl/ode_advance_mandates.hpp"
 
@@ -70,10 +69,9 @@ advance_n_steps(StepperType & stepper,
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state,
-				      observer_t(), guesser_t());
+				      observer_t());
 }
 
 //
@@ -98,10 +96,9 @@ advance_n_steps(StepperType & stepper,
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       observer_t(), guesser_t());
+				       observer_t());
 }
 
 //
@@ -126,11 +123,9 @@ advance_n_steps(StepperType & stepper,
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state,
-				      std::forward<ObserverType>(observer),
-				      guesser_t());
+				      std::forward<ObserverType>(observer));
 }
 
 //
@@ -156,11 +151,9 @@ advance_n_steps(StepperType & stepper,
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       std::forward<ObserverType>(observer),
-				       guesser_t());
+				       std::forward<ObserverType>(observer));
 }
 
 }} //end namespace pressio::ode
