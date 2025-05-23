@@ -82,28 +82,6 @@ struct StateObserver<
     >
   > : std::true_type{};
 
-template <class T, class IndVarType, class StateType, class enable = void>
-struct StateGuesser : std::false_type{};
-
-template <class T, class IndVarType, class StateType>
-struct StateGuesser<
-  T, IndVarType, StateType,
-  std::enable_if_t<
-    std::is_void<
-      decltype(
-	       std::declval<T>()
-	       (
-		std::declval< ::pressio::ode::StepCount >(),
-		std::declval< ::pressio::ode::StepStartAt<IndVarType> >(),
-		std::declval<StateType &>()
-		)
-	       )
-      >::value
-    //&& impl::guesser_taking_state_by_ref<T, IndVarType, StateType>::value
-    >
-  > : std::true_type{};
-
-
 template <class T, class IndVarType, class Enable = void>
 struct StepSizePolicy : std::false_type{};
 

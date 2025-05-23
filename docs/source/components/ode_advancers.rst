@@ -6,10 +6,8 @@
     :maxdepth: 1
 
     ode_advance_n_steps
-    ode_advance_n_steps_with_pre_step_guesser
     ode_advance_to_target_point
     ode_advance_to_target_point_with_step_recovery
-
 
 
 .. `Free functions implementing various strategies
