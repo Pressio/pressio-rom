@@ -90,7 +90,7 @@ API
    - the return value is an instance of class representing an unsteady LSPG problem.
 
        The return type is implementation defined, but guaranteed to
-       model the ``SteppableWithAuxiliaryArgs`` concept
+       model the ``ImplicitStepper`` concept
        discussed `here <ode_concepts/c7.html>`__.
 
      This means that the purely syntactical API of the problem class is:

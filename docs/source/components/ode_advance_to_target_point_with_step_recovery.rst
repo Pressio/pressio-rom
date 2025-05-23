@@ -19,7 +19,7 @@ API
      class StepSizePolicyType,
      class IndVarType>
    #ifdef PRESSIO_ENABLE_CXX20
-     requires StronglySteppable<StepperType>
+     requires ExplicitStepper<StepperType>
 	   && StepSizePolicyWithReductionScheme<StepSizePolicyType, IndVarType>
    #endif
    void advance_to_target_point_with_step_recovery(StepperType & stepper,          (1)
@@ -35,7 +35,7 @@ API
      class ObserverType,
      class IndVarType>
    #ifdef PRESSIO_ENABLE_CXX20
-     requires StronglySteppable<StepperType>
+     requires ExplicitStepper<StepperType>
 	   && StepSizePolicyWithReductionScheme<StepSizePolicyType, IndVarType>
 	   && StateObserver<ObserverType&&, IndVarType, StateType>::value
    #endif
@@ -54,7 +54,7 @@ API
      class AuxT,
      class ...Args>
    #ifdef PRESSIO_ENABLE_CXX20
-     requires StronglySteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+     requires ImplicitStepper<StepperType, AuxT, Args...>
            && StepSizePolicyWithReductionScheme<StepSizePolicyType, IndVarType>
 	   && (!StateObserver<AuxT, IndVarType, StateType>)
    #endif
@@ -75,7 +75,7 @@ API
      class AuxT,
      class ...Args>
    #ifdef PRESSIO_ENABLE_CXX20
-     requires StronglySteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+     requires ImplicitStepper<StepperType, AuxT, Args...>
            && StepSizePolicyWithReductionScheme<StepSizePolicyType, IndVarType>
 	   && StateObserver<ObserverType, IndVarType, StateType>
    void

@@ -148,7 +148,7 @@ API
    - the return is an instance of class representing an *explicit* Galerkin problem.
 
        The return type is implementation defined, but guaranteed to
-       model the ``Steppable`` concept discussed `here <ode_concepts/c6.html>`__.
+       model the ``ExplicitStepper`` concept discussed `here <ode_concepts/c6.html>`__.
 
 
    - Purely syntactically, the problem class API is:
@@ -181,7 +181,7 @@ API
    Solve the problem
    -----------------
 
-   An unsteady explicit Galerkin problem satisfies the "steppable" concept
+   An unsteady explicit Galerkin problem satisfies the "ExplicitStepper" concept
    discussed `here <ode_concepts/c6.html>`__, therefore you can step it in time.
    To do so, you can use the ``advance_*`` functions in ``pressio/ode`` as shown below,
    or you can set up your own time stepping loop.
@@ -225,7 +225,7 @@ API
 	using time_type = typename fom_t::time_type;
 	const time_type dt = /*set time step size*/;
 	ReducedStateObserver<decltype(romState)> observer;
-	pode::advance_n_steps(problem,              /*the problem is our steppable object*/
+	pode::advance_n_steps(problem,              /*the problem is our ExplicitStepper object*/
 			      romState,             /*the state to evolve in time*/
 			      time_type{0},         /*start at time = 0*/
 			      dt,                   /*the time step size*/

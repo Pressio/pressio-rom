@@ -5,10 +5,10 @@
 namespace pressio{ namespace ode{
 
 template <class T, class = void>
-struct Steppable : std::false_type{};
+struct ExplicitStepper : std::false_type{};
 
 template <class T>
-struct Steppable<
+struct ExplicitStepper<
   T,
   std::enable_if_t<
     ::pressio::has_independent_variable_typedef<T>::value
@@ -30,10 +30,10 @@ struct Steppable<
   > : std::true_type{};
 
 template <class T, class AuxT, class ...Args>
-struct SteppableWithAuxiliaryArgs : std::false_type{};
+struct ImplicitStepper : std::false_type{};
 
 template <class T, class AuxT, class ...Args>
-struct SteppableWithAuxiliaryArgs<
+struct ImplicitStepper<
   std::enable_if_t<
     ::pressio::has_independent_variable_typedef<T>::value
     && ::pressio::has_state_typedef<T>::value
@@ -54,12 +54,6 @@ struct SteppableWithAuxiliaryArgs<
     >,
   T, AuxT, Args...
   > : std::true_type{};
-
-template <class T>
-using StronglySteppable = Steppable<T>;
-
-template <class T, class AuxT, class ...Args>
-using StronglySteppableWithAuxiliaryArgs = SteppableWithAuxiliaryArgs<T, AuxT, Args...>;
 
 
 template <class T, class IndVarType, class StateType, class enable = void>
