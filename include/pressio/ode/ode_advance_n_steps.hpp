@@ -59,7 +59,7 @@ namespace pressio{ namespace ode{
 // const dt
 //
 template<class StepperType, class StateType, class IndVarType>
-std::enable_if_t< Steppable<StepperType>::value >
+std::enable_if_t< ExplicitStepper<StepperType>::value >
 advance_n_steps(StepperType & stepper,
 		StateType & state,
 		const IndVarType & startVal,
@@ -84,7 +84,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-  Steppable<StepperType>::value
+  ExplicitStepper<StepperType>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
 >
 advance_n_steps(StepperType & stepper,
@@ -111,7 +111,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-  Steppable<StepperType>::value
+  ExplicitStepper<StepperType>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
 >
 advance_n_steps(StepperType & stepper,
@@ -138,7 +138,7 @@ template<
   class StepSizePolicyType,
   class IndVarType>
 std::enable_if_t<
-     Steppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
 >
