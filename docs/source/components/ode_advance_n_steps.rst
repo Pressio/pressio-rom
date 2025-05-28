@@ -21,7 +21,7 @@ API
     class StateType,
     class IndVarType>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires Steppable<StepperType>
+    requires ExplicitStepper<StepperType>
   #endif
   void advance_n_steps(StepperType & stepper,                        (1)
 		       StateType & state,
@@ -35,7 +35,7 @@ API
     class IndVarType,
     class StepSizePolicyType>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires Steppable<StepperType>
+    requires ExplicitStepper<StepperType>
 	  && StepSizePolicy<StepSizePolicyType, IndVarType>
   #endif
   void advance_n_steps(StepperType & stepper,                        (2)
@@ -50,7 +50,7 @@ API
     class IndVarType,
     class ObserverType>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires Steppable<StepperType>
+    requires ExplicitStepper<StepperType>
 	  && StateObserver<ObserverType,IndVarType, StateType>
   #endif
   void advance_n_steps(StepperType & stepper,                        (3)
@@ -67,7 +67,7 @@ API
     class StepSizePolicyType,
     class ObserverType>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires Steppable<StepperType>
+    requires ExplicitStepper<StepperType>
 	  && StepSizePolicy<StepSizePolicyType, IndVarType>
 	  && StateObserver<ObserverType, IndVarType, StateType>
   #endif
@@ -85,7 +85,7 @@ API
     class AuxT,
     class ...Args>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires SteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+    requires ImplicitStepper<StepperType, AuxT, Args...>
   #endif
   void advance_n_steps(StepperType & stepper,                        (5)
 		       StateType & state,
@@ -103,7 +103,7 @@ API
     class AuxT,
     class ...Args>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires SteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+    requires ImplicitStepper<StepperType, AuxT, Args...>
 	  && StepSizePolicy<StepSizePolicyType, IndVarType>
   #endif
   void advance_n_steps(StepperType & stepper,                        (6)
@@ -122,7 +122,7 @@ API
     class AuxT,
     class ...Args>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires SteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+    requires ImplicitStepper<StepperType, AuxT, Args...>
 	  && StateObserver<ObserverType, IndVarType, StateType>
   #endif
   void advance_n_steps(StepperType & stepper,                        (7)
@@ -143,7 +143,7 @@ API
     class AuxT,
     class ...Args>
   #ifdef PRESSIO_ENABLE_CXX20
-    requires SteppableWithAuxiliaryArgs<StepperType, AuxT, Args...>
+    requires ImplicitStepper<StepperType, AuxT, Args...>
 	  && StepSizePolicy<StepSizePolicyType, IndVarType>
 	  && StateObserver<ObserverType, IndVarType, StateType>
   #endif
@@ -250,7 +250,7 @@ Postconditions and Side Effects
 ..   upon construction, and so the stepper would already have access to them
 ..   when its ``operator()`` is called.
 ..   This is true *if* there is a valid reason for making these auxiliary object
-..   data members of the steppable class.
+..   data members of the ExplicitStepper class.
 ..   The problem with this approach is that the stepper would need to know
 ..   about all theses other types, and this creates a very tight
 ..   coupling between different objects,
@@ -269,7 +269,7 @@ Postconditions and Side Effects
 
 .. .. code-block:: cpp
 
-..    struct SteppableClass
+..    struct ExplicitStepperClass
 ..    {
 ..      template<class AuxiliaryType>
 ..      void operator()(StateType & state,
@@ -305,7 +305,7 @@ Postconditions and Side Effects
 
 ..    int main()
 ..    {
-..      SteppableClass stepper;
+..      ExplicitStepperClass stepper;
 ..      run<Foo>();
 ..      run<Bar>();
 ..    }

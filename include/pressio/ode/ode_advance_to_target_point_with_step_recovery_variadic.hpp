@@ -60,21 +60,21 @@ template<
   class StateType,
   class StepSizePolicyType,
   class IndVarType,
-  class AuxT,
-  class ...Args
+  class SolverType,
+  class ...SolverArgs
   >
 std::enable_if_t<
-     StronglySteppableWithAuxiliaryArgs<void, StepperType, AuxT&&, Args&&...>::value
+     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
-  && !StateObserver<AuxT&&, IndVarType, StateType>::value
+  && !StateObserver<SolverType&&, IndVarType, StateType>::value
   >
 advance_to_target_point_with_step_recovery(StepperType & stepper,
 					  StateType & state,
 					  const IndVarType & startVal,
 					  const IndVarType & finalVal,
 					  StepSizePolicyType && stepSizePolicy,
-					  AuxT && auxArg,
-					  Args && ... args)
+					  SolverType && solver,
+					  SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
@@ -84,8 +84,8 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 	   finalVal, state,
 	   std::forward<StepSizePolicyType>(stepSizePolicy),
 	   observer_t(),
-	   std::forward<AuxT>(auxArg),
-	   std::forward<Args>(args)...);
+	   std::forward<SolverType>(solver),
+	   std::forward<SolverArgs>(solverArgs)...);
 }
 
 template<
@@ -94,11 +94,11 @@ template<
   class StepSizePolicyType,
   class ObserverType,
   class IndVarType,
-  class AuxT,
-  class ...Args
+  class SolverType,
+  class ...SolverArgs
   >
 std::enable_if_t<
-     StronglySteppableWithAuxiliaryArgs<void, StepperType, AuxT&&, Args&&...>::value
+     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && StateObserver<ObserverType&&, IndVarType, StateType>::value
   >
@@ -108,8 +108,8 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 					  const IndVarType & finalVal,
 					  StepSizePolicyType && stepSizePolicy,
 					  ObserverType && observer,
-					  AuxT && auxArg,
-					  Args && ... args)
+					  SolverType && solver,
+					  SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
@@ -118,8 +118,8 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 	   finalVal, state,
 	   std::forward<StepSizePolicyType>(stepSizePolicy),
 	   std::forward<ObserverType>(observer),
-	   std::forward<AuxT>(auxArg),
-	   std::forward<Args>(args)...);
+	   std::forward<SolverType>(solver),
+	   std::forward<SolverArgs>(solverArgs)...);
 }
 
 }}//end namespace pressio::ode

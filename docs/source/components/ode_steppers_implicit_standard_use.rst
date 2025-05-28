@@ -151,7 +151,7 @@ Examples
 
    The stepper created using the functions satisfies two concepts:
 
-   - the ``SteppableWithAuxiliaryArgs`` concept discussed `here <ode_concepts/c7.html>`__.
+   - the ``ImplicitStepper`` concept discussed `here <ode_concepts/c7.html>`__.
 
    - the ``SystemWithFusedResidualAndJacobian`` concept discussed `here <nonlinearsolvers_concepts/c2.html>`__.
 

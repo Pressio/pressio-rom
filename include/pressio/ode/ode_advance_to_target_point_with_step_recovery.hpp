@@ -62,7 +62,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-     StronglySteppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType &&, IndVarType>::value
   >
 advance_to_target_point_with_step_recovery(StepperType & stepper,
@@ -89,7 +89,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-     StronglySteppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && StateObserver<ObserverType&&, IndVarType, StateType>::value
   >
