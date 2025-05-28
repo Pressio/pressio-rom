@@ -46,8 +46,31 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_SOLVER_HPP_
-#define PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_SOLVER_HPP_
+#ifndef PRESSIO_SOLVERS_LINEAR_SOLVERS_PUBLIC_API_HPP_
+#define PRESSIO_SOLVERS_LINEAR_SOLVERS_PUBLIC_API_HPP_
+
+// the following tags are defined here so that they are visible
+// by the impl headers included below
+namespace pressio{ namespace linearsolvers{
+
+namespace iterative{
+struct CG {};
+struct LSCG {};
+struct Bicgstab {};
+struct GMRES{};
+}
+
+namespace direct{
+struct HouseholderQR {};
+struct ColPivHouseholderQR {};
+struct PartialPivLU {};
+struct potrsL {};
+struct potrsU {};
+struct getrs{};
+struct geqrf{};
+}
+
+}} // end namespace pressio::linearsolver
 
 #include "./impl/solvers_linear_traits.hpp"
 #include "./impl/solvers_linear_solver_selector_impl.hpp"
@@ -58,4 +81,4 @@ template<typename TagType, typename MatrixType, typename ... Args>
 using Solver = typename impl::Selector<TagType, MatrixType, Args...>::type;
 
 }}
-#endif  // PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_SOLVER_HPP_
+#endif

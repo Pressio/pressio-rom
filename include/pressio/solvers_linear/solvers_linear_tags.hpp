@@ -49,25 +49,25 @@
 #ifndef PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_TAGS_HPP_
 #define PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_TAGS_HPP_
 
-namespace pressio{ namespace linearsolvers{
+// namespace pressio{ namespace linearsolvers{
 
-namespace iterative{
-struct CG {};
-struct LSCG {};
-struct Bicgstab {};
-struct GMRES{};
-}
+// namespace iterative{
+// struct CG {};
+// struct LSCG {};
+// struct Bicgstab {};
+// struct GMRES{};
+// }
 
-namespace direct{
-struct HouseholderQR {};
-struct ColPivHouseholderQR {};
-struct PartialPivLU {};
-struct potrsL {};
-struct potrsU {};
-struct getrs{};
-struct geqrf{};
-}
+// namespace direct{
+// struct HouseholderQR {};
+// struct ColPivHouseholderQR {};
+// struct PartialPivLU {};
+// struct potrsL {};
+// struct potrsU {};
+// struct getrs{};
+// struct geqrf{};
+// }
 
-}}
+// }}
 
 #endif  // PRESSIO_SOLVERS_LINEAR_SOLVERS_LINEAR_TAGS_HPP_
