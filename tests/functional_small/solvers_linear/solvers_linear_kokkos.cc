@@ -37,7 +37,7 @@ TEST(solvers_linear_kokkos, dense_getrs)
   using linear_solver_t = pressio::linearsolvers::Solver<solver_tag, k2d_d>;
   linear_solver_t lsObj;
   k1d_d x_d("xd", Nr);
-  lsObj.solveAllowMatOverwrite(A_d, b_d, x_d);
+  lsObj.solve(A_d, b_d, x_d);
 
   // create host of solution
   k1d_h x_h("xh", Nc);
@@ -100,7 +100,7 @@ TEST(solvers_linear_kokkos, dense_geqrf)
   using solver_tag   = pressio::linearsolvers::direct::geqrf;
   using linear_solver_t = pressio::linearsolvers::Solver<solver_tag, k2d_d>;
   linear_solver_t lsObj;
-  lsObj.solveAllowMatOverwrite(A_d, b_d, x_d);
+  lsObj.solve(A_d, b_d, x_d);
 
   // create host of solution
   k1d_h x_h("xh", Nc);

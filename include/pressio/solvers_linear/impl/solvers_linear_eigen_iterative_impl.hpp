@@ -54,64 +54,47 @@
 namespace pressio { namespace linearsolvers{ namespace impl{
 
 template<typename TagType, typename MatrixType>
-class EigenIterative
-  : public IterativeBase< EigenIterative<TagType, MatrixType>>
+class EigenIterativeWrapper
+  : public IterativeBase< EigenIterativeWrapper<TagType, MatrixType>>
 {
 
 public:
   using matrix_type	= MatrixType;
   using scalar_type        = typename MatrixType::Scalar;
-  using this_type          = EigenIterative<TagType, MatrixType>;
+  using this_type          = EigenIterativeWrapper<TagType, MatrixType>;
   using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
   using native_solver_type = typename solver_traits::template eigen_solver_type<matrix_type>;
   using base_iterative_type  = IterativeBase<this_type>;
   using iteration_type = typename base_iterative_type::iteration_type;
 
   static_assert( solver_traits::eigen_enabled == true,
-		 "the native solver must be from Eigen to use in EigenIterative");
+		 "the native solver must be from Eigen to use in EigenIterativeWrapper");
   static_assert( solver_traits::direct == false,
-		 "The native eigen solver must be iterative to use in EigenIterative");
+		 "The native eigen solver must be iterative to use in EigenIterativeWrapper");
 
 
 public:
-  iteration_type numIterationsExecuted() const
-  {
+  iteration_type numIterationsExecuted() const{
     return mysolver_.iterations();
   }
 
-  scalar_type finalError() const
-  {
+  scalar_type finalError() const{
     return mysolver_.error();
   }
 
-  void resetLinearSystem(const MatrixType& A)
-  {
-    mysolver_.setMaxIterations(this->maxIters_);
-    mysolver_.compute(A);
-  }
-
   template <typename T>
-  void solve(const T& b, T & y)
-  {
+  void solve(const MatrixType & A, const T& b, T & y){
+    this->resetLinearSystem(A);
     mysolver_.setMaxIterations(this->maxIters_);
     y = mysolver_.solve(b);
   }
 
-  template <typename T>
-  void solve(const MatrixType & A, const T& b, T & y)
-  {
-    this->resetLinearSystem(A);
-    this->solve(b, y);
-  }
-
-  template <typename T>
-  void solveAllowMatOverwrite(MatrixType & A, const T& b, T & y)
-  {
-    this->resetLinearSystem(A);
-    this->solve(b, y);
-  }
-
 private:
+  void resetLinearSystem(const MatrixType& A){
+    mysolver_.setMaxIterations(this->maxIters_);
+    mysolver_.compute(A);
+  }
+
   friend base_iterative_type;
   native_solver_type mysolver_ = {};
 };
