@@ -71,7 +71,6 @@ public:
     "the native eigen solver must be direct to use in EigenDirect");
 
 public:
-
   template <typename T>
   void solve(const T& b, T & y) {
     y = mysolver_.solve(b);
