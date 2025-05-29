@@ -83,15 +83,10 @@ public:
   }
 
   template <typename T>
-  void solve(const T& b, T & y){
-    mysolver_.setMaxIterations(this->maxIters_);
-    y = mysolver_.solve(b);
-  }
-
-  template <typename T>
   void solve(const MatrixType & A, const T& b, T & y){
     this->resetLinearSystem(A);
-    this->solve(b, y);
+    mysolver_.setMaxIterations(this->maxIters_);
+    y = mysolver_.solve(b);
   }
 
 private:
