@@ -77,7 +77,7 @@ struct Selector<
 {
   using tag_t = iterative::GMRES;
   using solver_traits = ::pressio::linearsolvers::Traits<tag_t>;
-  using type = EigenIterativeMatrixFree<tag_t, UserDefinedLinearOperatorType>;
+  using type = EigenIterativeMatrixFreeWrapper<tag_t, UserDefinedLinearOperatorType>;
 };
 
 template<typename TagType, typename MatrixType>
@@ -91,7 +91,7 @@ struct Selector<
   >
 {
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenIterative<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::EigenIterativeWrapper<TagType, MatrixType>;
 };
 
 template<typename TagType, typename MatrixType>
@@ -104,7 +104,7 @@ struct Selector<
   >
 {
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenDirect<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::EigenDirectWrapper<TagType, MatrixType>;
 };
 #endif
 
