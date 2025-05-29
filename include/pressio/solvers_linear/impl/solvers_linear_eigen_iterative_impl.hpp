@@ -74,44 +74,32 @@ public:
 
 
 public:
-  iteration_type numIterationsExecuted() const
-  {
+  iteration_type numIterationsExecuted() const{
     return mysolver_.iterations();
   }
 
-  scalar_type finalError() const
-  {
+  scalar_type finalError() const{
     return mysolver_.error();
   }
 
-  void resetLinearSystem(const MatrixType& A)
-  {
-    mysolver_.setMaxIterations(this->maxIters_);
-    mysolver_.compute(A);
-  }
-
   template <typename T>
-  void solve(const T& b, T & y)
-  {
+  void solve(const T& b, T & y){
     mysolver_.setMaxIterations(this->maxIters_);
     y = mysolver_.solve(b);
   }
 
   template <typename T>
-  void solve(const MatrixType & A, const T& b, T & y)
-  {
-    this->resetLinearSystem(A);
-    this->solve(b, y);
-  }
-
-  template <typename T>
-  void solveAllowMatOverwrite(MatrixType & A, const T& b, T & y)
-  {
+  void solve(const MatrixType & A, const T& b, T & y){
     this->resetLinearSystem(A);
     this->solve(b, y);
   }
 
 private:
+  void resetLinearSystem(const MatrixType& A){
+    mysolver_.setMaxIterations(this->maxIters_);
+    mysolver_.compute(A);
+  }
+
   friend base_iterative_type;
   native_solver_type mysolver_ = {};
 };

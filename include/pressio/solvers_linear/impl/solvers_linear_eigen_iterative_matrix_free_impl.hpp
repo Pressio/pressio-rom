@@ -193,13 +193,6 @@ public:
     return mysolver_.error();
   }
 
-  void resetLinearSystem(const UserDefinedLinearOperatorType& A)
-  {
-    mysolver_.setMaxIterations(this->maxIters_);
-    m_wrapper.replace(A);
-    mysolver_.compute(m_wrapper);
-  }
-
   template <typename T>
   void solve(const T& b, T & y){
     mysolver_.setMaxIterations(this->maxIters_);
@@ -213,6 +206,12 @@ public:
   }
 
 private:
+  void resetLinearSystem(const UserDefinedLinearOperatorType& A){
+    mysolver_.setMaxIterations(this->maxIters_);
+    m_wrapper.replace(A);
+    mysolver_.compute(m_wrapper);
+  }
+
   friend base_iterative_type;
   native_solver_type mysolver_ = {};
   op_wrapper_t m_wrapper;

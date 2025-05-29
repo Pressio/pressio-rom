@@ -71,9 +71,6 @@ public:
     "the native eigen solver must be direct to use in EigenDirect");
 
 public:
-  void resetLinearSystem(const MatrixType& A) {
-    mysolver_.compute(A);
-  }
 
   template <typename T>
   void solve(const T& b, T & y) {
@@ -86,13 +83,11 @@ public:
     this->solve(b, y);
   }
 
-  template <typename T>
-  void solveAllowMatOverwrite(MatrixType & A, const T& b, T & y) {
-    this->resetLinearSystem(A);
-    this->solve(b, y);
+private:
+  void resetLinearSystem(const MatrixType& A) {
+    mysolver_.compute(A);
   }
 
-private:
   native_solver_type mysolver_ = {};
 };
 
