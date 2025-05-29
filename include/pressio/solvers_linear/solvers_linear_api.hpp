@@ -125,7 +125,6 @@ struct geqrf{};
  * Do not rely on the name, namespace, or structure of
  * the underlying implementation class.
  *
- /*
  * --------------------------
  * Common API of Implementation Classes
  * --------------------------
