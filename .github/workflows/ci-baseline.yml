@@ -56,13 +56,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout pressio examples
-        uses: actions/checkout@v4
-        with:
-          repository: Pressio/pressio-templates-usage-as-library
-          path: examples
-          ref: main
-
       - name: Checkout pressio-log
         uses: actions/checkout@v4
         with:
@@ -77,6 +70,26 @@ jobs:
           path: pressio-ops
           ref: develop
 
+      - name: Examples, create files
+        run: |
+          mkdir examples
+          #
+          echo '#include <pressio-log/core.hpp>
+          int main() {
+          PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::info, pressiolog::LogTo::console, "log.txt");
+          double a = 1.;
+          PRESSIOLOG_INFO("pressio log message, {:3}", a);
+          PRESSIOLOG_FINALIZE();
+          }' > examples/main.cpp
+          #
+          echo '#define PRESSIO_ENABLE_TPL_EIGEN\n#define PRESSIO_ENABLE_DEBUG_PRINT\n#include <pressio-log/core.hpp>
+          int main() {
+          PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::info, pressiolog::LogTo::console, "log.txt");
+          double a = 1.;
+          PRESSIOLOG_INFO("pressio log message, {:3}", a);
+          PRESSIOLOG_FINALIZE();
+          }' > examples/main_with_defines.cpp
+
       - name: Example - include only
         working-directory: examples
         run: |
@@ -87,9 +100,9 @@ jobs:
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
             -I${GITHUB_WORKSPACE}/pressio-rom/include \
-            -c main.cpp                \
-          && $CXX --std=c++17 -o pressio-example main.o \
-          && ./pressio-example
+            -c main.cpp
+          $CXX --std=c++17 -o pressio-example main.o
+          ./pressio-example
 
       - name: Example - include only with embedded definitions
         working-directory: examples
@@ -100,9 +113,9 @@ jobs:
             -I${GITHUB_WORKSPACE}/pressio-log/include \
             -I${GITHUB_WORKSPACE}/pressio-ops/include \
             -I${GITHUB_WORKSPACE}/pressio-rom/include \
-            -c main_with_defines.cpp   \
-          && $CXX --std=c++17 -o pressio-example main.o \
-          && ./pressio-example
+            -c main_with_defines.cpp
+          $CXX --std=c++17 -o pressio-example2 main_with_defines.o
+          ./pressio-example2
 
       - name: Configure Tests
         run: |
