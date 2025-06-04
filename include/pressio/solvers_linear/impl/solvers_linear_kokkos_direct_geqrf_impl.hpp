@@ -68,17 +68,18 @@ class KokkosDirect;
 template<typename MatrixType>
 class KokkosDirect<::pressio::linearsolvers::direct::geqrf, MatrixType>
 {
-public:
   using solver_tag	= ::pressio::linearsolvers::direct::geqrf;
   using this_type          = KokkosDirect<solver_tag, MatrixType>;
-  using matrix_type	= MatrixType;
-  using scalar_type        = typename MatrixType::value_type;
   using solver_traits   = ::pressio::linearsolvers::Traits<solver_tag>;
 
   static_assert( solver_traits::kokkos_enabled == true,
   		 "the native solver must suppport kokkos to use in KokkosDirect");
   static_assert( solver_traits::direct == true,
   		 "the native solver must be direct to use in KokkosDirect");
+
+public:
+  using matrix_type = MatrixType;
+  using scalar_type = typename MatrixType::value_type;
 
 public:
   KokkosDirect(){
@@ -107,8 +108,8 @@ public:
    */
   template <typename _MatrixType = MatrixType, typename T>
   std::enable_if_t<
-    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value 
-    and ::pressio::is_vector_kokkos<T>::value 
+    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value
+    and ::pressio::is_vector_kokkos<T>::value
     /*and ::pressio::containers::details::traits<T>::has_host_execution_space and*/
     and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
   >
@@ -124,17 +125,18 @@ public:
     this->solveAllowMatOverwrite(auxMat_, b, y);
   }
 
+private:
   /*
    * enable if:
    * the matrix has layout left (i.e. column major)
-   * T is a kokkos vector 
+   * T is a kokkos vector
    * T has host execution space
    * T and MatrixType have same execution space
    */
   template <typename _MatrixType = MatrixType, typename T>
   std::enable_if_t<
-    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value 
-    and ::pressio::is_vector_kokkos<T>::value 
+    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value
+    and ::pressio::is_vector_kokkos<T>::value
     /*::pressio::containers::details::traits<T>::has_host_execution_space and*/
     and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
   >
@@ -146,7 +148,7 @@ public:
     assert(A.extent(0) == b.extent(0) );
     assert(A.extent(1) == y.extent(0) );
 
-    // only one rhs 
+    // only one rhs
     constexpr int nRhs = 1;
     // just use n, since rows == cols
     const auto n = A.extent(0);
@@ -202,7 +204,6 @@ public:
   }
 #endif
 
-
 private:
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
   Teuchos::LAPACK<int, scalar_type> lpk_;
@@ -212,10 +213,8 @@ private:
   // if lwork == -1, then geqrf does a query of what is needed.
   // more details are shown in the code above on how we use lwork
   int lwork_ = -1;
-
   std::vector<scalar_type> work_ = {0};
   std::vector<scalar_type> tau_ = {};
-
   MatrixType auxMat_ = {};
 #endif
 

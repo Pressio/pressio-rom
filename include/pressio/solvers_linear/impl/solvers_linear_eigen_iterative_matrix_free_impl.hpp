@@ -162,15 +162,12 @@ namespace Eigen {
 namespace pressio { namespace linearsolvers{ namespace impl{
 
 template<typename TagType, typename UserDefinedLinearOperatorType>
-class EigenIterativeMatrixFree
+class EigenIterativeMatrixFreeWrapper
   : public IterativeBase<
-    EigenIterativeMatrixFree<TagType, UserDefinedLinearOperatorType>
+    EigenIterativeMatrixFreeWrapper<TagType, UserDefinedLinearOperatorType>
   >
 {
-
-public:
-  using this_type = EigenIterative<TagType, UserDefinedLinearOperatorType>;
-  using scalar_type = typename UserDefinedLinearOperatorType::scalar_type;
+  using this_type = EigenIterativeMatrixFreeWrapper<TagType, UserDefinedLinearOperatorType>;
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
   using op_wrapper_t = OperatorWrapper<UserDefinedLinearOperatorType>;
   using native_solver_type = typename solver_traits::template eigen_solver_type<op_wrapper_t>;
@@ -178,12 +175,15 @@ public:
   using iteration_type = typename base_iterative_type::iteration_type;
 
   static_assert(solver_traits::eigen_enabled == true,
-   "the native solver must be from Eigen to use in EigenIterativeMatrixFree");
+   "the native solver must be from Eigen to use in EigenIterativeMatrixFreeWrapper");
   static_assert(solver_traits::direct == false,
-   "The native eigen solver must be iterative to use in EigenIterativeMatrixFree");
+   "The native eigen solver must be iterative to use in EigenIterativeMatrixFreeWrapper");
 
 public:
-  EigenIterativeMatrixFree() = default;
+  using scalar_type = typename UserDefinedLinearOperatorType::scalar_type;
+
+public:
+  EigenIterativeMatrixFreeWrapper() = default;
 
   iteration_type numIterationsExecuted() const{
     return mysolver_.iterations();
@@ -193,26 +193,20 @@ public:
     return mysolver_.error();
   }
 
-  void resetLinearSystem(const UserDefinedLinearOperatorType& A)
-  {
+  template <typename T>
+  void solve(const UserDefinedLinearOperatorType & A, const T& b, T & y){
+    this->resetLinearSystem(A);
+    mysolver_.setMaxIterations(this->maxIters_);
+    y = mysolver_.solve(b);
+  }
+
+private:
+  void resetLinearSystem(const UserDefinedLinearOperatorType& A){
     mysolver_.setMaxIterations(this->maxIters_);
     m_wrapper.replace(A);
     mysolver_.compute(m_wrapper);
   }
 
-  template <typename T>
-  void solve(const T& b, T & y){
-    mysolver_.setMaxIterations(this->maxIters_);
-    y = mysolver_.solve(b);
-  }
-
-  template <typename T>
-  void solve(const UserDefinedLinearOperatorType & A, const T& b, T & y){
-    this->resetLinearSystem(A);
-    this->solve(b, y);
-  }
-
-private:
   friend base_iterative_type;
   native_solver_type mysolver_ = {};
   op_wrapper_t m_wrapper;

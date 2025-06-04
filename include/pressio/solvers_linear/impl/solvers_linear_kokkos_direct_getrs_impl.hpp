@@ -64,19 +64,18 @@ namespace pressio { namespace linearsolvers{ namespace impl{
 template<typename MatrixType>
 class KokkosDirect<::pressio::linearsolvers::direct::getrs, MatrixType>
 {
-public:
-
-  using solver_tag	    = ::pressio::linearsolvers::direct::getrs;
-  using this_type          = KokkosDirect<solver_tag, MatrixType>;
-  using matrix_type	    = MatrixType;
-  using scalar_type        = typename MatrixType::value_type;
-  using exe_space       = typename MatrixType::traits::execution_space;
-  using solver_traits   = ::pressio::linearsolvers::Traits<solver_tag>;
+  using solver_tag = ::pressio::linearsolvers::direct::getrs;
+  using exe_space = typename MatrixType::traits::execution_space;
+  using solver_traits = ::pressio::linearsolvers::Traits<solver_tag>;
 
   static_assert( solver_traits::kokkos_enabled == true,
   		 "the native solver must suppport kokkos to use in KokkosDirect");
   static_assert( solver_traits::direct == true,
   		 "the native solver must be direct to use in KokkosDirect");
+
+public:
+  using matrix_type = MatrixType;
+  using scalar_type = typename MatrixType::value_type;
 
 public:
   KokkosDirect(){
@@ -100,14 +99,14 @@ public:
   /*
    * enable if:
    * the matrix has layout left (i.e. column major)
-   * T is a kokkos vector 
+   * T is a kokkos vector
    * has host execution space
    * T and MatrixType have same execution space
    */
   template < typename _MatrixType = MatrixType, typename T>
   std::enable_if_t<
-    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value 
-    and ::pressio::is_vector_kokkos<T>::value 
+    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value
+    and ::pressio::is_vector_kokkos<T>::value
     /*::pressio::containers::details::traits<T>::has_host_execution_space and*/
     and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
   >
@@ -124,18 +123,18 @@ public:
     this->solveAllowMatOverwrite(auxMat_, b, y);
   }
 
-
+private:
   /*
    * enable if:
    * the matrix has layout left (i.e. column major)
-   * T is a kokkos vector 
+   * T is a kokkos vector
    * has host execution space
    * T and MatrixType have same execution space
    */
   template < typename _MatrixType = MatrixType, typename T>
   std::enable_if_t<
-    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value 
-    and ::pressio::is_vector_kokkos<T>::value 
+    std::is_same<typename _MatrixType::traits::array_layout, Kokkos::LayoutLeft>::value
+    and ::pressio::is_vector_kokkos<T>::value
     /*::pressio::containers::details::traits<T>::has_host_execution_space and*/
     and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
   >
@@ -175,14 +174,14 @@ public:
   /*
    * enable if:
    * the matrix has layout left (i.e. column major)
-   * T is a kokkos vector 
+   * T is a kokkos vector
    * has CUDA execution space
    * T and MatrixType have same execution space
    */
   template < typename _MatrixType = MatrixType, typename T>
   std::enable_if_t<
-    std::is_same<typename wrapped_type::traits::array_layout, Kokkos::LayoutLeft>::value 
-    and ::pressio::is_vector_kokkos<T>::value 
+    std::is_same<typename wrapped_type::traits::array_layout, Kokkos::LayoutLeft>::value
+    and ::pressio::is_vector_kokkos<T>::value
     /*and ::pressio::containers::details::traits<T>::has_host_execution_space and*/
     and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
     >
@@ -243,7 +242,6 @@ public:
 
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
   Teuchos::LAPACK<int, scalar_type> lpk_;
-
   MatrixType auxMat_ = {};
 #endif
 
