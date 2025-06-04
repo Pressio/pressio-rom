@@ -53,7 +53,6 @@
 #include "pressio/type_traits.hpp"
 
 #include "pressio/pressio_macros.hpp"
-#include "solvers_linear/solvers_linear_tags.hpp"
-#include "solvers_linear/solvers_linear_solver.hpp"
+#include "solvers_linear/solvers_linear_api.hpp"
 
 #endif
