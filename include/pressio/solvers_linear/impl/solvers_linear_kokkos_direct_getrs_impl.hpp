@@ -64,19 +64,18 @@ namespace pressio { namespace linearsolvers{ namespace impl{
 template<typename MatrixType>
 class KokkosDirect<::pressio::linearsolvers::direct::getrs, MatrixType>
 {
-public:
-
-  using solver_tag	    = ::pressio::linearsolvers::direct::getrs;
-  using this_type          = KokkosDirect<solver_tag, MatrixType>;
-  using matrix_type	    = MatrixType;
-  using scalar_type        = typename MatrixType::value_type;
-  using exe_space       = typename MatrixType::traits::execution_space;
-  using solver_traits   = ::pressio::linearsolvers::Traits<solver_tag>;
+  using solver_tag = ::pressio::linearsolvers::direct::getrs;
+  using exe_space = typename MatrixType::traits::execution_space;
+  using solver_traits = ::pressio::linearsolvers::Traits<solver_tag>;
 
   static_assert( solver_traits::kokkos_enabled == true,
   		 "the native solver must suppport kokkos to use in KokkosDirect");
   static_assert( solver_traits::direct == true,
   		 "the native solver must be direct to use in KokkosDirect");
+
+public:
+  using matrix_type = MatrixType;
+  using scalar_type = typename MatrixType::value_type;
 
 public:
   KokkosDirect(){

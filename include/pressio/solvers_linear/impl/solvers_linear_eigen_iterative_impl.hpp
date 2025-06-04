@@ -57,14 +57,10 @@ template<typename TagType, typename MatrixType>
 class EigenIterativeWrapper
   : public IterativeBase< EigenIterativeWrapper<TagType, MatrixType>>
 {
-
-public:
-  using matrix_type	= MatrixType;
-  using scalar_type        = typename MatrixType::Scalar;
-  using this_type          = EigenIterativeWrapper<TagType, MatrixType>;
-  using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
-  using native_solver_type = typename solver_traits::template eigen_solver_type<matrix_type>;
-  using base_iterative_type  = IterativeBase<this_type>;
+  using this_type = EigenIterativeWrapper<TagType, MatrixType>;
+  using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
+  using native_solver_type = typename solver_traits::template eigen_solver_type<MatrixType>;
+  using base_iterative_type = IterativeBase<this_type>;
   using iteration_type = typename base_iterative_type::iteration_type;
 
   static_assert( solver_traits::eigen_enabled == true,
@@ -72,8 +68,10 @@ public:
   static_assert( solver_traits::direct == false,
 		 "The native eigen solver must be iterative to use in EigenIterativeWrapper");
 
-
 public:
+  using matrix_type    = MatrixType;
+  using scalar_type    = typename MatrixType::Scalar;
+
   iteration_type numIterationsExecuted() const{
     return mysolver_.iterations();
   }

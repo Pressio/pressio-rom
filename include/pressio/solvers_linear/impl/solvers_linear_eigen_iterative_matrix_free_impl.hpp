@@ -167,10 +167,7 @@ class EigenIterativeMatrixFreeWrapper
     EigenIterativeMatrixFreeWrapper<TagType, UserDefinedLinearOperatorType>
   >
 {
-
-public:
   using this_type = EigenIterativeMatrixFreeWrapper<TagType, UserDefinedLinearOperatorType>;
-  using scalar_type = typename UserDefinedLinearOperatorType::scalar_type;
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
   using op_wrapper_t = OperatorWrapper<UserDefinedLinearOperatorType>;
   using native_solver_type = typename solver_traits::template eigen_solver_type<op_wrapper_t>;
@@ -181,6 +178,9 @@ public:
    "the native solver must be from Eigen to use in EigenIterativeMatrixFreeWrapper");
   static_assert(solver_traits::direct == false,
    "The native eigen solver must be iterative to use in EigenIterativeMatrixFreeWrapper");
+
+public:
+  using scalar_type = typename UserDefinedLinearOperatorType::scalar_type;
 
 public:
   EigenIterativeMatrixFreeWrapper() = default;
