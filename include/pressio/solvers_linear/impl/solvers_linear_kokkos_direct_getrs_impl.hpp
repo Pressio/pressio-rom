@@ -71,11 +71,9 @@ public:
   using scalar_type = typename MatrixType::value_type;
 
 public:
-  KokkosDirect() = default;
-
-  KokkosDirect(const KokkosDirect &) = delete;
-
-  ~KokkosDirect() = default;
+  KokkosDirectGETRS() = default;
+  KokkosDirectGETRS(const KokkosDirectGETRS &) = delete;
+  ~KokkosDirectGETRS() = default;
 
   /*
    * enable if:
