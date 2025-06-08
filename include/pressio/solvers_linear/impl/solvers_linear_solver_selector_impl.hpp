@@ -57,8 +57,6 @@
 
 // because this uses teuchos lapack wrapper
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
-// fwd declare
-template<typename Tag, typename MatrixType> class KokkosDirect;
 #include "solvers_linear_kokkos_direct_getrs_impl.hpp"
 #endif
 
@@ -120,7 +118,7 @@ struct Selector<
   >
 {
   using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::KokkosDirect<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::KokkosDirectGETRS<MatrixType>;
 };
 #endif
 
