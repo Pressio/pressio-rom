@@ -67,10 +67,6 @@ namespace direct{
 struct HouseholderQR {};
 struct ColPivHouseholderQR {};
 struct PartialPivLU {};
-struct potrsL {};
-struct potrsU {};
-struct getrs{};
-struct geqrf{};
 }
 
 }} // end namespace pressio::linearsolver

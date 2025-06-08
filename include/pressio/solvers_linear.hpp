@@ -49,9 +49,11 @@
 #ifndef PRESSIO_LINEAR_SOLVERS_HPP_
 #define PRESSIO_LINEAR_SOLVERS_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 
+// local includes
 #include "pressio_macros.hpp"
 #include "solvers_linear/solvers_linear_api.hpp"
 

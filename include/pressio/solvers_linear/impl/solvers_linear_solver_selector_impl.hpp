@@ -54,11 +54,8 @@
 #include "solvers_linear_eigen_iterative_impl.hpp"
 #include "solvers_linear_eigen_iterative_matrix_free_impl.hpp"
 #endif
-#ifdef PRESSIO_ENABLE_TPL_KOKKOS
-#include "solvers_linear_kokkos_direct_geqrf_impl.hpp"
+#ifdef PRESSIO_ENABLE_TPL_TRILINOS
 #include "solvers_linear_kokkos_direct_getrs_impl.hpp"
-#include "solvers_linear_kokkos_direct_potrs_lower_impl.hpp"
-#include "solvers_linear_kokkos_direct_potrs_upper_impl.hpp"
 #endif
 
 namespace pressio{ namespace linearsolvers{ namespace impl{

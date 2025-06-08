@@ -62,7 +62,7 @@
 namespace pressio { namespace linearsolvers{ namespace impl{
 
 template<typename MatrixType>
-class KokkosDirect<::pressio::linearsolvers::direct::getrs, MatrixType>
+class KokkosDirect<::pressio::linearsolvers::direct::PartialPivLU, MatrixType>
 {
   using solver_tag = ::pressio::linearsolvers::direct::getrs;
   using exe_space = typename MatrixType::traits::execution_space;
@@ -78,21 +78,11 @@ public:
   using scalar_type = typename MatrixType::value_type;
 
 public:
-  KokkosDirect(){
-#ifdef KOKKOS_ENABLE_CUDA
-    auto cusolverStatus = cusolverDnCreate(&cuDnHandle_);
-    assert(cusolverStatus == CUSOLVER_STATUS_SUCCESS);
-#endif
-  }
+  KokkosDirect() = default;
 
   KokkosDirect(const KokkosDirect &) = delete;
 
-  ~KokkosDirect(){
-#ifdef KOKKOS_ENABLE_CUDA
-    auto cusolverStatus = cusolverDnDestroy(cuDnHandle_);
-    assert(cusolverStatus == CUSOLVER_STATUS_SUCCESS);
-#endif
-  }
+  ~KokkosDirect() = default;
 
 // because this uses teuchos lapack wrapper
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
@@ -114,8 +104,7 @@ public:
   {
     const auto Aext0 = A.extent(0);
     const auto Aext1 = A.extent(1);
-    if (Aext0 != auxMat_.extent(0) or Aext1 != auxMat_.extent(1))
-    {
+    if (Aext0 != auxMat_.extent(0) or Aext1 != auxMat_.extent(1)){
       Kokkos::resize(auxMat_, Aext0, Aext1);
     }
 
@@ -167,86 +156,10 @@ private:
     lpk_.GETRS(ct, n, nRhs, A.data(), n, ipiv.data(), y.data(), y.extent(0), &info);
     assert(info == 0);
   }
-#endif
 
-
-#if defined PRESSIO_ENABLE_TPL_KOKKOS and defined KOKKOS_ENABLE_CUDA
-  /*
-   * enable if:
-   * the matrix has layout left (i.e. column major)
-   * T is a kokkos vector
-   * has CUDA execution space
-   * T and MatrixType have same execution space
-   */
-  template < typename _MatrixType = MatrixType, typename T>
-  std::enable_if_t<
-    std::is_same<typename wrapped_type::traits::array_layout, Kokkos::LayoutLeft>::value
-    and ::pressio::is_vector_kokkos<T>::value
-    /*and ::pressio::containers::details::traits<T>::has_host_execution_space and*/
-    and std::is_same<typename T::traits::execution_space, typename _MatrixType::traits::execution_space>::value
-    >
-  solveAllowMatOverwrite(_MatrixType & A, const T& b, T & y)
-  {
-    assert(A.extent(0) == b.extent(0) );
-    assert(A.extent(1) == y.extent(0) );
-    // gerts is for square matrices
-    assert(A.extent(0) == A.extent(1) );
-
-    // only one rhs
-    constexpr int nRhs = 1;
-
-    // n = nRows = nCols: because it is square matrix
-    const auto n = A.extent(0);
-
-    cusolverStatus_t cusolverStatus;
-    //cusolverDnHandle_t handle;
-    cudaError cudaStatus;
-    int Lwork = 0;
-
-    // cuDnHandle already created in constructor
-
-    // compute buffer size and prep.memory
-    cusolverStatus = cusolverDnDgetrf_bufferSize(cuDnHandle_, n, n, A.data(), n, &Lwork);
-    assert(cusolverStatus == CUSOLVER_STATUS_SUCCESS);
-
-    // for now, working buffers are stored as Kokkos arrays but
-    // maybe later we can use directly cuda allocations
-    using k1d_d = Kokkos::View<scalar_type*, Kokkos::LayoutLeft, exe_space>;
-    using k1di_d = Kokkos::View<int*, Kokkos::LayoutLeft, exe_space>;
-    k1d_d work_d("d_work", Lwork);
-    k1di_d pivot_d("d_pivot", n);
-    k1di_d info_d("d_info", 1);
-
-    cusolverStatus = cusolverDnDgetrf(cuDnHandle_, n, n, A.data(), n,
-                                      work_d.data(),
-				                              pivot_d.data(),
-    				                          info_d.data());
-    assert(cusolverStatus == CUSOLVER_STATUS_SUCCESS);
-
-    // we need to deep copy b into y and pass y
-    // because getrs overwrites the RHS in place with the solution
-    Kokkos::deep_copy(y, b);
-
-    cusolverStatus = cusolverDnDgetrs(cuDnHandle_, CUBLAS_OP_N,
-    				      n, nRhs,
-    				      A.data(), n,
-    				      pivot_d.data(),
-    				      y.data(), n,
-    				      info_d.data());
-    assert(cusolverStatus == CUSOLVER_STATUS_SUCCESS);
-
-    // make sure the solver kernel is done before exiting
-    cudaStatus = cudaDeviceSynchronize();
-  }
-#endif
-
-#ifdef PRESSIO_ENABLE_TPL_TRILINOS
   Teuchos::LAPACK<int, scalar_type> lpk_;
   MatrixType auxMat_ = {};
-#endif
 
-#if defined PRESSIO_ENABLE_TPL_KOKKOS and defined KOKKOS_ENABLE_CUDA
-  cusolverDnHandle_t cuDnHandle_;
 #endif
 };
 
