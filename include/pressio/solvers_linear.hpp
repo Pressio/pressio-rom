@@ -52,7 +52,7 @@
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 
-#include "pressio/pressio_macros.hpp"
+#include "pressio_macros.hpp"
 #include "solvers_linear/solvers_linear_api.hpp"
 
 #endif
