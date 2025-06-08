@@ -105,7 +105,7 @@ struct Selector<
 };
 #endif
 
-#ifdef PRESSIO_ENABLE_TPL_KOKKOS
+#ifdef PRESSIO_ENABLE_TPL_TRILINOS
 template<typename TagType, typename MatrixType>
 struct Selector<
   TagType, MatrixType,
