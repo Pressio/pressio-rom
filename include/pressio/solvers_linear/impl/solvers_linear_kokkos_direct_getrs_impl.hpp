@@ -64,7 +64,7 @@ namespace pressio { namespace linearsolvers{ namespace impl{
 template<typename MatrixType>
 class KokkosDirect<::pressio::linearsolvers::direct::PartialPivLU, MatrixType>
 {
-  using solver_tag = ::pressio::linearsolvers::direct::getrs;
+  using solver_tag = ::pressio::linearsolvers::direct::PartialPivLU;
   using exe_space = typename MatrixType::traits::execution_space;
   using solver_traits = ::pressio::linearsolvers::Traits<solver_tag>;
 
