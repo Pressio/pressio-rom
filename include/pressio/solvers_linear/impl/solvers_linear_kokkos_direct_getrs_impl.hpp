@@ -49,15 +49,8 @@
 #ifndef PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_KOKKOS_DIRECT_GETRS_IMPL_HPP_
 #define PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_KOKKOS_DIRECT_GETRS_IMPL_HPP_
 
-#ifdef PRESSIO_ENABLE_TPL_TRILINOS
 #include <Teuchos_LAPACK.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>
-#endif
-
-#if defined PRESSIO_ENABLE_TPL_KOKKOS and defined KOKKOS_ENABLE_CUDA
-#include <cuda_runtime.h>
-#include <cusolverDn.h>
-#endif
 
 namespace pressio { namespace linearsolvers{ namespace impl{
 
@@ -84,8 +77,6 @@ public:
 
   ~KokkosDirect() = default;
 
-// because this uses teuchos lapack wrapper
-#ifdef PRESSIO_ENABLE_TPL_TRILINOS
   /*
    * enable if:
    * the matrix has layout left (i.e. column major)
@@ -159,8 +150,6 @@ private:
 
   Teuchos::LAPACK<int, scalar_type> lpk_;
   MatrixType auxMat_ = {};
-
-#endif
 };
 
 }}} // end namespace pressio::linearsolvers::impl

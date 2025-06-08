@@ -54,7 +54,11 @@
 #include "solvers_linear_eigen_iterative_impl.hpp"
 #include "solvers_linear_eigen_iterative_matrix_free_impl.hpp"
 #endif
+
+// because this uses teuchos lapack wrapper
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
+// fwd declare
+template<typename Tag, typename MatrixType> class KokkosDirect;
 #include "solvers_linear_kokkos_direct_getrs_impl.hpp"
 #endif
 
