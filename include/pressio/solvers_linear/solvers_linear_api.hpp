@@ -85,11 +85,11 @@ struct PartialPivLU {};
  *   - For Kokkos-backed matrices, the selection would go to different
  *     backend-specific files, if available.
  *
- * The wrappers:
- *   - Expose a uniform API (e.g., `solve(A, b, x)`, `setTolerance(...)`)
- *   - Internally use traits and tags to determine the correct
+ * The impl wrappers are designed to:
+ *   - expose a uniform API (e.g., `solve(A, b, x)`, `setTolerance(...)`)
+ *   - internally use traits and tags to determine the correct
  *     backend-specific solver objects (e.g., `Eigen::ConjugateGradient`)
- *   - Are enabled only if the corresponding TPL is enabled
+ * Note that we enable only if the corresponding TPL is enabled.
  *
  * -----------------------------------------
  * Dispatch Example
@@ -97,7 +97,6 @@ struct PartialPivLU {};
  * If you pass:
  *   - `pressio::linearsolvers::iterative::CG` as the solver tag
  *   - `Eigen::SparseMatrix<double>` as the matrix type
- *
  * Then the selected implementation will be: impl::EigenIterativeWrapper
  * which interally would wrap and use Eigen::ConjugateGradient.
  *
