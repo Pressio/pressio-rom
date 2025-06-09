@@ -32,8 +32,6 @@ To access data from the registry, functions use the tag. For example, if a funct
 This system allows functions to access shared data without needing to know how the registry is structured. Each function just needs to know which tag to use.
 The advantage of this approach is that it avoids using strings or dynamic lookups. It is checked at compile time, so mistakes like asking for the wrong type of object are caught early. It also helps keep the code modular, because different parts of the solver can work independently as long as they agree on which tags to use.
 
-
-
 The design of using a registry, an implementation loop, and free functions acting on tagged data is particularly well suited for nonlinear solvers because it promotes a clean separation of concerns, flexibility, and performance-aware design. Nonlinear solvers are often composed of small, distinct operations—such as computing a residual, forming a Jacobian, solving a linear system, updating the state, and checking convergence. These operations have clear boundaries and are typically stateless. Modeling them as free functions rather than member functions of large classes allows them to be implemented, tested, reused, and composed more easily.
 The registry approach helps manage shared data between these operations without tightly coupling them.
 Each component only needs to know what data it uses (via tags), not how or where it is stored.
@@ -41,3 +39,15 @@ This makes the code modular and reduces the need to pass large numbers of argume
 It also allows the solver loop to be written generically, without knowing in advance what exact data is involved.
 The solver loop acts as the coordinator. It knows the sequence of operations but delegates the actual computations to free functions and uses the registry to access the shared data.
 This design is especially helpful when implementing multiple solver types (e.g., Newton-Raphson, Gauss-Newton, Levenberg-Marquardt), because the loop can be customized or reused with minimal duplication.
+
+
+The file `functions.hpp` defines a set of internal helper functions that carry out the basic operations needed during a nonlinear solve. These functions are not solver-specific—they are used by different solver types and are called from within the solver loop. Each function is responsible for a focused task, such as computing a residual, forming a Jacobian, updating the state.
+These functions are designed to operate on data stored in the registry, using tag-based access, and they rely on the system and state provided during the solve.
+By organizing the logic into separate free functions, the code stays modular, easier to test, and easier to extend.
+For example, here is a high-level description of the roles of some key functions defined in this file:
+* **compute\_residual**: Computes the nonlinear residual vector by evaluating the user-provided system at the current state and storing the result in the registry.
+* **compute\_jacobian**: Computes the Jacobian matrix of the system at the current state and stores it in the registry.
+* **compute\_residual\_and\_jacobian**: A combined version that evaluates both the residual and the Jacobian in a single call, if the system supports doing so efficiently.
+These functions form the building blocks of the solver loop. Each iteration of the solver calls some or all of them, depending on the solver strategy.
+Because each function performs a single task, the design makes it easier to adapt the loop for different solvers or plug in custom logic if needed.
+They work together with the registry and the solver loop to drive the nonlinear solve.
