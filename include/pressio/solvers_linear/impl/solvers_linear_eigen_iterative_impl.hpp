@@ -72,6 +72,10 @@ public:
   using matrix_type    = MatrixType;
   using scalar_type    = typename MatrixType::Scalar;
 
+  EigenIterativeWrapper() = default;
+  EigenIterativeWrapper(EigenIterativeWrapper const &) = delete;
+  EigenIterativeWrapper& operator=(EigenIterativeWrapper const &) = delete;
+
   iteration_type numIterationsExecuted() const{
     return mysolver_.iterations();
   }

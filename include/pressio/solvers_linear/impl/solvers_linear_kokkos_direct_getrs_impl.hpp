@@ -73,6 +73,7 @@ public:
 public:
   KokkosDirectGETRS() = default;
   KokkosDirectGETRS(const KokkosDirectGETRS &) = delete;
+  KokkosDirectGETRS& operator=(KokkosDirectGETRS const &) = delete;
   ~KokkosDirectGETRS() = default;
 
   /*

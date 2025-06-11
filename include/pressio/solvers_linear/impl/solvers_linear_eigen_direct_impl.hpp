@@ -68,6 +68,10 @@ public:
   using matrix_type = MatrixType;
   using scalar_type = typename MatrixType::Scalar;
 
+  EigenDirectWrapper() = default;
+  EigenDirectWrapper(EigenDirectWrapper const &) = delete;
+  EigenDirectWrapper& operator=(EigenDirectWrapper const &) = delete;
+
   template <typename T>
   void solve(const MatrixType & A, const T& b, T & y) {
     this->resetLinearSystem(A);
