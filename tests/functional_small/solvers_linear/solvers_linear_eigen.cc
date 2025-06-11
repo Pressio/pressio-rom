@@ -85,11 +85,20 @@ class LinearSolverDefaultConstructibilityTest : public ::testing::Test {};
 // Register typed test suite
 TYPED_TEST_SUITE(LinearSolverDefaultConstructibilityTest, SolverTags);
 
-// Actual test
 TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible)
 {
   using TagType = TypeParam;
   using Solver = pressio::linearsolvers::Solver<TagType, Eigen::MatrixXd>;
+  static_assert(std::is_default_constructible<Solver>::value,
+		"Solver is not default constructible");
+  Solver solver;  // actually default construct it
+  (void)solver;   // avoid unused warning
+}
+
+TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible2)
+{
+  using TagType = TypeParam;
+  using Solver = pressio::linearsolvers::Solver<TagType, Eigen::SparseMatrix<double>>;
   static_assert(std::is_default_constructible<Solver>::value,
 		"Solver is not default constructible");
   Solver solver;  // actually default construct it
