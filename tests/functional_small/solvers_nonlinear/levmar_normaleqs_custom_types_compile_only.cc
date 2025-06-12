@@ -57,7 +57,8 @@ int main()
 
     problem_t sys;
     state_t y;
-    auto solver = create_levenberg_marquardt_solver(sys, MyLinSolver{});
+    MyLinSolver ls{};
+    auto solver = create_levenberg_marquardt_solver(sys, ls);
     solver.solve(y);
     (void)y;
     std::cout << "PASSED" << std::endl;
