@@ -69,6 +69,7 @@ public:
   using scalar_type = typename MatrixType::Scalar;
 
   EigenDirectWrapper() = default;
+  // non-copyable and non-movable
   EigenDirectWrapper(EigenDirectWrapper const &) = delete;
   EigenDirectWrapper& operator=(EigenDirectWrapper const &) = delete;
 

@@ -73,6 +73,7 @@ public:
   using scalar_type    = typename MatrixType::Scalar;
 
   EigenIterativeWrapper() = default;
+  // non-copyable and non-movable
   EigenIterativeWrapper(EigenIterativeWrapper const &) = delete;
   EigenIterativeWrapper& operator=(EigenIterativeWrapper const &) = delete;
 

@@ -184,6 +184,7 @@ public:
 
 public:
   EigenIterativeMatrixFreeWrapper() = default;
+  // non-copyable and non-movable
   EigenIterativeMatrixFreeWrapper(EigenIterativeMatrixFreeWrapper const &) = delete;
   EigenIterativeMatrixFreeWrapper& operator=(EigenIterativeMatrixFreeWrapper const &) = delete;
 

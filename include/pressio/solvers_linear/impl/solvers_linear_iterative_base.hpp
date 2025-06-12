@@ -57,6 +57,7 @@ struct IterativeBase
   using iteration_type = unsigned int;
 
   IterativeBase() = default;
+  // non-copyable and non-movable
   IterativeBase(IterativeBase const &) = delete;
   IterativeBase& operator=(IterativeBase const &) = delete;
 
