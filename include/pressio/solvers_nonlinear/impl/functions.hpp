@@ -133,7 +133,7 @@ auto compute_nonlinearls_objective(WeightedGaussNewtonNormalEqTag /*tag*/,
   auto & r  = reg.template get<ResidualTag>();
   auto & Wr = reg.template get<WeightedResidualTag>();
   compute_residual(reg, state, system);
-  W.get()(r, Wr);
+  (*W)(r, Wr);
 
   const auto v = ::pressio::ops::dot(r, Wr);
   using sc_t = mpl::remove_cvref_t< decltype(v) >;
@@ -150,7 +150,7 @@ auto compute_nonlinearls_objective(CompactWeightedGaussNewtonNormalEqTag /*tag*/
   auto & r  = reg.template get<ResidualTag>();
   auto & Wr = reg.template get<WeightedResidualTag>();
   compute_residual(reg, state, system);
-  W.get()(r, Wr);
+  (*W)(r, Wr);
 
   const auto v = ::pressio::ops::dot(Wr, Wr);
   using sc_t = mpl::remove_cvref_t< decltype(v) >;
@@ -243,8 +243,8 @@ auto compute_nonlinearls_operators_and_objective(WeightedGaussNewtonNormalEqTag 
   auto & g  = reg.template get<GradientTag>();
   auto & H  = reg.template get<HessianTag>();
 
-  W.get()(r, Wr);
-  W.get()(J, WJ);
+  (*W)(r, Wr);
+  (*W)(J, WJ);
   ::pressio::ops::product(pT, pnT, 1, J, WJ, 0, H);
   ::pressio::ops::product(pT, 1, J, Wr, 0, g);
 
@@ -287,8 +287,8 @@ auto compute_nonlinearls_operators_and_objective(CompactWeightedGaussNewtonNorma
   auto & g  = reg.template get<GradientTag>();
   auto & H  = reg.template get<HessianTag>();
 
-  W.get()(r, Wr);
-  W.get()(J, WJ);
+  (*W)(r, Wr);
+  (*W)(J, WJ);
   ::pressio::ops::product(pT, pnT, 1, WJ, WJ, 0, H);
   ::pressio::ops::product(pT, 1, WJ, Wr, 0, g);
 
@@ -349,7 +349,7 @@ void solve_newton_step(RegistryType & reg)
   auto & c = reg.template get<CorrectionTag>();
   auto & solver = reg.template get<InnerSolverTag>();
   // solve J_r correction = r
-  solver.get().solve(J, r, c);
+  solver->solve(J, r, c);
   // scale by -1 for sign convention
   using c_t = mpl::remove_cvref_t<decltype(c)>;
   using scalar_type = typename ::pressio::Traits<c_t>::scalar_type;
@@ -363,7 +363,7 @@ void solve_hessian_gradient_linear_system(RegistryType & reg)
   const auto & H = reg.template get<HessianTag>();
   auto & c = reg.template get<CorrectionTag>();
   auto & solver = reg.template get<InnerSolverTag>();
-  solver.get().solve(H, g, c);
+  solver->solve(H, g, c);
 }
 
 template<class RegistryType>
@@ -447,13 +447,13 @@ void compute_correction(GaussNewtonQrTag /*tag*/,
   auto & solver = reg.template get<InnerSolverTag>();
 
   // factorize J = QR
-  solver.get().computeThin(J);
+  solver->computeThin(J);
 
   // compute Q^T r
-  solver.get().applyQTranspose(r, QTr);
+  solver->applyQTranspose(r, QTr);
 
   // solve Rfactor c = Q^T r
-  solver.get().solve(QTr, c);
+  solver->solve(QTr, c);
 
   // rescale as said above
   ::pressio::ops::scale(c, -1);

@@ -84,7 +84,7 @@ template<class SystemType, class LinearSolverType>
 	      const typename SystemType::residual_type & r,
 	      nonlinearsolvers::normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
 	      nonlinearsolvers::normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
-	      LinearSolverType && linSolver)
+	      LinearSolverType & linSolver)
   {
     { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
     { ::pressio::ops::product(transpose(), nontranspose(), 1, J, 0, H) };
@@ -93,7 +93,7 @@ template<class SystemType, class LinearSolverType>
   }
 #endif
 auto create_levenberg_marquardt_solver(const SystemType & system,
-				       LinearSolverType && linSolver)
+				       LinearSolverType & linSolver)
 {
 
   using nonlinearsolvers::Diagnostic;
@@ -112,7 +112,7 @@ auto create_levenberg_marquardt_solver(const SystemType & system,
   using reg_t    = nonlinearsolvers::impl::RegistryLevMarNormalEqs<SystemType, LinearSolverType>;
   using scalar_t = nonlinearsolvers::scalar_of_t<SystemType>;
   return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
-    (tag{}, defaultDiagnostics, system, std::forward<LinearSolverType>(linSolver));
+    (tag{}, defaultDiagnostics, system, linSolver);
 }
 
 } // end namespace pressio

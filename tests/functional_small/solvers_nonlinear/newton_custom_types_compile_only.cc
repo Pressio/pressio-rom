@@ -65,7 +65,8 @@ TEST(solvers_nonlinear, newton_compile_only)
 
     problem_t sys;
     state_t y;
-    auto nonLinSolver = create_newton_solver(sys, MyLinSolver{});
+    MyLinSolver ls{};
+    auto nonLinSolver = create_newton_solver(sys, ls);
     nonLinSolver.solve(y);
     (void)y;
   }

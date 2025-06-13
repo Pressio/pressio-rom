@@ -56,6 +56,11 @@ struct IterativeBase
 {
   using iteration_type = unsigned int;
 
+  IterativeBase() = default;
+  // non-copyable and non-movable
+  IterativeBase(IterativeBase const &) = delete;
+  IterativeBase& operator=(IterativeBase const &) = delete;
+
   /** Get the number of iterations performed. */
   iteration_type numIterationsExecuted() const {
     return static_cast<const DerivedType &>(*this).numIterationsExecuted();

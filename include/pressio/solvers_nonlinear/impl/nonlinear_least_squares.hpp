@@ -150,6 +150,13 @@ public:
     diagnosticsLogger_.resetFor(publicDiags);
   }
 
+  // non-copyable
+  NonLinLeastSquares(NonLinLeastSquares const &) = delete;
+  NonLinLeastSquares& operator=(NonLinLeastSquares const &) = delete;
+  // movable
+  NonLinLeastSquares(NonLinLeastSquares &&) = default;
+  NonLinLeastSquares& operator=(NonLinLeastSquares &&) = default;
+
   // query/set update criterion
   Update currentUpdateCriterion() const  { return updateEnValue_; }
   void setUpdateCriterion(Update value)  { updateEnValue_ = value; }

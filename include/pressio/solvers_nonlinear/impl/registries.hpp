@@ -32,17 +32,24 @@ class RegistryNewton
   state_t d1_;
   r_t d3_;
   j_t d4_;
-  InstanceOrReferenceWrapper<InnSolverType> d5_;
+  InnSolverType * d5_;
   SystemType const * d6_;
 
 public:
-  template<class _InnSolverType>
-  RegistryNewton(const SystemType & system, _InnSolverType && innS)
+  RegistryNewton(const SystemType & system, InnSolverType & innS)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
-      d5_(std::forward<_InnSolverType>(innS)),
+      d5_(&innS),
       d6_(&system){}
+
+  RegistryNewton() = delete;
+  // non-copyable
+  RegistryNewton(RegistryNewton const &) = delete;
+  RegistryNewton& operator=(RegistryNewton const &) = delete;
+  // movable
+  RegistryNewton(RegistryNewton &&) = default;
+  RegistryNewton& operator=(RegistryNewton &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){
@@ -79,6 +86,14 @@ public:
       d3_(system.createResidual()),
       d4_(&system){}
 
+  RegistryMatrixFreeNewtonKrylov() = delete;
+  // non-copyable
+  RegistryMatrixFreeNewtonKrylov(RegistryMatrixFreeNewtonKrylov const &) = delete;
+  RegistryMatrixFreeNewtonKrylov& operator=(RegistryMatrixFreeNewtonKrylov const &) = delete;
+  // movable
+  RegistryMatrixFreeNewtonKrylov(RegistryMatrixFreeNewtonKrylov &&) = default;
+  RegistryMatrixFreeNewtonKrylov& operator=(RegistryMatrixFreeNewtonKrylov &&) = default;
+
   template<class TagToFind>
   static constexpr bool contains(){
     return (mpl::variadic::find_if_binary_pred_t<TagToFind, std::is_same,
@@ -114,19 +129,26 @@ class RegistryGaussNewtonNormalEqs
   j_t d4_;
   gradient_t d5_;
   hessian_t d6_;
-  InstanceOrReferenceWrapper<InnSolverType> d7_;
+  InnSolverType * d7_;
   SystemType const * d8_;
 
 public:
-  template<class _InnSolverType>
-  RegistryGaussNewtonNormalEqs(const SystemType & system, _InnSolverType && innS)
+  RegistryGaussNewtonNormalEqs(const SystemType & system, InnSolverType & innS)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
       d5_(system.createState()),
       d6_( hg_default::createHessian(system.createState()) ),
-      d7_(std::forward<_InnSolverType>(innS)),
+      d7_(&innS),
       d8_(&system){}
+
+  RegistryGaussNewtonNormalEqs() = delete;
+  // non-copyable
+  RegistryGaussNewtonNormalEqs(RegistryGaussNewtonNormalEqs const &) = delete;
+  RegistryGaussNewtonNormalEqs& operator=(RegistryGaussNewtonNormalEqs const &) = delete;
+  // movable
+  RegistryGaussNewtonNormalEqs(RegistryGaussNewtonNormalEqs &&) = default;
+  RegistryGaussNewtonNormalEqs& operator=(RegistryGaussNewtonNormalEqs &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){
@@ -171,15 +193,14 @@ class RegistryWeightedGaussNewtonNormalEqs
   j_t d6_;
   gradient_t d7_;
   hessian_t d8_;
-  InstanceOrReferenceWrapper<InnSolverType> d9_;
-  InstanceOrReferenceWrapper<WeightingOpType> d10_;
+  InnSolverType * d9_;
+  WeightingOpType const * d10_;
   SystemType const * d11_;
 
 public:
-  template<class _InnSolverType, class _WeightingOpType>
   RegistryWeightedGaussNewtonNormalEqs(const SystemType & system,
-				       _InnSolverType && innS,
-				       _WeightingOpType && weigher)
+				       InnSolverType & innS,
+				       const WeightingOpType & weigher)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
@@ -187,9 +208,17 @@ public:
       d6_(system.createJacobian()),
       d7_(system.createState()),
       d8_( hg_default::createHessian(system.createState()) ),
-      d9_(std::forward<InnSolverType>(innS)),
-      d10_(std::forward<_WeightingOpType>(weigher)),
+      d9_(&innS),
+      d10_(&weigher),
       d11_(&system){}
+
+  RegistryWeightedGaussNewtonNormalEqs() = delete;
+  // non-copyable
+  RegistryWeightedGaussNewtonNormalEqs(RegistryWeightedGaussNewtonNormalEqs const &) = delete;
+  RegistryWeightedGaussNewtonNormalEqs& operator=(RegistryWeightedGaussNewtonNormalEqs const &) = delete;
+  // movable
+  RegistryWeightedGaussNewtonNormalEqs(RegistryWeightedGaussNewtonNormalEqs &&) = default;
+  RegistryWeightedGaussNewtonNormalEqs& operator=(RegistryWeightedGaussNewtonNormalEqs &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){
@@ -237,15 +266,14 @@ class RegistryCompactWeightedGaussNewtonNormalEqs
   j_t d6_;
   gradient_t d7_;
   hessian_t d8_;
-  InstanceOrReferenceWrapper<InnSolverType> d9_;
-  InstanceOrReferenceWrapper<WeightingOpType> d10_;
+  InnSolverType * d9_;
+  WeightingOpType const * d10_;
   SystemType const * d11_;
 
 public:
-  template<class _InnSolverType, class _WeightingOpType>
   RegistryCompactWeightedGaussNewtonNormalEqs(const SystemType & system,
-				       _InnSolverType && innS,
-				       _WeightingOpType && weigher)
+					      InnSolverType & innS,
+					      const WeightingOpType & weigher)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
@@ -253,13 +281,22 @@ public:
       d6_(system.createJacobian()),
       d7_(system.createState()),
       d8_( hg_default::createHessian(system.createState()) ),
-      d9_(std::forward<InnSolverType>(innS)),
-      d10_(std::forward<_WeightingOpType>(weigher)),
+      d9_(&innS),
+      d10_(&weigher),
       d11_(&system){
         // resize Wr and WJ leading dimension according to weighing operator
         pressio::ops::resize(d5_, weigher.leadingDim());
         pressio::ops::resize(d6_, weigher.leadingDim(), pressio::ops::extent(d6_, 1));
       }
+
+  RegistryCompactWeightedGaussNewtonNormalEqs() = delete;
+
+  // non-copyable
+  RegistryCompactWeightedGaussNewtonNormalEqs(RegistryCompactWeightedGaussNewtonNormalEqs const &) = delete;
+  RegistryCompactWeightedGaussNewtonNormalEqs& operator=(RegistryCompactWeightedGaussNewtonNormalEqs const &) = delete;
+  // movable
+  RegistryCompactWeightedGaussNewtonNormalEqs(RegistryCompactWeightedGaussNewtonNormalEqs &&) = default;
+  RegistryCompactWeightedGaussNewtonNormalEqs& operator=(RegistryCompactWeightedGaussNewtonNormalEqs &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){
@@ -301,19 +338,26 @@ class RegistryGaussNewtonQr
   j_t d4_;
   gradient_t d5_;
   QTr_t d6_;
-  InstanceOrReferenceWrapper<QRSolverType> d7_;
+  QRSolverType * d7_;
   SystemType const * d8_;
 
 public:
-  template<class QRType>
-  RegistryGaussNewtonQr(const SystemType & system, QRType && qrs)
+  RegistryGaussNewtonQr(const SystemType & system, QRSolverType & qrs)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
       d5_(system.createState()),
       d6_(system.createState()),
-      d7_(std::forward<QRType>(qrs)),
+      d7_(&qrs),
       d8_(&system){}
+
+  RegistryGaussNewtonQr() = delete;
+  // non-copyable
+  RegistryGaussNewtonQr(RegistryGaussNewtonQr const &) = delete;
+  RegistryGaussNewtonQr& operator=(RegistryGaussNewtonQr const &) = delete;
+  // movable
+  RegistryGaussNewtonQr(RegistryGaussNewtonQr &&) = default;
+  RegistryGaussNewtonQr& operator=(RegistryGaussNewtonQr &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){
@@ -359,12 +403,11 @@ class RegistryLevMarNormalEqs
   hessian_t d6_;
   hessian_t d7_;
   lm_damp_t d8_;
-  InstanceOrReferenceWrapper<InnSolverType> d9_;
+  InnSolverType * d9_;
   SystemType const * d10_;
 
 public:
-  template<class _InnSolverType>
-  RegistryLevMarNormalEqs(const SystemType & system, _InnSolverType && innS)
+  RegistryLevMarNormalEqs(const SystemType & system, InnSolverType & innS)
     : d1_(system.createState()),
       d3_(system.createResidual()),
       d4_(system.createJacobian()),
@@ -372,8 +415,16 @@ public:
       d6_( hg_default::createHessian(system.createState()) ),
       d7_( hg_default::createHessian(system.createState()) ),
       d8_{},
-      d9_(std::forward<_InnSolverType>(innS)),
+      d9_(&innS),
       d10_(&system){}
+
+  RegistryLevMarNormalEqs() = delete;
+  // non-copyable
+  RegistryLevMarNormalEqs(RegistryLevMarNormalEqs const &) = delete;
+  RegistryLevMarNormalEqs& operator=(RegistryLevMarNormalEqs const &) = delete;
+  // movable
+  RegistryLevMarNormalEqs(RegistryLevMarNormalEqs &&) = default;
+  RegistryLevMarNormalEqs& operator=(RegistryLevMarNormalEqs &&) = default;
 
   template<class TagToFind>
   static constexpr bool contains(){

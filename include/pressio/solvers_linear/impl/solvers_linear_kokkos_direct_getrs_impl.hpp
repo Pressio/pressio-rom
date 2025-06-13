@@ -72,7 +72,9 @@ public:
 
 public:
   KokkosDirectGETRS() = default;
+  // non-copyable and non-movable
   KokkosDirectGETRS(const KokkosDirectGETRS &) = delete;
+  KokkosDirectGETRS& operator=(KokkosDirectGETRS const &) = delete;
   ~KokkosDirectGETRS() = default;
 
   /*

@@ -326,6 +326,15 @@ public:
     diagnosticsLogger_.resetFor(publicDiags);
   }
 
+  RootFinder() = delete;
+  // non-copyable
+  RootFinder(RootFinder const &) = delete;
+  RootFinder& operator=(RootFinder const &) = delete;
+  // movable
+  RootFinder(RootFinder &&) = default;
+  RootFinder& operator=(RootFinder &&) = default;
+
+public:
   // query/set update criterion
   Update currentUpdateCriterion() const   { return updateEnValue_; }
   void setUpdateCriterion(Update value) { updateEnValue_ = value; }
