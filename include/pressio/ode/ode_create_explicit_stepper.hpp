@@ -65,7 +65,7 @@ template<
     int > = 0
   >
 auto create_explicit_stepper(StepScheme schemeName,                     // (1)
-			     SystemType && odeSystem)
+			     SystemType const & odeSystem)
 {
 
   using sys_type = mpl::remove_cvref_t<SystemType>;
@@ -73,20 +73,9 @@ auto create_explicit_stepper(StepScheme schemeName,                     // (1)
   using state_type   = typename sys_type::state_type;
   using rhs_type = typename sys_type::rhs_type;
 
-  /* IMPORTANT: use "SystemType" as template arg because that it the
-     right type carrying how we store the system and NOT SystemType &&
-     for the following reason: when user passes a non-temporary object,
-     SystemType is deduced to be a reference, so the concrete stepper class
-     will hold a reference to the provided system object.
-     When the user passes system to be a temporary object,
-     SystemType will be deduced so that the stepper will hold an **instance**
-     of the system that is move-constructed (if applicable, or copy-constructed)
-     from the system argument.
-  */
   using impl_type = impl::ExplicitStepperNoMassMatrixImpl<
     state_type, ind_var_type, SystemType, rhs_type>;
-  return impl::create_explicit_stepper<impl_type>
-    (schemeName, std::forward<SystemType>(odeSystem));
+  return impl::create_explicit_stepper<impl_type>(schemeName, odeSystem);
 }
 
 //
@@ -99,7 +88,7 @@ template<
     int > = 0
   >
 auto create_explicit_stepper(StepScheme schemeName,                     // (2)
-			     SystemType && odeSystem)
+			     SystemType const & odeSystem)
 {
 
   using sys_type = mpl::remove_cvref_t<SystemType>;
@@ -107,11 +96,9 @@ auto create_explicit_stepper(StepScheme schemeName,                     // (2)
   using state_type   = typename sys_type::state_type;
   using rhs_type = typename sys_type::rhs_type;
 
-  // use "SystemType" as template arg, see above for reason
   using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
     state_type, ind_var_type, SystemType, rhs_type>;
-  return impl::create_explicit_stepper<impl_type>
-    (schemeName, std::forward<SystemType>(odeSystem));
+  return impl::create_explicit_stepper<impl_type>(schemeName, odeSystem);
 }
 
 //

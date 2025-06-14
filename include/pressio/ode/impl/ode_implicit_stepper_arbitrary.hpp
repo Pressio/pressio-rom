@@ -86,34 +86,36 @@ private:
   IndVarType timeAtStepStart_  = {};
   IndVarType rhsEvaluationTime_  = {};
 
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SystemType const * systemObj_;
   stencil_states_t stencilStates_;
   // state object to ensure the strong guarantee for handling excpetions
   StateType recoveryState_;
 
 public:
   StepperArbitrary() = delete;
-  StepperArbitrary(const StepperArbitrary & other)  = default;
-  StepperArbitrary & operator=(const StepperArbitrary & other) = delete;
+  StepperArbitrary(const StepperArbitrary &)  = delete;
+  StepperArbitrary & operator=(const StepperArbitrary &) = delete;
+  StepperArbitrary(StepperArbitrary &&)  = default;
+  StepperArbitrary & operator=(StepperArbitrary &&) = default;
   ~StepperArbitrary() = default;
 
-  StepperArbitrary(SystemType && systemObj)
-    : systemObj_(std::forward<SystemType>(systemObj)),
-      stencilStates_(systemObj.createState()), //stencilstates handles right semantics
-      recoveryState_{systemObj.createState()}
+  StepperArbitrary(SystemType const & systemObj)
+    : systemObj_(&systemObj),
+      stencilStates_(systemObj_->createState()), //stencilstates handles right semantics
+      recoveryState_{systemObj_->createState()}
     {}
 
 public:
   auto createState() const{
-    return systemObj_.get().createState();
+    return systemObj_->createState();
   }
 
   residual_type createResidual() const{
-    return systemObj_.get().createDiscreteResidual();
+    return systemObj_->createDiscreteResidual();
   }
 
   jacobian_type createJacobian() const{
-    return systemObj_.get().createDiscreteJacobian();
+    return systemObj_->createDiscreteJacobian();
   }
 
   template<class SolverType, class ...Args>
@@ -157,7 +159,7 @@ public:
     const auto & yn = stencilStates_(ode::n());
 
     try{
-      systemObj_.get().discreteResidualAndJacobian
+      systemObj_->discreteResidualAndJacobian
 	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo, odeState, yn);
     }
     catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
@@ -174,7 +176,7 @@ private:
 		  >::value)
     {
       const auto & yn = stencilStates_(ode::n());
-      systemObj_.get().preStepHook(stepNumber_, timeAtStepStart_, dt_,
+      systemObj_->preStepHook(stepNumber_, timeAtStepStart_, dt_,
 				   odeState, yn);
     }
   }

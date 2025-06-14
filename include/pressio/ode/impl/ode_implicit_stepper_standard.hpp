@@ -93,8 +93,10 @@ private:
 
 public:
   ImplicitStepperStandardImpl() = delete;
-  ImplicitStepperStandardImpl(const ImplicitStepperStandardImpl & other)  = default;
-  ImplicitStepperStandardImpl & operator=(const ImplicitStepperStandardImpl & other) = delete;
+  ImplicitStepperStandardImpl(const ImplicitStepperStandardImpl &)  = delete;
+  ImplicitStepperStandardImpl & operator=(const ImplicitStepperStandardImpl &) = delete;
+  ImplicitStepperStandardImpl(ImplicitStepperStandardImpl &&)  = default;
+  ImplicitStepperStandardImpl & operator=(ImplicitStepperStandardImpl &&) = default;
   ~ImplicitStepperStandardImpl() = default;
 
   // *** BDF1 ***//

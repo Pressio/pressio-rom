@@ -69,28 +69,30 @@ public:
   using jacobian_type = JacobianType;
 
 public:
-  ResidualJacobianStandardPolicy() = delete;
+  ResidualJacobianStandardPolicy() = default;
 
-  explicit ResidualJacobianStandardPolicy(SystemType && systemIn)
-    : systemObj_( std::forward<SystemType>(systemIn) ){}
+  explicit ResidualJacobianStandardPolicy(SystemType const & systemIn)
+    : systemObj_(&systemIn){}
 
-  ResidualJacobianStandardPolicy(const ResidualJacobianStandardPolicy &) = default;
-  ResidualJacobianStandardPolicy & operator=(const ResidualJacobianStandardPolicy &) = default;
+  ResidualJacobianStandardPolicy(const ResidualJacobianStandardPolicy &) = delete;
+  ResidualJacobianStandardPolicy & operator=(const ResidualJacobianStandardPolicy &) = delete;
+  ResidualJacobianStandardPolicy(ResidualJacobianStandardPolicy &&) = default;
+  ResidualJacobianStandardPolicy & operator=(ResidualJacobianStandardPolicy &&) = default;
   ~ResidualJacobianStandardPolicy() = default;
 
 public:
   StateType createState() const{
-    StateType result(systemObj_.get().createState());
+    StateType result(systemObj_->createState());
     return result;
   }
 
   ResidualType createResidual() const{
-    ResidualType R(systemObj_.get().createRhs());
+    ResidualType R(systemObj_->createRhs());
     return R;
   }
 
   JacobianType createJacobian() const{
-    JacobianType JJ(systemObj_.get().createJacobian());
+    JacobianType JJ(systemObj_->createJacobian());
     return JJ;
   }
 
@@ -155,7 +157,7 @@ private:
     try{
       stepTracker_ = step;
 
-      systemObj_.get().rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
+      systemObj_->rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
       ::pressio::ode::impl::discrete_residual(BDF1(), predictedState,
 					      R, stencilStatesManager, dt);
 
@@ -192,7 +194,7 @@ private:
     if (step == ::pressio::ode::first_step_value){
 
       try{
-	systemObj_.get().rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
+	systemObj_->rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
 	::pressio::ode::impl::discrete_residual(BDF1(), predictedState,
 						R, stencilStatesManager, dt);
 
@@ -208,7 +210,7 @@ private:
     else{
 
       try{
-	systemObj_.get().rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
+	systemObj_->rhsAndJacobian(predictedState, rhsEvaluationTime, R, Jo);
 	::pressio::ode::impl::discrete_residual(BDF2(), predictedState,
 						R, stencilStatesManager, dt);
 
@@ -246,17 +248,17 @@ private:
       auto & f_n = stencilVelocities(::pressio::ode::n());
       auto & state_n = stencilStates(::pressio::ode::n());
       const auto tn = t_np1-dt;
-      systemObj_.get().rhsAndJacobian(state_n, tn, f_n, {});
+      systemObj_->rhsAndJacobian(state_n, tn, f_n, {});
     }
 
     auto & f_np1 = stencilVelocities(::pressio::ode::nPlusOne());
     if (Jo){
-      systemObj_.get().rhsAndJacobian(predictedState, t_np1, f_np1, Jo);
+      systemObj_->rhsAndJacobian(predictedState, t_np1, f_np1, Jo);
       auto & Jv = *(Jo.value());
       ::pressio::ode::impl::discrete_jacobian(ode::CrankNicolson(), Jv, dt);
     }
     else{
-      systemObj_.get().rhsAndJacobian(predictedState, t_np1, f_np1, {});
+      systemObj_->rhsAndJacobian(predictedState, t_np1, f_np1, {});
     }
 
     ::pressio::ode::impl::discrete_residual
@@ -266,7 +268,7 @@ private:
   }
 
 private:
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SystemType const * systemObj_;
   mutable int32_t stepTracker_ = -1;
 };
 

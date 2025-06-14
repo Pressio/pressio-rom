@@ -53,27 +53,23 @@ namespace pressio{ namespace ode{ namespace impl{
 
 template<class ImplClassType, class SystemType>
 auto create_explicit_stepper(StepScheme name,
-			     SystemType && system)
+			     SystemType const & system)
 {
 
   if (name == StepScheme::ForwardEuler){
-    return ImplClassType(ode::ForwardEuler(),
-			 std::forward<SystemType>(system));
+    return ImplClassType(ode::ForwardEuler(), system);
   }
 
   else if (name == StepScheme::RungeKutta4){
-    return ImplClassType(ode::RungeKutta4(),
-			 std::forward<SystemType>(system));
+    return ImplClassType(ode::RungeKutta4(), system);
   }
 
   else if (name == StepScheme::AdamsBashforth2){
-    return ImplClassType(ode::AdamsBashforth2(),
-			 std::forward<SystemType>(system));
+    return ImplClassType(ode::AdamsBashforth2(), system);
   }
 
   else if (name == StepScheme::SSPRungeKutta3){
-    return ImplClassType(ode::SSPRungeKutta3(),
-			 std::forward<SystemType>(system));
+    return ImplClassType(ode::SSPRungeKutta3(), system);
   }
 
   else{
