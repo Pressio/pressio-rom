@@ -52,12 +52,11 @@
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 
-#include "pressio/pressio_macros.hpp"
-
+#include "./pressio_macros.hpp"
 #ifdef PRESSIO_ENABLE_CXX20
-#include "solvers_nonlinear/solvers_concepts_cxx20.hpp"
+#include "./solvers_nonlinear/solvers_concepts_cxx20.hpp"
 #else
-#include "solvers_nonlinear/solvers_concepts.hpp"
+#include "./solvers_nonlinear/solvers_concepts.hpp"
 #endif
 
 #endif

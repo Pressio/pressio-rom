@@ -260,7 +260,7 @@ TEST(ode, implicit_crank_nicolson_correctness_custom_policy)
   using res_t  = typename app_t::rhs_type;
   using jac_t  = typename app_t::jacobian_type;
   using time_type = typename app_t::independent_variable_type;
-  using pol_t = pressio::ode::impl::ResidualJacobianStandardPolicy<app_t&, time_type,
+  using pol_t = pressio::ode::impl::ResidualJacobianStandardPolicy<app_t, time_type,
 								   state_t, res_t, jac_t>;
 
   auto stepperObj = pressio::ode::create_cranknicolson_stepper(pol_t(appObj));

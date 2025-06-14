@@ -49,15 +49,16 @@
 #ifndef PRESSIO_ROM_CONCEPTS_TOPLEVEL_INC_HPP_
 #define PRESSIO_ROM_CONCEPTS_TOPLEVEL_INC_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./solvers_linear.hpp"
 #include "./solvers_nonlinear.hpp"
 #include "./ode.hpp"
-
 #include "./rom/rom_concepts.hpp"
 
 #endif

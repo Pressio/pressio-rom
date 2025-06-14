@@ -43,7 +43,7 @@ TEST(ode, implicit_bdf1_custom_policy)
   state_t y = problemObj.getInitCond();
 
   using rj_pol_t = ode::impl::ResidualJacobianStandardPolicy<
-    problem_t&, time_type, state_t, res_t, jac_t>;
+    problem_t, time_type, state_t, res_t, jac_t>;
   auto stepperObj = ode::create_implicit_stepper(ode::StepScheme::BDF1,
 						 rj_pol_t(problemObj));
 

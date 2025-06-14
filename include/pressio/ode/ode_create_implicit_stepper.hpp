@@ -67,7 +67,7 @@ template<
     int > = 0
   >
 auto create_implicit_stepper(StepScheme schemeName,                     // (1)
-			     SystemType && system)
+			     SystemType const & system)
 {
 
   assert(schemeName == StepScheme::BDF1 ||
@@ -80,8 +80,6 @@ auto create_implicit_stepper(StepScheme schemeName,                     // (1)
   using residual_type = typename system_type::rhs_type;
   using jacobian_type = typename system_type::jacobian_type;
 
-  // it is very important to use "SystemType" as template arg
-  // because that it the right type carrying how we store the system
   using policy_type = impl::ResidualJacobianStandardPolicy<
     SystemType, ind_var_type, state_type, residual_type, jacobian_type>;
 
@@ -89,7 +87,7 @@ auto create_implicit_stepper(StepScheme schemeName,                     // (1)
     ind_var_type, state_type, residual_type,
     jacobian_type, policy_type>;
   return impl::create_implicit_stepper_impl<
-    impl_type>(schemeName, policy_type(std::forward<SystemType>(system)));
+    impl_type>(schemeName, policy_type(system));
 }
 
 template<
@@ -99,7 +97,7 @@ template<
     int > = 0
   >
 auto create_implicit_stepper(StepScheme schemeName,                     // (2)
-			     SystemType && system)
+			     SystemType const & system)
 {
 
   assert(schemeName == StepScheme::BDF1 ||
@@ -112,8 +110,6 @@ auto create_implicit_stepper(StepScheme schemeName,                     // (2)
   using jacobian_type = typename system_type::jacobian_type;
   using mass_mat_type = typename system_type::mass_matrix_type;
 
-  // it is very important to use "SystemType" as template arg
-  // because that it the right type carrying how we store the system
   using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
     SystemType, ind_var_type, state_type,
     residual_type, jacobian_type, mass_mat_type>;
@@ -122,7 +118,7 @@ auto create_implicit_stepper(StepScheme schemeName,                     // (2)
     ind_var_type, state_type, residual_type,
     jacobian_type, policy_type>;
   return impl::create_implicit_stepper_impl<
-    impl_type>(schemeName, policy_type(std::forward<SystemType>(system)));
+    impl_type>(schemeName, policy_type(system));
 }
 
 
@@ -203,7 +199,7 @@ auto create_cranknicolson_stepper(Args && ... args){
  *
  */
 template<int TotalNumberOfDesiredStates, class SystemType>
-auto create_implicit_stepper(SystemType && system)
+auto create_implicit_stepper(SystemType const & system)
 {
   static_assert(TotalNumberOfDesiredStates == 2,
 		"create_implicit_stepper currently only supports 2 total states");
@@ -221,7 +217,7 @@ auto create_implicit_stepper(SystemType && system)
     TotalNumberOfDesiredStates, SystemType, ind_var_type,
     state_type, residual_type, jacobian_type
     >;
-  return stepper_type(std::forward<SystemType>(system));
+  return stepper_type(system);
 }
 
 }} // end namespace pressio::ode

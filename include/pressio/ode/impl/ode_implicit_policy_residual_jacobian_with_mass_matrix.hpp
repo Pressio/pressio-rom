@@ -69,17 +69,19 @@ public:
   using jacobian_type = JacobianType;
 
 public:
-  ResidualJacobianWithMassMatrixStandardPolicy() = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy() = default;
 
-  explicit ResidualJacobianWithMassMatrixStandardPolicy(SystemType && systemIn)
-    : systemObj_( std::forward<SystemType>(systemIn) ),
+  explicit ResidualJacobianWithMassMatrixStandardPolicy(SystemType const & systemIn)
+    : systemObj_(&systemIn),
       scratchState_(systemIn.createState()),
       massMatrix_(systemIn.createMassMatrix()),
       rhs_(systemIn.createRhs())
   {}
 
-  ResidualJacobianWithMassMatrixStandardPolicy(const ResidualJacobianWithMassMatrixStandardPolicy &) = default;
-  ResidualJacobianWithMassMatrixStandardPolicy & operator=(const ResidualJacobianWithMassMatrixStandardPolicy &) = default;
+  ResidualJacobianWithMassMatrixStandardPolicy(const ResidualJacobianWithMassMatrixStandardPolicy &) = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy & operator=(const ResidualJacobianWithMassMatrixStandardPolicy &) = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy(ResidualJacobianWithMassMatrixStandardPolicy &&) = default;
+  ResidualJacobianWithMassMatrixStandardPolicy & operator=(ResidualJacobianWithMassMatrixStandardPolicy &&) = default;
   ~ResidualJacobianWithMassMatrixStandardPolicy() = default;
 
 public:
@@ -88,17 +90,17 @@ public:
   }
 
   StateType createState() const{
-    StateType result(systemObj_.get().createState());
+    StateType result(systemObj_->createState());
     return result;
   }
 
   ResidualType createResidual() const{
-    ResidualType R(systemObj_.get().createRhs());
+    ResidualType R(systemObj_->createRhs());
     return R;
   }
 
   JacobianType createJacobian() const{
-    JacobianType JJ(systemObj_.get().createJacobian());
+    JacobianType JJ(systemObj_->createJacobian());
     return JJ;
   }
 
@@ -153,7 +155,7 @@ private:
 
     try{
       stepTracker_ = step;
-      systemObj_.get().massMatrixAndRhsAndJacobian(predictedState, evalTime,
+      systemObj_->massMatrixAndRhsAndJacobian(predictedState, evalTime,
 						   massMatrix_, rhs_, Jo);
       discrete_residual(BDF1(), predictedState, scratchState_, rhs_,
 			massMatrix_, R, stencilStatesManager, dt);
@@ -186,8 +188,8 @@ private:
     auto cond = [=](){ return (step == ::pressio::ode::first_step_value); };
 
     try{
-      systemObj_.get().massMatrixAndRhsAndJacobian(predictedState, evalTime,
-						   massMatrix_, rhs_, Jo);
+      systemObj_->massMatrixAndRhsAndJacobian(predictedState, evalTime,
+					      massMatrix_, rhs_, Jo);
       if (cond()){
 	discrete_residual(BDF1(), predictedState, scratchState_, rhs_,
 			  massMatrix_, R, stencilStatesManager, dt);
@@ -212,7 +214,7 @@ private:
   }
 
 private:
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SystemType const * systemObj_;
   mutable int32_t stepTracker_ = -1;
   mutable StateType scratchState_;
   mutable MassMatrixType massMatrix_;
