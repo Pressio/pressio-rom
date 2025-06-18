@@ -74,7 +74,7 @@ auto create_implicit_stepper(StepScheme schemeName,
   static constexpr bool complete_system = RealValuedCompleteOdeSystem<
     mpl::remove_cvref_t<SystemType>>::value;
 
-  const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
+  [[maybe_unused]] const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
     schemeName == StepScheme::BDF2 ||
     schemeName == StepScheme::CrankNicolson;
   assert(allowed_scheme);
@@ -168,40 +168,6 @@ auto create_implicit_stepper(StepScheme schemeName,
   }
 }
 
-// template<
-//   class SystemType,
-//   std::enable_if_t<
-//     RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
-//     int > = 0
-//   >
-// auto create_implicit_stepper(StepScheme schemeName,
-// 			     SystemType const & system)
-// {
-
-//   assert(schemeName == StepScheme::BDF1 ||
-// 	 schemeName == StepScheme::BDF2);
-
-//   using system_type   = mpl::remove_cvref_t<SystemType>;
-//   using ind_var_type  = typename system_type::independent_variable_type;
-//   using state_type    = typename system_type::state_type;
-//   using residual_type = typename system_type::rhs_type;
-//   using jacobian_type = typename system_type::jacobian_type;
-//   using mass_mat_type = typename system_type::mass_matrix_type;
-
-//   using wrap_type = impl::SystemInternalWrapper<0, system_type>;
-
-//   using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
-//     wrap_type, ind_var_type, state_type,
-//     residual_type, jacobian_type, mass_mat_type>;
-
-//   using impl_type = impl::ImplicitStepperStandardImpl<
-//     ind_var_type, state_type, residual_type,
-//     jacobian_type, policy_type>;
-//   return impl::create_implicit_stepper_impl<
-//     impl_type>(schemeName, policy_type(wrap_type(system)));
-// }
-
-
 template<
   class ResidualJacobianPolicyType,
   std::enable_if_t<
@@ -285,7 +251,8 @@ auto create_implicit_stepper(SystemType const & system)
 		"create_implicit_stepper currently only supports 2 total states");
 
   using system_type = mpl::remove_cvref_t<SystemType>;
-  static_assert(RealValuedFullyDiscreteSystemWithJacobian<system_type, TotalNumberOfDesiredStates>::value,
+  static_assert(RealValuedFullyDiscreteSystemWithJacobian<
+		system_type, TotalNumberOfDesiredStates>::value,
 		"The system passed does not meet the FullyDiscrete API");
 
   using ind_var_type  = typename system_type::independent_variable_type;
@@ -309,7 +276,8 @@ auto create_implicit_stepper(std::unique_ptr<SystemType> system)
 		"create_implicit_stepper currently only supports 2 total states");
 
   using system_type = mpl::remove_cvref_t<SystemType>;
-  static_assert(RealValuedFullyDiscreteSystemWithJacobian<system_type, TotalNumberOfDesiredStates>::value,
+  static_assert(RealValuedFullyDiscreteSystemWithJacobian<
+		system_type, TotalNumberOfDesiredStates>::value,
 		"The system passed does not meet the FullyDiscrete API");
 
   using ind_var_type  = typename system_type::independent_variable_type;

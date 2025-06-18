@@ -92,8 +92,6 @@ auto create_explicit_stepper(StepScheme schemeName,
   }
 }
 
-
-
 //
 // auxiliary scheme-specific functions
 //
