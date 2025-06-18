@@ -52,6 +52,7 @@
 
 #include "./impl/ode_implicit_discrete_residual.hpp"
 #include "./impl/ode_implicit_discrete_jacobian.hpp"
+#include "./impl/ode_user_system_wrapper.hpp"
 #include "./impl/ode_implicit_policy_residual_jacobian_without_mass_matrix.hpp"
 #include "./impl/ode_implicit_policy_residual_jacobian_with_mass_matrix.hpp"
 #include "./impl/ode_implicit_stepper_standard.hpp"
@@ -63,16 +64,24 @@ namespace pressio{ namespace ode{
 template<
   class SystemType,
   std::enable_if_t<
-    RealValuedOdeSystemFusingRhsAndJacobian<mpl::remove_cvref_t<SystemType>>::value,
+    RealValuedOdeSystemFusingRhsAndJacobian<mpl::remove_cvref_t<SystemType>>::value ||
+    RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
     int > = 0
   >
-auto create_implicit_stepper(StepScheme schemeName,                     // (1)
+auto create_implicit_stepper(StepScheme schemeName,
 			     SystemType const & system)
 {
+  static constexpr bool complete_system = RealValuedCompleteOdeSystem<
+    mpl::remove_cvref_t<SystemType>>::value;
 
-  assert(schemeName == StepScheme::BDF1 ||
-	 schemeName == StepScheme::BDF2 ||
-	 schemeName == StepScheme::CrankNicolson);
+  const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
+    schemeName == StepScheme::BDF2 ||
+    schemeName == StepScheme::CrankNicolson;
+  assert(allowed_scheme);
+  if constexpr(complete_system){
+    // for systems with mass matrix CN not supported yet
+    assert(schemeName != StepScheme::CrankNicolson);
+  }
 
   using system_type   = mpl::remove_cvref_t<SystemType>;
   using ind_var_type  = typename system_type::independent_variable_type;
@@ -80,46 +89,117 @@ auto create_implicit_stepper(StepScheme schemeName,                     // (1)
   using residual_type = typename system_type::rhs_type;
   using jacobian_type = typename system_type::jacobian_type;
 
-  using policy_type = impl::ResidualJacobianStandardPolicy<
-    SystemType, ind_var_type, state_type, residual_type, jacobian_type>;
+  using wrap_type = impl::SystemInternalWrapper<0, system_type>;
 
-  using impl_type = impl::ImplicitStepperStandardImpl<
-    ind_var_type, state_type, residual_type,
-    jacobian_type, policy_type>;
-  return impl::create_implicit_stepper_impl<
-    impl_type>(schemeName, policy_type(system));
+  if constexpr (complete_system){
+    using mass_mat_type = typename system_type::mass_matrix_type;
+
+    using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
+      wrap_type, ind_var_type, state_type,
+      residual_type, jacobian_type, mass_mat_type>;
+
+    using impl_type = impl::ImplicitStepperStandardImpl<
+      ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
+    return impl::create_implicit_stepper_impl<
+      impl_type>(schemeName, policy_type(wrap_type(system)));
+  }
+  else{
+    using policy_type = impl::ResidualJacobianStandardPolicy<
+      wrap_type, ind_var_type, state_type, residual_type, jacobian_type>;
+
+    using impl_type = impl::ImplicitStepperStandardImpl<
+      ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
+    return impl::create_implicit_stepper_impl<
+      impl_type>(schemeName, policy_type(wrap_type(system)));
+  }
 }
 
 template<
   class SystemType,
   std::enable_if_t<
+    RealValuedOdeSystemFusingRhsAndJacobian<mpl::remove_cvref_t<SystemType>>::value ||
     RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
     int > = 0
   >
-auto create_implicit_stepper(StepScheme schemeName,                     // (2)
-			     SystemType const & system)
+auto create_implicit_stepper(StepScheme schemeName,
+			     std::unique_ptr<SystemType> system)
 {
+  static constexpr bool complete_system = RealValuedCompleteOdeSystem<
+    mpl::remove_cvref_t<SystemType>>::value;
 
-  assert(schemeName == StepScheme::BDF1 ||
-	 schemeName == StepScheme::BDF2);
+  const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
+    schemeName == StepScheme::BDF2 ||
+    schemeName == StepScheme::CrankNicolson;
+  assert(allowed_scheme);
+  if constexpr(complete_system){
+    // for systems with mass matrix CN not supported yet
+    assert(schemeName != StepScheme::CrankNicolson);
+  }
 
   using system_type   = mpl::remove_cvref_t<SystemType>;
   using ind_var_type  = typename system_type::independent_variable_type;
   using state_type    = typename system_type::state_type;
   using residual_type = typename system_type::rhs_type;
   using jacobian_type = typename system_type::jacobian_type;
-  using mass_mat_type = typename system_type::mass_matrix_type;
 
-  using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
-    SystemType, ind_var_type, state_type,
-    residual_type, jacobian_type, mass_mat_type>;
+  using wrap_type = impl::SystemInternalWrapper<1, system_type>;
+  wrap_type ws(std::move(system));
 
-  using impl_type = impl::ImplicitStepperStandardImpl<
-    ind_var_type, state_type, residual_type,
-    jacobian_type, policy_type>;
-  return impl::create_implicit_stepper_impl<
-    impl_type>(schemeName, policy_type(system));
+  if constexpr (complete_system){
+    using mass_mat_type = typename system_type::mass_matrix_type;
+
+    using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
+      wrap_type, ind_var_type, state_type,
+      residual_type, jacobian_type, mass_mat_type>;
+
+    using impl_type = impl::ImplicitStepperStandardImpl<
+      ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
+    return impl::create_implicit_stepper_impl<
+      impl_type>(schemeName, policy_type(std::move(ws)));
+  }
+  else{
+    using policy_type = impl::ResidualJacobianStandardPolicy<
+      wrap_type, ind_var_type, state_type, residual_type, jacobian_type>;
+
+    using impl_type = impl::ImplicitStepperStandardImpl<
+      ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
+    return impl::create_implicit_stepper_impl<
+      impl_type>(schemeName, policy_type(std::move(ws)));
+  }
 }
+
+// template<
+//   class SystemType,
+//   std::enable_if_t<
+//     RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
+//     int > = 0
+//   >
+// auto create_implicit_stepper(StepScheme schemeName,
+// 			     SystemType const & system)
+// {
+
+//   assert(schemeName == StepScheme::BDF1 ||
+// 	 schemeName == StepScheme::BDF2);
+
+//   using system_type   = mpl::remove_cvref_t<SystemType>;
+//   using ind_var_type  = typename system_type::independent_variable_type;
+//   using state_type    = typename system_type::state_type;
+//   using residual_type = typename system_type::rhs_type;
+//   using jacobian_type = typename system_type::jacobian_type;
+//   using mass_mat_type = typename system_type::mass_matrix_type;
+
+//   using wrap_type = impl::SystemInternalWrapper<0, system_type>;
+
+//   using policy_type = impl::ResidualJacobianWithMassMatrixStandardPolicy<
+//     wrap_type, ind_var_type, state_type,
+//     residual_type, jacobian_type, mass_mat_type>;
+
+//   using impl_type = impl::ImplicitStepperStandardImpl<
+//     ind_var_type, state_type, residual_type,
+//     jacobian_type, policy_type>;
+//   return impl::create_implicit_stepper_impl<
+//     impl_type>(schemeName, policy_type(wrap_type(system)));
+// }
 
 
 template<
@@ -213,11 +293,38 @@ auto create_implicit_stepper(SystemType const & system)
   using residual_type = typename system_type::discrete_residual_type;
   using jacobian_type = typename system_type::discrete_jacobian_type;
 
+  using wrap_type = impl::SystemInternalWrapper<0, system_type>;
+
   using stepper_type = impl::StepperArbitrary<
-    TotalNumberOfDesiredStates, SystemType, ind_var_type,
+    TotalNumberOfDesiredStates, wrap_type, ind_var_type,
     state_type, residual_type, jacobian_type
     >;
-  return stepper_type(system);
+  return stepper_type(wrap_type(system));
+}
+
+template<int TotalNumberOfDesiredStates, class SystemType>
+auto create_implicit_stepper(std::unique_ptr<SystemType> system)
+{
+  static_assert(TotalNumberOfDesiredStates == 2,
+		"create_implicit_stepper currently only supports 2 total states");
+
+  using system_type = mpl::remove_cvref_t<SystemType>;
+  static_assert(RealValuedFullyDiscreteSystemWithJacobian<system_type, TotalNumberOfDesiredStates>::value,
+		"The system passed does not meet the FullyDiscrete API");
+
+  using ind_var_type  = typename system_type::independent_variable_type;
+  using state_type    = typename system_type::state_type;
+  using residual_type = typename system_type::discrete_residual_type;
+  using jacobian_type = typename system_type::discrete_jacobian_type;
+
+  using wrap_type = impl::SystemInternalWrapper<1, system_type>;
+  wrap_type ws(std::move(system));
+
+  using stepper_type = impl::StepperArbitrary<
+    TotalNumberOfDesiredStates, wrap_type, ind_var_type,
+    state_type, residual_type, jacobian_type
+    >;
+  return stepper_type(std::move(ws));
 }
 
 }} // end namespace pressio::ode

@@ -53,7 +53,7 @@ namespace pressio{ namespace ode{ namespace impl{
 
 template<
   int n_states,
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -86,7 +86,7 @@ private:
   IndVarType timeAtStepStart_  = {};
   IndVarType rhsEvaluationTime_  = {};
 
-  SystemType const * systemObj_;
+  SysWrapperType systemObj_;
   stencil_states_t stencilStates_;
   // state object to ensure the strong guarantee for handling excpetions
   StateType recoveryState_;
@@ -99,23 +99,23 @@ public:
   StepperArbitrary & operator=(StepperArbitrary &&) = default;
   ~StepperArbitrary() = default;
 
-  StepperArbitrary(SystemType const & systemObj)
-    : systemObj_(&systemObj),
-      stencilStates_(systemObj_->createState()), //stencilstates handles right semantics
-      recoveryState_{systemObj_->createState()}
+  StepperArbitrary(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)),
+      stencilStates_(systemObj_.get().createState()), //stencilstates handles right semantics
+      recoveryState_{systemObj_.get().createState()}
     {}
 
 public:
   auto createState() const{
-    return systemObj_->createState();
+    return systemObj_.get().createState();
   }
 
   residual_type createResidual() const{
-    return systemObj_->createDiscreteResidual();
+    return systemObj_.get().createDiscreteResidual();
   }
 
   jacobian_type createJacobian() const{
-    return systemObj_->createDiscreteJacobian();
+    return systemObj_.get().createDiscreteJacobian();
   }
 
   template<class SolverType, class ...Args>
@@ -159,7 +159,7 @@ public:
     const auto & yn = stencilStates_(ode::n());
 
     try{
-      systemObj_->discreteResidualAndJacobian
+      systemObj_.get().discreteResidualAndJacobian
 	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo, odeState, yn);
     }
     catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
@@ -170,13 +170,14 @@ public:
 private:
   void callPreStepHookIfApplicable(const StateType & odeState)
   {
+    using wrapped_system_type = typename SysWrapperType::system_type;
     if constexpr (numAuxStates == 1 && has_const_pre_step_hook_method<
-		  mpl::remove_cvref_t<SystemType>, n_states,
+		  mpl::remove_cvref_t<wrapped_system_type>, n_states,
 		  typename StepCount::value_type, IndVarType, state_type
 		  >::value)
     {
       const auto & yn = stencilStates_(ode::n());
-      systemObj_->preStepHook(stepNumber_, timeAtStepStart_, dt_,
+      systemObj_.get().preStepHook(stepNumber_, timeAtStepStart_, dt_,
 				   odeState, yn);
     }
   }

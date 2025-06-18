@@ -43,8 +43,8 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
     ind_var_type, reduced_state_type, reduced_residual_type,
     reduced_jacobian_type, TrialSubspaceType, FomSystemType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem);
-  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(galSystem));
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
+  return ::pressio::ode::create_implicit_stepper<galerkin_system>(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -78,8 +78,8 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
     ind_var_type, reduced_state_type, reduced_residual_type,
     reduced_jacobian_type, reduced_mm_type, TrialSubspaceType, FomSystemType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem);
-  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(galSystem));
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
+  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(gs));
 }
 
 
@@ -110,8 +110,8 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
     ind_var_type, reduced_state_type, reduced_residual_type,
     reduced_jacobian_type, TrialSubspaceType, FomSystemType, HyperReducerType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem, hyperReducer);
-  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(galSystem));
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, hyperReducer);
+  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -144,8 +144,8 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
     reduced_jacobian_type, TrialSubspaceType, FomSystemType,
     MaskerType, HyperReducerType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem, masker, hyperReducer);
-  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(galSystem));
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, masker, hyperReducer);
+  return ::pressio::ode::create_implicit_stepper(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -159,8 +159,6 @@ template<
 auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,    /*(5)*/
 				      const FomSystemType & fomSystem)
 {
-  static_assert(TotalNumberOfDesiredStates == 2,
-		"galerkin::create_unsteady_problem currently only supports 2 total states");
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type    = typename TrialSubspaceType::reduced_state_type;
@@ -174,9 +172,9 @@ auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,    /
     reduced_state_type, reduced_residual_type,
     reduced_jacobian_type, TrialSubspaceType, FomSystemType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
   return ::pressio::ode::create_implicit_stepper<
-    TotalNumberOfDesiredStates>(std::move(galSystem));
+    TotalNumberOfDesiredStates>(std::move(gs));
 }
 
 template<
@@ -188,8 +186,6 @@ auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,
                                       const FomSystemType & fomSystem,
                                       const HyperReducerType & hyperReducer)
 {
-  static_assert(TotalNumberOfDesiredStates == 2,
-		"galerkin::create_unsteady_problem currently only supports 2 total states");
 
   using independent_variable_type = typename FomSystemType::time_type;
   using reduced_state_type        = typename TrialSubspaceType::reduced_state_type;
@@ -204,9 +200,9 @@ auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,
     reduced_jacobian_type, TrialSubspaceType, FomSystemType,
     HyperReducerType>;
 
-  galerkin_system galSystem(trialSpace, fomSystem, hyperReducer);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, hyperReducer);
   return ::pressio::ode::create_implicit_stepper<
-    TotalNumberOfDesiredStates>(std::move(galSystem));
+    TotalNumberOfDesiredStates>(std::move(gs));
 }
 
 }}} // end pressio::rom::galerkin

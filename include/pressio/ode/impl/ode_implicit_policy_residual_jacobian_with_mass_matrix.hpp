@@ -52,7 +52,7 @@
 namespace pressio{ namespace ode{ namespace impl{
 
 template<
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -71,11 +71,11 @@ public:
 public:
   ResidualJacobianWithMassMatrixStandardPolicy() = default;
 
-  explicit ResidualJacobianWithMassMatrixStandardPolicy(SystemType const & systemIn)
-    : systemObj_(&systemIn),
-      scratchState_(systemIn.createState()),
-      massMatrix_(systemIn.createMassMatrix()),
-      rhs_(systemIn.createRhs())
+  explicit ResidualJacobianWithMassMatrixStandardPolicy(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)),
+      scratchState_(systemObj_.get().createState()),
+      massMatrix_(systemObj_.get().createMassMatrix()),
+      rhs_(systemObj_.get().createRhs())
   {}
 
   ResidualJacobianWithMassMatrixStandardPolicy(const ResidualJacobianWithMassMatrixStandardPolicy &) = delete;
@@ -90,17 +90,17 @@ public:
   }
 
   StateType createState() const{
-    StateType result(systemObj_->createState());
+    StateType result(systemObj_.get().createState());
     return result;
   }
 
   ResidualType createResidual() const{
-    ResidualType R(systemObj_->createRhs());
+    ResidualType R(systemObj_.get().createRhs());
     return R;
   }
 
   JacobianType createJacobian() const{
-    JacobianType JJ(systemObj_->createJacobian());
+    JacobianType JJ(systemObj_.get().createJacobian());
     return JJ;
   }
 
@@ -155,7 +155,7 @@ private:
 
     try{
       stepTracker_ = step;
-      systemObj_->massMatrixAndRhsAndJacobian(predictedState, evalTime,
+      systemObj_.get().massMatrixAndRhsAndJacobian(predictedState, evalTime,
 						   massMatrix_, rhs_, Jo);
       discrete_residual(BDF1(), predictedState, scratchState_, rhs_,
 			massMatrix_, R, stencilStatesManager, dt);
@@ -188,7 +188,7 @@ private:
     auto cond = [=](){ return (step == ::pressio::ode::first_step_value); };
 
     try{
-      systemObj_->massMatrixAndRhsAndJacobian(predictedState, evalTime,
+      systemObj_.get().massMatrixAndRhsAndJacobian(predictedState, evalTime,
 					      massMatrix_, rhs_, Jo);
       if (cond()){
 	discrete_residual(BDF1(), predictedState, scratchState_, rhs_,
@@ -214,7 +214,7 @@ private:
   }
 
 private:
-  SystemType const * systemObj_;
+  SysWrapperType systemObj_;
   mutable int32_t stepTracker_ = -1;
   mutable StateType scratchState_;
   mutable MassMatrixType massMatrix_;

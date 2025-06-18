@@ -85,7 +85,7 @@ struct SystemInternalWrapper<1, SystemType>{
   SystemInternalWrapper(SystemInternalWrapper &&) = default;
   SystemInternalWrapper & operator=(SystemInternalWrapper &&) = default;
 
-  explicit SystemInternalWrapper(std::unique_ptr<SystemType const> o)
+  explicit SystemInternalWrapper(std::unique_ptr<SystemType const> && o)
     : data_(std::move(o)){}
 
   SystemType const & get() const { return *data_; }
