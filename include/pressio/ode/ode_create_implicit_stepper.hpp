@@ -127,7 +127,7 @@ auto create_implicit_stepper(StepScheme schemeName,
   static constexpr bool complete_system = RealValuedCompleteOdeSystem<
     mpl::remove_cvref_t<SystemType>>::value;
 
-  const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
+  [[maybe_unused]] const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
     schemeName == StepScheme::BDF2 ||
     schemeName == StepScheme::CrankNicolson;
   assert(allowed_scheme);
