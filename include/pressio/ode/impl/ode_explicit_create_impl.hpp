@@ -51,27 +51,23 @@
 
 namespace pressio{ namespace ode{ namespace impl{
 
-template<class ImplClassType, class SystemType>
+template<class ImplClassType, class SystemWrapType>
 auto create_explicit_stepper(StepScheme name,
-			     SystemType const & system)
+			     SystemWrapType && system)
 {
 
   if (name == StepScheme::ForwardEuler){
-    return ImplClassType(ode::ForwardEuler(), system);
+    return ImplClassType(ode::ForwardEuler(), std::move(system));
   }
-
   else if (name == StepScheme::RungeKutta4){
-    return ImplClassType(ode::RungeKutta4(), system);
+    return ImplClassType(ode::RungeKutta4(), std::move(system));
   }
-
   else if (name == StepScheme::AdamsBashforth2){
-    return ImplClassType(ode::AdamsBashforth2(), system);
+    return ImplClassType(ode::AdamsBashforth2(), std::move(system));
   }
-
   else if (name == StepScheme::SSPRungeKutta3){
-    return ImplClassType(ode::SSPRungeKutta3(), system);
+    return ImplClassType(ode::SSPRungeKutta3(), std::move(system));
   }
-
   else{
     throw std::runtime_error("ode:: create_explicit_stepper: invalid StepScheme enum value");
   }
