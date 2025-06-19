@@ -4,7 +4,6 @@
 
 #include "./reduced_operators_traits.hpp"
 #include "impl/galerkin_helpers.hpp"
-#include "impl/galerkin_unsteady_explicit_problem.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_only.hpp"
 #include "impl/galerkin_unsteady_system_hypred_rhs_only.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_with_mass_matrix.hpp"

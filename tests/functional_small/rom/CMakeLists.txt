@@ -1,7 +1,4 @@
 
-set(ROM_SOURCES_CONCEPTS ${CMAKE_CURRENT_SOURCE_DIR}/concept_linear_subspace.cc)
-add_serial_utest(${TESTING_LEVEL}_rom_concepts ${ROM_SOURCES_CONCEPTS})
-
 if(PRESSIO_ENABLE_TPL_EIGEN)
   set(SRC concept_trial_subspace)
   add_serial_utest(${TESTING_LEVEL}_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
@@ -11,8 +8,6 @@ endif()
 # subspaces
 #
 if(PRESSIO_ENABLE_TPL_EIGEN)
-  set(SRC linear_subspace_test1)
-  add_serial_utest(${TESTING_LEVEL}_rom_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
   set(SRC trial_subspace_stdvec_full_state_eigen_reduced_state)
   add_serial_utest(${TESTING_LEVEL}_rom_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
 endif()
