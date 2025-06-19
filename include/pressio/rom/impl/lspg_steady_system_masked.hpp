@@ -59,6 +59,11 @@ public:
       scaler_(std::forward<_RawScalerType>(scaler))
   {}
 
+  LspgSteadyMaskedSystem(LspgSteadyMaskedSystem const &) = delete;
+  LspgSteadyMaskedSystem& operator=(LspgSteadyMaskedSystem const&) = delete;
+  LspgSteadyMaskedSystem(LspgSteadyMaskedSystem &&) = default;
+  LspgSteadyMaskedSystem& operator=(LspgSteadyMaskedSystem &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();
