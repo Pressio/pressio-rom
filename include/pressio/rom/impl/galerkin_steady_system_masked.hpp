@@ -68,6 +68,11 @@ public:
       maskedFomJacAction_(masker.createResultOfMaskActionOn(unMaskedFomJacAction_))
   {}
 
+  GalerkinSteadyMaskedSystem(GalerkinSteadyMaskedSystem const &) = delete;
+  GalerkinSteadyMaskedSystem& operator=(GalerkinSteadyMaskedSystem const&) = delete;
+  GalerkinSteadyMaskedSystem(GalerkinSteadyMaskedSystem &&) = default;
+  GalerkinSteadyMaskedSystem& operator=(GalerkinSteadyMaskedSystem &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();

@@ -54,6 +54,11 @@ public:
       fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+  GalerkinSteadyDefaultSystem(GalerkinSteadyDefaultSystem const &) = delete;
+  GalerkinSteadyDefaultSystem& operator=(GalerkinSteadyDefaultSystem const&) = delete;
+  GalerkinSteadyDefaultSystem(GalerkinSteadyDefaultSystem &&) = default;
+  GalerkinSteadyDefaultSystem& operator=(GalerkinSteadyDefaultSystem &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();
