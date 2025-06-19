@@ -20,9 +20,12 @@ template<
  class TrialSubspaceType, class FomSystemType,
  std::enable_if_t<
    PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value
-   && RealValuedSemiDiscreteFomWithJacobianAction<FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
-   && !RealValuedSemiDiscreteFomWithJacobianAndMassMatrixAction<FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
-   && std::is_same<typename TrialSubspaceType::full_state_type, typename FomSystemType::state_type>::value
+   && RealValuedSemiDiscreteFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
+   && !RealValuedSemiDiscreteFomWithJacobianAndMassMatrixAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
+   && std::is_same<typename TrialSubspaceType::full_state_type,
+		   typename FomSystemType::state_type>::value
    , int > = 0
   >
 auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /*(1)*/
@@ -57,7 +60,8 @@ template<
     PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value
     && RealValuedSemiDiscreteFomWithJacobianAndMassMatrixAction<
          FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
-    && std::is_same<typename TrialSubspaceType::full_state_type, typename FomSystemType::state_type>::value
+    && std::is_same<typename TrialSubspaceType::full_state_type,
+		    typename FomSystemType::state_type>::value
     , int > = 0
   >
 auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /*(2)*/

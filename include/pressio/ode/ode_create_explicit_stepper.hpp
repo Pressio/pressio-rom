@@ -92,6 +92,40 @@ auto create_explicit_stepper(StepScheme schemeName,
   }
 }
 
+template<
+  class SystemType,
+  std::enable_if_t<
+    RealValuedOdeSystem<mpl::remove_cvref_t<SystemType>>::value ||
+    RealValuedOdeSystemFusingMassMatrixAndRhs<mpl::remove_cvref_t<SystemType>>::value,
+    int > = 0
+  >
+auto create_explicit_stepper(StepScheme schemeName,
+			     std::unique_ptr<SystemType> system)
+{
+  using sys_type = mpl::remove_cvref_t<SystemType>;
+  using ind_var_type = typename sys_type::independent_variable_type;
+  using state_type   = typename sys_type::state_type;
+  using rhs_type = typename sys_type::rhs_type;
+
+  using wrap_type = impl::SystemInternalWrapper<1, sys_type>;
+  wrap_type ws(std::move(system));
+
+  static constexpr bool need_mass_matrix =
+    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value;
+  if constexpr(need_mass_matrix){
+    using mass_matrix_type = typename sys_type::mass_matrix_type;
+
+    using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
+      wrap_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+  }
+  else{
+    using impl_type = impl::ExplicitStepperNoMassMatrixImpl<
+      wrap_type, state_type, ind_var_type, rhs_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+  }
+}
+
 //
 // auxiliary scheme-specific functions
 //

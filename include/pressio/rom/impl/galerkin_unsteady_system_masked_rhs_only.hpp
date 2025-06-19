@@ -50,6 +50,12 @@ public:
       maskedFomRhs_(masker.createResultOfMaskActionOn(unMaskedFomRhs_))
   {}
 
+
+  GalerkinMaskedOdeSystemOnlyRhs(GalerkinMaskedOdeSystemOnlyRhs const &) = delete;
+  GalerkinMaskedOdeSystemOnlyRhs& operator=(GalerkinMaskedOdeSystemOnlyRhs const&) = delete;
+  GalerkinMaskedOdeSystemOnlyRhs(GalerkinMaskedOdeSystemOnlyRhs &&) = default;
+  GalerkinMaskedOdeSystemOnlyRhs& operator=(GalerkinMaskedOdeSystemOnlyRhs &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();

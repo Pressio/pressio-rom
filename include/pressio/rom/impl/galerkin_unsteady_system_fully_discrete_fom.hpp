@@ -53,6 +53,12 @@ public:
       fomJacAction_(fomSystem.createResultOfDiscreteTimeJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+  GalerkinDefaultFullyDiscreteSystem(GalerkinDefaultFullyDiscreteSystem const &) = delete;
+  GalerkinDefaultFullyDiscreteSystem& operator=(GalerkinDefaultFullyDiscreteSystem const&) = delete;
+  GalerkinDefaultFullyDiscreteSystem(GalerkinDefaultFullyDiscreteSystem &&) = default;
+  GalerkinDefaultFullyDiscreteSystem& operator=(GalerkinDefaultFullyDiscreteSystem &&) = default;
+
+public:
   state_type createState() const{
     // this needs to instantiate the reduced state
     return trialSubspace_.get().createReducedState();
