@@ -58,18 +58,18 @@ struct S3{
   S3(S3&&) = default;
   S3& operator=(S3 &&) = default;
 
-  NT1() /*NT2()*/ NT3() M1() M2() M3() M4() M5() M6() M7() M8() M9() M10()
+  NT1() NT2() NT3() M1() M2() M3() /*M4()*/ M5() M6() M7() M8() M9() M10()
 };
 }
 
-// TEST(rom_concepts, possibly_affine_trial_subspace1)
-// {
-//   using namespace pressio::rom;
+TEST(rom_concepts, possibly_affine_trial_subspace1)
+{
+  using namespace pressio::rom;
 
-//   static_assert(PossiblyAffineTrialColumnSubspace<S1>::value, "");
-//   static_assert(!PossiblyAffineTrialColumnSubspace<S2>::value, "");
-//   static_assert(!PossiblyAffineTrialColumnSubspace<S3>::value, "");
-// }
+  static_assert(PossiblyAffineTrialColumnSubspace<S1>::value, "");
+  static_assert(!PossiblyAffineTrialColumnSubspace<S2>::value, "");
+  static_assert(!PossiblyAffineTrialColumnSubspace<S3>::value, "");
+}
 
 TEST(rom_concepts, possibly_affine_trial_subspace2)
 {
