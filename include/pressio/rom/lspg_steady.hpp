@@ -42,6 +42,8 @@ namespace pressio{ namespace rom{ namespace lspg{
  *   - The returned system types are internal implementation details and should
  *     not be relied on directly. Only the nonlinear system interface they expose
  *     (residual, applyJacobian) is guaranteed.
+ *     Indeed, the returned object's type satisifies the
+ *     NonlinearSystemFusingResidualAndJacobian concept from the pressio nonlinear solvers.
  *
  * Requirements:
  *   - Trial subspace must satisfy PossiblyAffineTrialColumnSubspace.
@@ -63,9 +65,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = impl::NoOperation<void>;
-  using system_type = impl::LspgSteadyDefaultSystem<
+  using return_type = impl::LspgSteadyDefaultSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, scaler_type>;
-  return system_type(trialSpace, fomSystem, scaler_type{});
+  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  return return_type(trialSpace, fomSystem, scaler_type{});
 }
 
 // -------------------------------------------------------------
@@ -83,9 +88,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(2)*/
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = impl::NoOperation<void>;
-  using system_type = impl::LspgSteadyMaskedSystem<
+  using return_type = impl::LspgSteadyMaskedSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, MaskerType, scaler_type>;
-  return system_type(trialSpace, fomSystem, masker, scaler_type{});
+  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  return return_type(trialSpace, fomSystem, masker, scaler_type{});
 }
 
 
@@ -106,9 +114,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(3)*/
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
-  using system_type = impl::LspgSteadyDefaultSystem<
+  using return_type = impl::LspgSteadyDefaultSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, scaler_type>;
-  return system_type(trialSpace, fomSystem, scaler);
+  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  return return_type(trialSpace, fomSystem, scaler);
 }
 
 // -------------------------------------------------------------
@@ -128,9 +139,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(4)*/
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
-  using system_type = impl::LspgSteadyMaskedSystem<
+  using return_type = impl::LspgSteadyMaskedSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, MaskerType, scaler_type>;
-  return system_type(trialSpace, fomSystem, masker, scaler);
+  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  return return_type(trialSpace, fomSystem, masker, scaler);
 }
 
 } // end experimental
