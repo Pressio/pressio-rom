@@ -103,9 +103,12 @@ public:
 						 phi, {});
     }
 
-    // then do the masking and hyp-red
+    // Apply masking to the residual: maskedResidual = masker(unmaskedResidual)
     masker_(unMaskedFomResidual_, maskedFomResidual_);
+    // Apply hyper-reduction to get the reduced residual: reducedResidual = hypRed(maskedResidual)
     hyperReducer_(maskedFomResidual_, reducedResidual);
+
+    // do similarly for the jacobian
     if (reducedJacobian){
       masker_(unMaskedFomJacAction_, maskedFomJacAction_);
       hyperReducer_(maskedFomJacAction_, *reducedJacobian.value());

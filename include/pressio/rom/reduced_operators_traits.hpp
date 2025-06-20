@@ -32,20 +32,20 @@ struct SteadyGalerkinDefaultReducedOperatorsTraits<
 #endif
 
 namespace impl{
-template<class SubspaceType>
+template<class ReducedStateType>
 using steady_galerkin_default_reduced_state_t =
   typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_state_type;
+  ReducedStateType>::reduced_state_type;
 
-template<class SubspaceType>
+template<class ReducedStateType>
 using steady_galerkin_default_reduced_residual_t =
   typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_residual_type;
+  ReducedStateType>::reduced_residual_type;
 
-template<class SubspaceType>
+template<class ReducedStateType>
 using steady_galerkin_default_reduced_jacobian_t =
   typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_jacobian_type;
+  ReducedStateType>::reduced_jacobian_type;
 } //end namespace pressio:rom::impl
 
 /*
