@@ -4,7 +4,6 @@
 
 #include "./reduced_operators_traits.hpp"
 #include "impl/galerkin_helpers.hpp"
-#include "impl/galerkin_unsteady_explicit_problem.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_only.hpp"
 #include "impl/galerkin_unsteady_system_hypred_rhs_only.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_with_mass_matrix.hpp"
@@ -22,8 +21,10 @@ template<
  std::enable_if_t<
   PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value
    && RealValuedSemiDiscreteFom<FomSystemType>::value
-   && !RealValuedSemiDiscreteFomWithMassMatrixAction<FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
-   && std::is_same<typename TrialSubspaceType::full_state_type, typename FomSystemType::state_type>::value
+   && !RealValuedSemiDiscreteFomWithMassMatrixAction<
+    FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
+   && std::is_same<typename TrialSubspaceType::
+		   full_state_type, typename FomSystemType::state_type>::value
    , int> = 0
  >
 auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*(1)*/
@@ -39,11 +40,8 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   using galerkin_system = impl::GalerkinDefaultOdeSystemOnlyRhs<
     ind_var_type, reduced_state_type, reduced_rhs_type, TrialSubspaceType, FomSystemType>;
 
-  // a Galerkin problem contains (beside other things) a pressio stepper.
-  // the reason for this is that a problem can potentially expose
-  // more methods than what the underlying stepper does.
-  using return_type = impl::GalerkinUnsteadyExplicitProblem<galerkin_system>;
-  return return_type(schemeName, trialSpace, fomSystem);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
+  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -54,8 +52,10 @@ template<
   class TrialSubspaceType, class FomSystemType,
   std::enable_if_t<
     PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value
-    && RealValuedSemiDiscreteFomWithMassMatrixAction<FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
-    && std::is_same<typename TrialSubspaceType::full_state_type, typename FomSystemType::state_type>::value
+    && RealValuedSemiDiscreteFomWithMassMatrixAction<
+      FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value
+    && std::is_same<typename TrialSubspaceType::full_state_type,
+		    typename FomSystemType::state_type>::value
     , int > = 0
   >
 auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*(2)*/
@@ -72,8 +72,8 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
     ind_var_type, reduced_state_type, reduced_rhs_type,
     reduced_mm_type, TrialSubspaceType, FomSystemType>;
 
-  using return_type = impl::GalerkinUnsteadyWithMassMatrixExplicitProblem<galerkin_system>;
-  return return_type(schemeName, trialSpace, fomSystem);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
+  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -101,8 +101,8 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
     ind_var_type, reduced_state_type, reduced_rhs_type,
     TrialSubspaceType, FomSystemType, HyperReducerType>;
 
-  using return_type = impl::GalerkinUnsteadyExplicitProblem<galerkin_system>;
-  return return_type(schemeName, trialSpace, fomSystem, hyperReducer);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, hyperReducer);
+  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -130,8 +130,8 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
     ind_var_type, reduced_state_type, reduced_rhs_type,
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;
 
-  using return_type = impl::GalerkinUnsteadyExplicitProblem<galerkin_system>;
-  return return_type(schemeName, trialSpace, fomSystem, masker, hyperReducer);
+  auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, masker, hyperReducer);
+  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
 }
 
 }}} // end pressio::rom::galerkin

@@ -67,40 +67,6 @@ struct ReducedState<
 // SUBSPACES
 // ----------------------------------------------------------------------------
 template<class T, class enable = void>
-struct VectorSubspace: std::false_type{};
-
-template<class T>
-struct VectorSubspace<
-  T,
-  std::enable_if_t<
-    std::is_copy_constructible<T>::value
-    && ::pressio::has_basis_matrix_typedef<T>::value
-    && std::is_copy_constructible<typename T::basis_matrix_type>::value
-    && all_have_traits<typename T::basis_matrix_type>::value
-    && Traits<typename T::basis_matrix_type>::rank == 2
-    && !std::is_assignable<T&, T>::value
-    && !std::is_assignable<T&, T&>::value
-    //
-    && std::is_same<
-      decltype( std::declval<T const>().basis() ),
-      const typename T::basis_matrix_type &
-      >::value
-    && std::is_integral<
-      decltype( std::declval<T const>().dimension() )
-      >::value
-    && std::is_same<
-      decltype( std::declval<T const>().isColumnSpace() ),
-      bool
-      >::value
-    && std::is_same<
-      decltype( std::declval<T const>().isRowSpace() ),
-      bool
-      >::value
-   >
-  > : std::true_type{};
-
-
-template<class T, class enable = void>
 struct PossiblyAffineTrialColumnSubspace : std::false_type{};
 
 template<class T>
@@ -120,9 +86,8 @@ struct PossiblyAffineTrialColumnSubspace<
     && Traits<typename T::full_state_type>::rank == 1
     && Traits<typename T::basis_matrix_type>::rank == 2
     /**/
-    && std::is_copy_constructible<T>::value
-    && !std::is_assignable<T&, T>::value
-    && !std::is_assignable<T&, T&>::value
+    && std::is_move_constructible<T>::value
+    && std::is_assignable<T&, T&&>::value
     //
     && has_const_create_reduced_state_return_result<T>::value
     && has_const_create_full_state_return_result<T>::value

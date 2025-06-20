@@ -42,11 +42,10 @@ public:
   using discrete_residual_type    = ReducedResidualType;
   using discrete_jacobian_type    = ReducedJacobianType;
 
-  GalerkinHypRedFullyDiscreteSystem() = delete;
-  GalerkinHypRedFullyDiscreteSystem(const GalerkinHypRedFullyDiscreteSystem &) = default;
+  GalerkinHypRedFullyDiscreteSystem(const GalerkinHypRedFullyDiscreteSystem &) = delete;
   GalerkinHypRedFullyDiscreteSystem & operator=(const GalerkinHypRedFullyDiscreteSystem &) = delete;
   GalerkinHypRedFullyDiscreteSystem(GalerkinHypRedFullyDiscreteSystem &&) = default;
-  GalerkinHypRedFullyDiscreteSystem & operator=(GalerkinHypRedFullyDiscreteSystem &&) = delete;
+  GalerkinHypRedFullyDiscreteSystem & operator=(GalerkinHypRedFullyDiscreteSystem &&) = default;
   ~GalerkinHypRedFullyDiscreteSystem() = default;
 
   GalerkinHypRedFullyDiscreteSystem(const TrialSubspaceType & trialSubspace,
@@ -60,6 +59,7 @@ public:
       fomJacAction_(fomSystem.createResultOfDiscreteTimeJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+public:
   state_type createState() const{
     // this needs to instantiate the reduced state
     return trialSubspace_.get().createReducedState();

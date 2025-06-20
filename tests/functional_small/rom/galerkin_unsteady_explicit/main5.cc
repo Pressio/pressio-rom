@@ -122,8 +122,8 @@ TEST(rom_galerkin_explicit, test5)
   namespace gal = pressio::rom::galerkin;
   auto problem = gal::create_unsteady_explicit_problem(odeScheme, space, fomSystem);
 
-  using v_t = typename decltype(problem)::state_type;
-  using M_t = typename decltype(problem)::mass_matrix_type;
+  using v_t = Eigen::VectorXd; //typename decltype(problem)::state_type;
+  using M_t = Eigen::MatrixXd; //typename decltype(problem)::mass_matrix_type;
   FakeLinearSolver1<M_t, v_t> linSolver;
 
   using time_type = typename fom_t::time_type;

@@ -45,8 +45,6 @@ public:
   using rhs_type      = ReducedRhsType;
   using jacobian_type = ReducedJacobianType;
 
-  GalerkinHypRedOdeSystemRhsAndJacobian() = delete;
-
   GalerkinHypRedOdeSystemRhsAndJacobian(const TrialSubspaceType & trialSubspace,
 					const FomSystemType & fomSystem,
 					const HyperReducerType & hyperReducer)
@@ -57,6 +55,11 @@ public:
       fomRhs_(fomSystem.createRhs()),
       fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
+
+  GalerkinHypRedOdeSystemRhsAndJacobian(GalerkinHypRedOdeSystemRhsAndJacobian const &) = delete;
+  GalerkinHypRedOdeSystemRhsAndJacobian& operator=(GalerkinHypRedOdeSystemRhsAndJacobian const&) = delete;
+  GalerkinHypRedOdeSystemRhsAndJacobian(GalerkinHypRedOdeSystemRhsAndJacobian &&) = default;
+  GalerkinHypRedOdeSystemRhsAndJacobian& operator=(GalerkinHypRedOdeSystemRhsAndJacobian &&) = default;
 
 public:
   state_type createState() const{

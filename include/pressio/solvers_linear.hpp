@@ -54,7 +54,7 @@
 #include "pressio/type_traits.hpp"
 
 // local includes
-#include "pressio_macros.hpp"
-#include "solvers_linear/solvers_linear_api.hpp"
+#include "./pressio_macros.hpp"
+#include "./solvers_linear/solvers_linear_api.hpp"
 
 #endif

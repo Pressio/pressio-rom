@@ -35,6 +35,11 @@ public:
       fomMMAction_(fomSystem.createResultOfMassMatrixActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+  GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix(GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix const &) = delete;
+  GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix& operator=(GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix const&) = delete;
+  GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix(GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix &&) = default;
+  GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix& operator=(GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();

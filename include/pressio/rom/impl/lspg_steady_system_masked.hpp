@@ -59,6 +59,11 @@ public:
       scaler_(std::forward<_RawScalerType>(scaler))
   {}
 
+  LspgSteadyMaskedSystem(LspgSteadyMaskedSystem const &) = delete;
+  LspgSteadyMaskedSystem& operator=(LspgSteadyMaskedSystem const&) = delete;
+  LspgSteadyMaskedSystem(LspgSteadyMaskedSystem &&) = default;
+  LspgSteadyMaskedSystem& operator=(LspgSteadyMaskedSystem &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();
@@ -70,7 +75,8 @@ public:
   }
 
   jacobian_type createJacobian() const{
-    auto tmp = fomSystem_.get().createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace());
+    const auto & phi = trialSubspace_.get().basisOfTranslatedSpace();
+    auto tmp = fomSystem_.get().createResultOfJacobianActionOn(phi);
     return masker_.get().createResultOfMaskActionOn(tmp);
   }
 

@@ -39,6 +39,11 @@ public:
       fomRhs_(fomSystem.createRhs())
   {}
 
+  GalerkinDefaultOdeSystemOnlyRhs(GalerkinDefaultOdeSystemOnlyRhs const &) = delete;
+  GalerkinDefaultOdeSystemOnlyRhs& operator=(GalerkinDefaultOdeSystemOnlyRhs const&) = delete;
+  GalerkinDefaultOdeSystemOnlyRhs(GalerkinDefaultOdeSystemOnlyRhs &&) = default;
+  GalerkinDefaultOdeSystemOnlyRhs& operator=(GalerkinDefaultOdeSystemOnlyRhs &&) = default;
+
 public:
   state_type createState() const{
     return trialSubspace_.get().createReducedState();

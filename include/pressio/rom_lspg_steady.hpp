@@ -49,17 +49,18 @@
 #ifndef PRESSIO_ROM_LSPG_STEADY_TOPLEVEL_INCLUDE_HPP_
 #define PRESSIO_ROM_LSPG_STEADY_TOPLEVEL_INCLUDE_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./solvers_linear.hpp"
 #include "./solvers_nonlinear.hpp"
 #include "./ode.hpp"
-
-#include "rom_concepts.hpp"
-#include "rom/reduced_operators_traits.hpp"
-#include "rom/lspg_steady.hpp"
+#include "./rom_concepts.hpp"
+#include "./rom/reduced_operators_traits.hpp"
+#include "./rom/lspg_steady.hpp"
 
 #endif

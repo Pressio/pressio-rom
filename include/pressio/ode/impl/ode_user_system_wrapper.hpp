@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_nonlinear.hpp
+// ode_user_system_wrapper.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,21 +46,53 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_NONLINEAR_SOLVERS_LEVEN_MAR_HPP_
-#define PRESSIO_NONLINEAR_SOLVERS_LEVEN_MAR_HPP_
+#ifndef PRESSIO_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
+#define PRESSIO_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
 
-// includes from pressio-ops
-#include "pressio/mpl.hpp"
-#include "pressio/type_traits.hpp"
-#include "pressio/expressions.hpp"
-#include "pressio/ops.hpp"
+#include <variant>
 
-// local includes
-#include "./pressio_macros.hpp"
-#include "./solvers_linear.hpp"
-#include "./solvers_nonlinear_concepts.hpp"
-#include "./solvers_nonlinear/solvers_exceptions.hpp"
-#include "./solvers_nonlinear/solvers_nonlinear_enums_and_tags.hpp"
-#include "./solvers_nonlinear/solvers_create_levenberg_marquardt.hpp"
+namespace pressio{ namespace ode{ namespace impl{
 
+template<int, class SystemType>
+struct SystemInternalWrapper;
+
+template<class SystemType>
+struct SystemInternalWrapper<0, SystemType>{
+  using system_type = SystemType;
+
+  SystemInternalWrapper() = default;
+  SystemInternalWrapper(SystemInternalWrapper const &) = delete;
+  SystemInternalWrapper & operator=(SystemInternalWrapper const &) = delete;
+  SystemInternalWrapper(SystemInternalWrapper &&) = default;
+  SystemInternalWrapper & operator=(SystemInternalWrapper &&) = default;
+
+  explicit SystemInternalWrapper(SystemType const & o)
+    : data_(&o){}
+
+  SystemType const & get() const { return *data_; }
+
+private:
+  SystemType const * data_;
+};
+
+template<class SystemType>
+struct SystemInternalWrapper<1, SystemType>{
+  using system_type = SystemType;
+
+  SystemInternalWrapper() = default;
+  SystemInternalWrapper(SystemInternalWrapper const &) = delete;
+  SystemInternalWrapper & operator=(SystemInternalWrapper const &) = delete;
+  SystemInternalWrapper(SystemInternalWrapper &&) = default;
+  SystemInternalWrapper & operator=(SystemInternalWrapper &&) = default;
+
+  explicit SystemInternalWrapper(std::unique_ptr<SystemType const> && o)
+    : data_(std::move(o)){}
+
+  SystemType const & get() const { return *data_; }
+
+private:
+  std::unique_ptr<SystemType const> data_;
+};
+
+}}}//end namespace pressio::ode::explicitmethods::impl
 #endif

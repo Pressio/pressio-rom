@@ -53,7 +53,7 @@ namespace pressio{ namespace ode{ namespace impl{
 
 template<
   int n_states,
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -86,21 +86,23 @@ private:
   IndVarType timeAtStepStart_  = {};
   IndVarType rhsEvaluationTime_  = {};
 
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   stencil_states_t stencilStates_;
   // state object to ensure the strong guarantee for handling excpetions
   StateType recoveryState_;
 
 public:
   StepperArbitrary() = delete;
-  StepperArbitrary(const StepperArbitrary & other)  = default;
-  StepperArbitrary & operator=(const StepperArbitrary & other) = delete;
+  StepperArbitrary(const StepperArbitrary &)  = delete;
+  StepperArbitrary & operator=(const StepperArbitrary &) = delete;
+  StepperArbitrary(StepperArbitrary &&)  = default;
+  StepperArbitrary & operator=(StepperArbitrary &&) = default;
   ~StepperArbitrary() = default;
 
-  StepperArbitrary(SystemType && systemObj)
-    : systemObj_(std::forward<SystemType>(systemObj)),
-      stencilStates_(systemObj.createState()), //stencilstates handles right semantics
-      recoveryState_{systemObj.createState()}
+  StepperArbitrary(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)),
+      stencilStates_(systemObj_.get().createState()), //stencilstates handles right semantics
+      recoveryState_{systemObj_.get().createState()}
     {}
 
 public:
@@ -168,8 +170,9 @@ public:
 private:
   void callPreStepHookIfApplicable(const StateType & odeState)
   {
+    using wrapped_system_type = typename SysWrapperType::system_type;
     if constexpr (numAuxStates == 1 && has_const_pre_step_hook_method<
-		  mpl::remove_cvref_t<SystemType>, n_states,
+		  mpl::remove_cvref_t<wrapped_system_type>, n_states,
 		  typename StepCount::value_type, IndVarType, state_type
 		  >::value)
     {
