@@ -17,11 +17,8 @@ namespace pressio{ namespace rom{ namespace galerkin{
  * compatible with Pressio's nonlinear solvers.
  *
  * Overloads:
- *
  * (1) Default Galerkin problem
- *
  * (2) Hyper-reduced Galerkin problem
- *
  * (3) Masked-based hyper-reduced Galerkin problem
  *
  * Requirements:
@@ -38,7 +35,6 @@ namespace pressio{ namespace rom{ namespace galerkin{
  * the steady ROM, e.g., using the Pressio solvers such as create_newton_solver.
  */
 
-
 // ------------------------------------------------------------------------
 // default
 // ------------------------------------------------------------------------
@@ -49,16 +45,7 @@ template<
 auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
 			   const FomSystemType & fomSystem)
 {
-
-  static_assert(PossiblyAffineTrialColumnSubspace<TrialSubspaceType>::value,
-     "You are trying to create a steady galerkin problem but the \
-trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.");
-
-  static_assert
-    (SteadyFomWithJacobianAction<
-     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
-     "You are trying to create a steady galerkin problem but the \
-FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
 
   // figure out what types we need to use for the "reduced" system.
   // deduce this from the reduced state the user set for the trial subspace.
@@ -83,16 +70,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
 			   const FomSystemType & fomSystem,
 			   const HyperReducerType & hyperReducer)
 {
-
-  static_assert(PossiblyAffineTrialColumnSubspace<TrialSubspaceType>::value,
-     "You are trying to create a steady galerkin problem but the \
-trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.");
-
-  static_assert
-    (SteadyFomWithJacobianAction<
-     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
-     "You are trying to create a steady galerkin problem but the \
-FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
@@ -117,15 +95,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
 			   const MaskerType & masker,
 			   const HyperReducerType & hyperReducer)
 {
-  static_assert(PossiblyAffineTrialColumnSubspace<TrialSubspaceType>::value,
-     "You are trying to create a steady galerkin problem but the \
-trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.");
-
-  static_assert
-    (SteadyFomWithJacobianAction<
-     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
-     "You are trying to create a steady galerkin problem but the \
-FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;

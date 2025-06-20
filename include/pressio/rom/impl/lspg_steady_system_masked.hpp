@@ -75,7 +75,8 @@ public:
   }
 
   jacobian_type createJacobian() const{
-    auto tmp = fomSystem_.get().createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace());
+    const auto & phi = trialSubspace_.get().basisOfTranslatedSpace();
+    auto tmp = fomSystem_.get().createResultOfJacobianActionOn(phi);
     return masker_.get().createResultOfMaskActionOn(tmp);
   }
 

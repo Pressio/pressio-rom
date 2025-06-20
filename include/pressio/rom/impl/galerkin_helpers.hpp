@@ -56,5 +56,21 @@ struct CreateGalerkinMassMatrix<
 template<class JacType, class = void>
 using CreateGalerkinJacobian = CreateGalerkinMassMatrix<JacType>;
 
+
+template<class TrialSubspaceType, class FomSystemType>
+void galerkin_check_trial_and_system(const TrialSubspaceType & trialSpace,
+				     const FomSystemType & fomSystem)
+{
+  static_assert(PossiblyAffineTrialColumnSubspace<TrialSubspaceType>::value,
+     "You are trying to create a steady galerkin problem but the \
+trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.");
+
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady galerkin problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+}
+
 }}} // end pressio::rom::impl
 #endif  // PRESSIO_ROM_IMPL_GALERKIN_HELPERS_HPP_
