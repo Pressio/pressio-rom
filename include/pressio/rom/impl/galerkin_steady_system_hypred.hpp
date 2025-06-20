@@ -29,8 +29,7 @@ class GalerkinSteadyHypRedSystem
 
   using basis_matrix_type = typename TrialSubspaceType::basis_matrix_type;
 
-  // deduce from the fom object the type of result of
-  // applying the Jacobian to the basis
+  // Type resulting from applying the FOM Jacobian to the basis
   using fom_jac_action_result_type =
     decltype(std::declval<FomSystemType const>().createResultOfJacobianActionOn
 	     (std::declval<basis_matrix_type const &>()) );

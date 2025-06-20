@@ -29,8 +29,7 @@ class GalerkinSteadyDefaultSystem
 
   using basis_matrix_type = typename TrialSubspaceType::basis_matrix_type;
 
-  // deduce from the fom object the type of result of
-  // applying the Jacobian to the basis
+  // Type resulting from applying the FOM Jacobian to the basis
   using fom_jac_action_result_type =
     decltype(std::declval<FomSystemType const>().createResultOfJacobianActionOn
 	     (std::declval<basis_matrix_type const &>()) );
@@ -48,10 +47,10 @@ public:
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
       fomState_(trialSubspace.createFullState()),
-      auxFomVec_(pressio::ops::clone(fomState_)),
-      auxFomVec2_(pressio::ops::clone(fomState_)),
       fomResidual_(fomSystem.createResidual()),
-      fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
+      fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace())),
+      auxFomVec_(pressio::ops::clone(fomState_)),
+      auxFomVec2_(pressio::ops::clone(fomState_))
   {}
 
   GalerkinSteadyDefaultSystem(GalerkinSteadyDefaultSystem const &) = delete;
@@ -162,11 +161,15 @@ public:
 private:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
+
+  // FOM state, residual and jacobian action
   mutable typename FomSystemType::state_type fomState_;
-  mutable typename FomSystemType::state_type auxFomVec_;
-  mutable typename FomSystemType::state_type auxFomVec2_;
   mutable typename FomSystemType::residual_type fomResidual_;
   mutable fom_jac_action_result_type fomJacAction_;
+
+  // Extra auxiliary vectors
+  mutable typename FomSystemType::state_type auxFomVec_;
+  mutable typename FomSystemType::state_type auxFomVec2_;
 };
 
 }}} // end pressio::rom::impl
