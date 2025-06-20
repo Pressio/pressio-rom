@@ -28,5 +28,17 @@ trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.
 FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 }
 
+template<typename T>
+void steady_lspg_static_check_api_return_type(){
+  static constexpr bool val =
+#ifdef PRESSIO_ENABLE_CXX20
+    nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>;
+#else
+  nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>::value;
+#endif
+  static_assert(val,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+}
+
 }}} // end pressio::rom::impl
 #endif  // PRESSIO_ROM_IMPL_LSPG_HELPERS_HPP_

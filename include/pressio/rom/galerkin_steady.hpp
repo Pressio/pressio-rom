@@ -47,7 +47,7 @@ template<
 auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
 			   const FomSystemType & fomSystem)
 {
-  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
+  impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   // figure out what types we need to use for the "reduced" system.
   // deduce this from the reduced state the user set for the trial subspace.
@@ -57,8 +57,8 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
   using return_type = impl::GalerkinSteadyDefaultSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem);
 }
@@ -75,7 +75,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
 			   const FomSystemType & fomSystem,
 			   const HyperReducerType & hyperReducer)
 {
-  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
+  impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
@@ -83,8 +83,8 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
   using return_type = impl::GalerkinSteadyHypRedSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, HyperReducerType>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+
+  impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, hyperReducer);
 }
@@ -103,7 +103,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
 			   const MaskerType & masker,
 			   const HyperReducerType & hyperReducer)
 {
-  impl::galerkin_check_trial_and_system(trialSpace, fomSystem);
+  impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
@@ -111,8 +111,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
   using return_type = impl::GalerkinSteadyMaskedSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+  impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, masker, hyperReducer);
 }

@@ -67,8 +67,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
   using scaler_type = impl::NoOperation<void>;
   using return_type = impl::LspgSteadyDefaultSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, scaler_type>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+  impl::steady_lspg_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, scaler_type{});
 }
@@ -90,8 +89,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(2)*/
   using scaler_type = impl::NoOperation<void>;
   using return_type = impl::LspgSteadyMaskedSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, MaskerType, scaler_type>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+  impl::steady_lspg_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, masker, scaler_type{});
 }
@@ -116,8 +114,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(3)*/
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
   using return_type = impl::LspgSteadyDefaultSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, scaler_type>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+  impl::steady_lspg_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, scaler);
 }
@@ -141,8 +138,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(4)*/
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
   using return_type = impl::LspgSteadyMaskedSystem<
     reduced_state_type, TrialSubspaceType, FomSystemType, MaskerType, scaler_type>;
-  static_assert(nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<return_type>::value,
-		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
+  impl::steady_lspg_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, masker, scaler);
 }

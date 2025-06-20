@@ -58,7 +58,7 @@ using CreateGalerkinJacobian = CreateGalerkinMassMatrix<JacType>;
 
 
 template<class TrialSubspaceType, class FomSystemType>
-void galerkin_check_trial_and_system(const TrialSubspaceType & trialSpace,
+void galerkin_static_check_trial_and_system(const TrialSubspaceType & trialSpace,
 				     const FomSystemType & fomSystem)
 {
   static_assert(PossiblyAffineTrialColumnSubspace<TrialSubspaceType>::value,
@@ -70,6 +70,18 @@ trialSpace does not meet the required PossiblyAffineTrialColumnSubspace concept.
      FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
      "You are trying to create a steady galerkin problem but the \
 FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+}
+
+template<typename T>
+void steady_galerkin_static_check_api_return_type(){
+  static constexpr bool val =
+#ifdef PRESSIO_ENABLE_CXX20
+    nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>;
+#else
+  nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>::value;
+#endif
+  static_assert(val,
+		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
 }
 
 }}} // end pressio::rom::impl
