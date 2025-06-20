@@ -20,6 +20,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
 			   const FomSystemType & fomSystem)
 {
 
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady galerkin problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
+
   using reduced_state_t    = typename TrialSubspaceType::reduced_state_type;
   using reduced_r_t = impl::steady_galerkin_default_reduced_residual_t<TrialSubspaceType>;
   using reduced_j_t = impl::steady_galerkin_default_reduced_jacobian_t<TrialSubspaceType>;
@@ -41,6 +47,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
 			   const FomSystemType & fomSystem,
 			   const HyperReducerType & hyperReducer)
 {
+
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady galerkin problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_r_t = impl::steady_galerkin_default_reduced_residual_t<TrialSubspaceType>;
@@ -65,6 +77,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
 			   const MaskerType & masker,
 			   const HyperReducerType & hyperReducer)
 {
+
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady galerkin problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using reduced_r_t = impl::steady_galerkin_default_reduced_residual_t<TrialSubspaceType>;

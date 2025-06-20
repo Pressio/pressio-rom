@@ -19,6 +19,11 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
 			   const FomSystemType & fomSystem)
 
 {
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady LSPG problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = impl::NoOperation<void>;
@@ -38,6 +43,12 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(2)*/
 			   const FomSystemType & fomSystem,
 			   const MaskerType & masker)
 {
+
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady LSPG problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = impl::NoOperation<void>;
@@ -60,6 +71,11 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(3)*/
 			   const FomSystemType & fomSystem,
 			   const ScalingOperatorType & scaler)
 {
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady LSPG problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
@@ -81,6 +97,11 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,  /*(4)*/
 			   const MaskerType & masker,
 			   const ScalingOperatorType & scaler)
 {
+  static_assert
+    (SteadyFomWithJacobianAction<
+     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value,
+     "You are trying to create a steady LSPG problem but the \
+FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using scaler_type = std::reference_wrapper<const ScalingOperatorType>;
