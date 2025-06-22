@@ -33,7 +33,7 @@ namespace pressio{ namespace rom{ namespace galerkin{
  *
  * These returned objects can be used directly to compute the solution of
  * the steady ROM, e.g., using the Pressio solvers such as create_newton_solver.
- * Indeed, the returned object's type satisifies the
+ * The returned object's type satisifies the
  * NonlinearSystemFusingResidualAndJacobian concept from the pressio nonlinear solvers.
  */
 
@@ -58,7 +58,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType>;
 
-  // check that return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
+  // check return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
   impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem);
@@ -85,7 +85,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, HyperReducerType>;
 
-  // check that return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
+  // check return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
   impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, hyperReducer);
@@ -114,7 +114,7 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;
 
-  // check that return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
+  // check return type meets nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian
   impl::steady_galerkin_static_check_api_return_type<return_type>();
 
   return return_type(trialSpace, fomSystem, masker, hyperReducer);
