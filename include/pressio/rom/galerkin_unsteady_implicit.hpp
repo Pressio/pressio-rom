@@ -38,7 +38,7 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using default_types      = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
 
@@ -74,7 +74,7 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using default_types      = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
   using reduced_mm_type       = typename default_types::reduced_mass_matrix_type;
@@ -106,7 +106,7 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using default_types      = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
 
@@ -139,7 +139,7 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using default_types      = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
 
@@ -166,8 +166,8 @@ auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,    /
 {
 
   using ind_var_type = typename FomSystemType::time_type;
-  using reduced_state_type    = typename TrialSubspaceType::reduced_state_type;
-  using default_types         = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
 
@@ -193,8 +193,8 @@ auto create_unsteady_implicit_problem(const TrialSubspaceType & trialSpace,
 {
 
   using independent_variable_type = typename FomSystemType::time_type;
-  using reduced_state_type        = typename TrialSubspaceType::reduced_state_type;
-  using default_types             = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
+  using default_types = ImplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_residual_type = typename default_types::reduced_residual_type;
   using reduced_jacobian_type = typename default_types::reduced_jacobian_type;
 

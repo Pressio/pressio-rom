@@ -39,27 +39,38 @@ namespace pressio{ namespace rom{ namespace galerkin{
 // -------------------------------------------------------------
 
 template<
- class TrialSubspaceType, class FomSystemType
+  class TrialSubspaceType,
+  class FomSystemType
  >
 auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*(1)*/
 				      const TrialSubspaceType & trialSpace,
 				      const FomSystemType & fomSystem)
 {
 
+  // check that the trial subspace meets the right concept
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
+  // check that the fom system meets the right concept
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
-  static_assert(std::is_same<typename TrialSubspaceType::
-		full_state_type, typename FomSystemType::state_type>::value);
+  // check that the fom state that the trial subspace reconstructs is compatible
+  // with the fom state used in the fom system class
+  static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
+		typename FomSystemType::state_type>::value);
 
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_default_explicit");
+
   using ind_var_type = typename FomSystemType::time_type;
+
+  // figure out what types we need to use for the "reduced" system.
+  // deduce this from the reduced state the user set for the trial subspace.
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using reduced_rhs_type = impl::explicit_galerkin_default_reduced_rhs_t<TrialSubspaceType>;
+  using default_types = ExplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using reduced_rhs_type = typename default_types::reduced_rhs_type;
 
   constexpr bool with_mass_matrix = RealValuedSemiDiscreteFomWithMassMatrixAction<
     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value;
   if constexpr (with_mass_matrix){
-    using reduced_mm_type = impl::explicit_galerkin_default_reduced_mass_matrix_t<TrialSubspaceType>;
+    using reduced_mm_type = typename default_types::reduced_mass_matrix_type;
+
     using galerkin_system = impl::GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix<
       ind_var_type, reduced_state_type, reduced_rhs_type,
       reduced_mm_type, TrialSubspaceType, FomSystemType>;
@@ -89,16 +100,22 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
 				      const FomSystemType & fomSystem,
 				      const HyperReducerType & hyperReducer)
 {
+  // check that the trial subspace meets the right concept
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
+  // check that the fom system meets the right concept
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
+  // check that the fom state that the trial subspace reconstructs is compatible
+  // with the fom state used in the fom system class
+  static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
+		typename FomSystemType::state_type>::value);
 
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_hypred_explicit");
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using reduced_rhs_type = impl::explicit_galerkin_default_reduced_rhs_t<TrialSubspaceType>;
+  using default_types = ExplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using reduced_rhs_type = typename default_types::reduced_rhs_type;
 
-  // the "system" implements the math
   using galerkin_system = impl::GalerkinHyperReducedOdeSystemOnlyRhs<
     ind_var_type, reduced_state_type, reduced_rhs_type,
     TrialSubspaceType, FomSystemType, HyperReducerType>;
@@ -122,14 +139,20 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
 				      const MaskerType & masker,
 				      const HyperReducerType & hyperReducer)
 {
+  // the "system" implements the math
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
+  // check that the fom state that the trial subspace reconstructs is compatible
+  // with the fom state used in the fom system class
+  static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
+		typename FomSystemType::state_type>::value);
 
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_masked_explicit");
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
-  using reduced_rhs_type = reduced_state_type;
-  // the "system" implements the math
+  using default_types = ExplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
+  using reduced_rhs_type = typename default_types::reduced_rhs_type;
+
   using galerkin_system = impl::GalerkinMaskedOdeSystemOnlyRhs<
     ind_var_type, reduced_state_type, reduced_rhs_type,
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;

@@ -52,8 +52,10 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
   // figure out what types we need to use for the "reduced" system.
   // deduce this from the reduced state the user set for the trial subspace.
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
-  using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
-  using reduced_jacobian_t = impl::steady_galerkin_default_reduced_jacobian_t<reduced_state_t>;
+  using default_types = SteadyGalerkinDefaultReducedOperatorsTraits<reduced_state_t>;
+  using reduced_residual_t = typename default_types::reduced_residual_type;
+  using reduced_jacobian_t = typename default_types::reduced_jacobian_type;
+
   using return_type = impl::GalerkinSteadyDefaultSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType>;
@@ -79,8 +81,10 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(2)*/
   impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
-  using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
-  using reduced_jacobian_t = impl::steady_galerkin_default_reduced_jacobian_t<reduced_state_t>;
+  using default_types = SteadyGalerkinDefaultReducedOperatorsTraits<reduced_state_t>;
+  using reduced_residual_t = typename default_types::reduced_residual_type;
+  using reduced_jacobian_t = typename default_types::reduced_jacobian_type;
+
   using return_type = impl::GalerkinSteadyHypRedSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, HyperReducerType>;
@@ -108,8 +112,10 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(3)*/
   impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
-  using reduced_residual_t = impl::steady_galerkin_default_reduced_residual_t<reduced_state_t>;
-  using reduced_jacobian_t = impl::steady_galerkin_default_reduced_jacobian_t<reduced_state_t>;
+  using default_types = SteadyGalerkinDefaultReducedOperatorsTraits<reduced_state_t>;
+  using reduced_residual_t = typename default_types::reduced_residual_type;
+  using reduced_jacobian_t = typename default_types::reduced_jacobian_type;
+
   using return_type = impl::GalerkinSteadyMaskedSystem<
     reduced_state_t, reduced_residual_t, reduced_jacobian_t,
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;
