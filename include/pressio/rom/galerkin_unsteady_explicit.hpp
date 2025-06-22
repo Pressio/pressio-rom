@@ -51,7 +51,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
   // check that the fom system meets the right concept
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
-  // check that the fom state that the trial subspace reconstructs is compatible
+  // check that the trial space reconstructs a fom state that is compatible
   // with the fom state used in the fom system class
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
@@ -104,7 +104,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
   // check that the fom system meets the right concept
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
-  // check that the fom state that the trial subspace reconstructs is compatible
+  // check that the trial space reconstructs a fom state that is compatible
   // with the fom state used in the fom system class
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
@@ -142,7 +142,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   // the "system" implements the math
   static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
   static_assert(RealValuedSemiDiscreteFom<FomSystemType>::value);
-  // check that the fom state that the trial subspace reconstructs is compatible
+  // check that the trial space reconstructs a fom state that is compatible
   // with the fom state used in the fom system class
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
