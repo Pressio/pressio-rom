@@ -67,14 +67,10 @@ public:
   using residual_type = typename ToDecorate::residual_type;
   using jacobian_type = typename ToDecorate::jacobian_type;
 
-  template <
-    class FomSystemType,
-    template<class> class LspgFomStatesManager,
-    class ...Args
-    >
+  template <class FomSystemType, class ...Args>
   LspgScalingDecorator(const TrialSubspaceType & trialSubspace,
 		       const FomSystemType & fomSystem,
-		       LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+		       FomStatesManager<TrialSubspaceType> & fomStatesManager,
 		       const UserProvidedScalerType & scaler,
 		       Args && ... args)
     : ToDecorate(trialSubspace, fomSystem, fomStatesManager, std::forward<Args>(args)...),
@@ -104,7 +100,7 @@ public:
   }
 
 private:
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+  std::reference_wrapper<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::reference_wrapper<const UserProvidedScalerType> scaler_;
 };
 

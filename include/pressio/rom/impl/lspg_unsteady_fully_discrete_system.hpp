@@ -79,7 +79,7 @@ public:
 
   LspgFullyDiscreteSystem(const TrialSubspaceType & trialSubspace,
 			  const FomSystemType & fomSystem,
-			  LspgFomStatesManager<TrialSubspaceType> & fomStatesManager)
+			  FomStatesManager<TrialSubspaceType> & fomStatesManager)
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
       fomStatesManager_(fomStatesManager)
@@ -162,7 +162,7 @@ public:
 protected:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+  std::reference_wrapper<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
 };
 
 }}}

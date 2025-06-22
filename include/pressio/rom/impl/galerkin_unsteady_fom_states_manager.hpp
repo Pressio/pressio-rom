@@ -49,17 +49,14 @@
 #ifndef PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
 #define PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
 
-#include "lspg_unsteady_fom_states_manager.hpp"
+#include "./fom_states_manager.hpp"
 
 namespace pressio{ namespace rom{ namespace impl{
-
-template <class TrialSubspaceType>
-using GalerkinFomStatesManager = LspgFomStatesManager<TrialSubspaceType>;
 
 template <std::size_t N, class TrialSubspaceType>
 auto create_galerkin_fom_states_manager(const TrialSubspaceType & trialSubspace)
 {
-  using return_type = GalerkinFomStatesManager<TrialSubspaceType>;
+  using return_type = FomStatesManager<TrialSubspaceType>;
   auto fomStateTmp = trialSubspace.createFullState();
   if (N == 2){
     return return_type(trialSubspace,

@@ -3,6 +3,7 @@
 #define PRESSIO_ROM_GALERKIN_UNSTEADY_IMPLICIT_HPP_
 
 #include "impl/galerkin_helpers.hpp"
+#include "impl/galerkin_unsteady_fom_states_manager.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_and_jacobian.hpp"
 #include "impl/galerkin_unsteady_system_default_rhs_and_jacobian_and_mm.hpp"
 #include "impl/galerkin_unsteady_system_hypred_rhs_and_jacobian.hpp"

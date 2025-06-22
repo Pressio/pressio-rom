@@ -72,14 +72,10 @@ public:
 
   LspgMaskDecorator() = delete;
 
-  template <
-    class TrialSubspaceType,
-    class FomSystemType,
-    template<class> class LspgFomStatesManager
-    >
+  template <class TrialSubspaceType, class FomSystemType>
   LspgMaskDecorator(const TrialSubspaceType & trialSubspace,
 		    const FomSystemType & fomSystem,
-		    LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+		    FomStatesManager<TrialSubspaceType> & fomStatesManager,
 		    const MaskerType & masker)
     : Maskable(trialSubspace, fomSystem, fomStatesManager),
       masker_(masker),

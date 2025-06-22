@@ -39,7 +39,7 @@ class LspgUnsteadyProblem
   using stepper_type = typename DeducedStepperType<TotalNumberOfDesiredStates>::template
     type<ResJacPolicyOrFullyDiscreteSystemType>;
 
-  using fom_states_manager_type = LspgFomStatesManager<TrialSubspaceType>;
+  using fom_states_manager_type = FomStatesManager<TrialSubspaceType>;
 
 public:
   using independent_variable_type  = typename ResJacPolicyOrFullyDiscreteSystemType::independent_variable_type;
@@ -57,7 +57,7 @@ public:
 		      const TrialSubspaceType & trialSubspace,
 		      const FomSystemType & fomSystem,
 		      Args && ... args)
-    : fomStatesManager_(std::make_unique<LspgFomStatesManager<TrialSubspaceType>>(create_lspg_fom_states_manager(odeSchemeName, trialSubspace))),
+    : fomStatesManager_(std::make_unique<FomStatesManager<TrialSubspaceType>>(create_lspg_fom_states_manager(odeSchemeName, trialSubspace))),
       rjPolicyOrFullyDiscreteSystem_(std::make_unique<ResJacPolicyOrFullyDiscreteSystemType>(trialSubspace,
 											     fomSystem,
 											     *fomStatesManager_,
@@ -74,7 +74,7 @@ public:
   LspgUnsteadyProblem(const TrialSubspaceType & trialSubspace,
 		      const FomSystemType & fomSystem,
 		      Args && ... args)
-    : fomStatesManager_(std::make_unique<LspgFomStatesManager<TrialSubspaceType>>(create_lspg_fom_states_manager<
+    : fomStatesManager_(std::make_unique<FomStatesManager<TrialSubspaceType>>(create_lspg_fom_states_manager<
 				  _TotalNumberOfDesiredStates>(trialSubspace))),
       rjPolicyOrFullyDiscreteSystem_(std::make_unique<ResJacPolicyOrFullyDiscreteSystemType>(trialSubspace, fomSystem,
 											     *fomStatesManager_,
@@ -98,7 +98,7 @@ public:
   }
 
 private:
-  std::unique_ptr<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+  std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::unique_ptr<ResJacPolicyOrFullyDiscreteSystemType> rjPolicyOrFullyDiscreteSystem_;
   stepper_type stepper_;
 };

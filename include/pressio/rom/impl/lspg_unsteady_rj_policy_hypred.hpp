@@ -73,7 +73,7 @@ public:
   LspgUnsteadyResidualJacobianPolicyHypRed() = delete;
   LspgUnsteadyResidualJacobianPolicyHypRed(const TrialSubspaceType & trialSubspace,
 					   const FomSystemType & fomSystem,
-					   LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+					   FomStatesManager<TrialSubspaceType> & fomStatesManager,
 					   const HypRedUpdaterType & hrUpdater)
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
@@ -258,7 +258,7 @@ private:
 
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+  std::reference_wrapper<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::reference_wrapper<const HypRedUpdaterType> hypRedUpdater_;
   mutable typename FomSystemType::state_type fomStateHelperInstance_;
 };

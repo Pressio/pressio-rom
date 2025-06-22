@@ -213,7 +213,7 @@ protected:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
   std::reference_wrapper<const HyperReducerType> hyperReducer_;
-  mutable GalerkinFomStatesManager<TrialSubspaceType> fomStatesManager_;
+  mutable FomStatesManager<TrialSubspaceType> fomStatesManager_;
   mutable typename FomSystemType::discrete_residual_type fomResidual_;
   mutable fom_jac_action_result_type fomJacAction_;
 };
