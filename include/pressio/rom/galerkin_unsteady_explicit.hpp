@@ -13,7 +13,7 @@ namespace pressio{ namespace rom{ namespace galerkin{
 
 /*
  These function overloads construct Galerkin ROM representations for
- unsteady problems.
+ unsteady problems to be integrated explicitly.
 
  Overloads:
   (1) Default Galerkin with and without mass matrix
@@ -25,10 +25,7 @@ namespace pressio{ namespace rom{ namespace galerkin{
    - The FOM system must satisfy different concepts depending on the overload
 
  Return Type:
-  Each function returns an object modeling the Pressio explicit stepper concept.
-  The concrete type of the returned object is not part of the public API, but it
-  satisfies the requirements of an explicit stepper as defined in pressio/ode.
-
+  Each function returns a Pressio explicit stepper.
   The returned stepper can then be used to advance the reduced-order model in time,
   using, for example, the `advance_n_steps` or `advance_to_target_time` methods
   provided by the Pressio ODE integration module.
