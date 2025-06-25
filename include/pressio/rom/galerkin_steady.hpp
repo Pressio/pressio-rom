@@ -50,7 +50,10 @@ auto create_steady_problem(const TrialSubspaceType & trialSpace,   /*(1)*/
   impl::galerkin_static_check_trial_and_system(trialSpace, fomSystem);
 
   // figure out what types we need to use for the "reduced" system.
-  // deduce this from the reduced state the user set for the trial subspace.
+  // use the reduced state the user set for the trial subspace to decide.
+  // for example, if its an Eigen vector, then all the reduced "things"
+  // will be set accordingly so that the reduced system is fully represented
+  // with Eigen data structures.
   using reduced_state_t = typename TrialSubspaceType::reduced_state_type;
   using default_types = SteadyGalerkinDefaultReducedOperatorsTraits<reduced_state_t>;
   using reduced_residual_t = typename default_types::reduced_residual_type;

@@ -56,19 +56,27 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
 
+  // explicit galerkin requires an explicit ode scheme
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_default_explicit");
 
+  // figure out the type of the independent variable
   using ind_var_type = typename FomSystemType::time_type;
 
   // figure out what types we need to use for the "reduced" system.
   // deduce this from the reduced state the user set for the trial subspace.
+  // for example, if its an Eigen vector, then all the reduced "things"
+  // will be set accordingly so that the reduced system is fully represented
+  // with Eigen data structures.
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using default_types = ExplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;
   using reduced_rhs_type = typename default_types::reduced_rhs_type;
 
+  // if the user-provided system exposes a mass matrix, then we need to return
+  // the proper class
   constexpr bool with_mass_matrix = RealValuedSemiDiscreteFomWithMassMatrixAction<
     FomSystemType, typename TrialSubspaceType::basis_matrix_type>::value;
   if constexpr (with_mass_matrix){
+    // set the type of the reduced mass matrix
     using reduced_mm_type = typename default_types::reduced_mass_matrix_type;
 
     using galerkin_system = impl::GalerkinDefaultOdeSystemOnlyRhsAndMassMatrix<
@@ -109,6 +117,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
 
+  // explicit galerkin requires an explicit ode scheme
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_hypred_explicit");
 
   using ind_var_type = typename FomSystemType::time_type;
@@ -147,7 +156,9 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
   static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
 		typename FomSystemType::state_type>::value);
 
+  // explicit galerkin requires an explicit ode scheme
   impl::valid_scheme_for_explicit_galerkin_else_throw(schemeName, "galerkin_masked_explicit");
+
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
   using default_types = ExplicitGalerkinDefaultReducedOperatorsTraits<reduced_state_type>;

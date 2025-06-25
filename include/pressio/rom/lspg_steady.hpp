@@ -10,12 +10,11 @@
 namespace pressio{ namespace rom{ namespace lspg{
 
 /*
- * These overloads construct steady LSPG ROM representations
- * for steady problems.
+ * These overloads construct LSPG ROM representations for steady problems.
  *
- * The returned object models a nonlinear steady system in reduced space
- * that exposes a residual and applyJacobian interface, compatible with
- * Pressio's nonlinear solvers (e.g., Newton solvers).
+ * Each overload returns an object modeling a nonlinear steady system in
+ * reduced space that exposes a residual and applyJacobian interface,
+ * compatible with Pressio's nonlinear solvers.
  *
  * Overloads:
  *
