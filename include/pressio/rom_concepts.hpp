@@ -59,6 +59,6 @@
 #include "./solvers_linear.hpp"
 #include "./solvers_nonlinear.hpp"
 #include "./ode.hpp"
-#include "./rom/rom_concepts.hpp"
+#include "./rom/concepts.hpp"
 
 #endif
