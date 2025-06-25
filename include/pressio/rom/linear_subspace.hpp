@@ -4,6 +4,8 @@
 
 namespace pressio{ namespace rom{
 
+// note: these are inside the impl namespace,
+// do not use them outside
 namespace impl{
 
 template<class ReducedStateType, class = void>
@@ -37,7 +39,7 @@ struct CreateReducedState<
 };
 #endif
 
-}
+} // end namespace impl
 
 template <class BasisMatrixType, class FullStateType, class ReducedStateType>
 class TrialColumnSubspace
@@ -159,7 +161,12 @@ public:
   bool isColumnSpace() const{ return true; }
   bool isRowSpace() const{ return false; }
   const full_state_type & translationVector() const{ return translation_; }
-  std::size_t dimension() const{ return ::pressio::ops::extent(basis_, 1); }
+
+  std::size_t dimension() const{
+    // this is a column subspace, so num of columns defines the dimension
+    // of the subspace
+    return ::pressio::ops::extent(basis_, 1);
+  }
 
   const basis_matrix_type & basisOfTranslatedSpace() const{
     return basis_;
@@ -182,6 +189,51 @@ private:
 };
 
 
+/*
+  ------------------------------------------------------------------------------
+  create_trial_column_subspace
+  ------------------------------------------------------------------------------
+
+  Factory function to construct a `TrialColumnSubspace` object, which defines a
+  reduced-order trial subspace.
+
+  Parameters:
+    - basisMatrix: A matrix whose columns span the reduced trial subspace.
+                   It is typically a tall matrix mapping a reduced state to full state.
+    - offset:      A full-order state used as an offset in the affine case.
+    - isAffine:    A boolean flag indicating whether the subspace is
+                   affine (true) or linear (false).
+
+  Returns:
+    - A `TrialColumnSubspace<basis_matrix_type, full_state_type, ReducedStateType>` instance
+      representing either an affine or linear trial subspace.
+
+  A note on the use of universal references:
+  The parameters `basisMatrix` and `offset` are declared as `BasisMatrixType&&`
+  and `FullStateType&&` respectively, where `BasisMatrixType` and `FullStateType`
+  are template parameters. This makes them *universal references* (also known as
+  forwarding references), enabling perfect forwarding.
+  Perfect forwarding allows:
+    - Passing lvalues without unnecessary copies.
+    - Passing rvalues while preserving their move semantics.
+    - Supporting const, non-const, lvalue, and rvalue variants uniformly.
+
+  This gives maximum flexibility and performance:
+    - If the caller provides an lvalue, it is passed as a reference.
+    - If the caller provides an rvalue (e.g., `std::move(basis)`), it is moved into
+      the `TrialColumnSubspace`, avoiding a deep copy.
+    - These references are then forwarded using `std::forward<...>` to the
+      constructor of `TrialColumnSubspace`, preserving the original value category.
+    - Enables generic and efficient construction.
+    - Avoids unnecessary copies or moves.
+
+  Important:
+    - Not all parameters must be rvalues — the function accepts **any combination**
+      of lvalues and rvalues.
+      For example: Both lvalues, Both rvalues, One lvalue and one rvalue (in any order)
+    - Each parameter is treated independently and forwarded accordingly.
+*/
+
 template<
   class ReducedStateType,
   class BasisMatrixType,
@@ -191,13 +243,14 @@ auto create_trial_column_subspace(BasisMatrixType && basisMatrix,
 				  FullStateType && offset,
 				  bool isAffine)
 {
+  // figure out the "raw" type
   using basis_matrix_type = mpl::remove_cvref_t<BasisMatrixType>;
   using full_state_type = mpl::remove_cvref_t<FullStateType>;
 
-  using ret_t = TrialColumnSubspace<basis_matrix_type, full_state_type, ReducedStateType>;
-  return ret_t(std::forward<BasisMatrixType>(basisMatrix),
-	       std::forward<FullStateType>(offset),
-	       isAffine);
+  using return_t = TrialColumnSubspace<basis_matrix_type, full_state_type, ReducedStateType>;
+  return return_t(std::forward<BasisMatrixType>(basisMatrix),
+		  std::forward<FullStateType>(offset),
+		  isAffine);
 }
 
 }}
