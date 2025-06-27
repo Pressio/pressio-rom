@@ -51,6 +51,12 @@
 
 namespace pressio{ namespace ode{
 
+/**
+ * StepStartAt<T>
+ *
+ * Represents the starting time or index for a time integration run.
+ * Holds a value of type T.
+ */
 template<class T>
 struct StepStartAt{
   using value_type = T;
@@ -60,6 +66,12 @@ struct StepStartAt{
   constexpr value_type get() const { return value_; }
 };
 
+/**
+ * StepEndAt<T>
+ *
+ * Represents the ending time or index for a time integration run.
+ * Holds a value of type T.
+ */
 template<class T>
 struct StepEndAt{
   using value_type = T;
@@ -69,6 +81,13 @@ struct StepEndAt{
   constexpr value_type get() const { return value_; }
 };
 
+/**
+ * StepSize<T>
+ *
+ * Represents the time step size used in the time integration.
+ * Holds a value of type T.
+ * Provides assignment operator for updating the step size.
+ */
 template<class T>
 struct StepSize{
   using value_type = T;
@@ -83,6 +102,14 @@ struct StepSize{
   }
 };
 
+/**
+ * StepSizeMinAllowedValue<T>
+ *
+ * Represents the minimum allowed step size for adaptive time integration or
+ * when using time step recovery.
+ * Holds a value of type T.
+ * Provides assignment operator for updating the minimum allowed step size.
+ */
 template<class T>
 struct StepSizeMinAllowedValue{
   using value_type = T;
@@ -97,6 +124,14 @@ struct StepSizeMinAllowedValue{
   }
 };
 
+/**
+ * StepSizeScalingFactor<T>
+ *
+ * Represents a scaling factor applied to the time step size,
+ * that can be used for adaptive schemes or for step recovery.
+ * Holds a value of type T.
+ * Provides assignment operator for updating the factor.
+ */
 template<class T>
 struct StepSizeScalingFactor{
   using value_type = T;
@@ -111,6 +146,12 @@ struct StepSizeScalingFactor{
   }
 };
 
+/**
+ * StepCount
+ *
+ * Represents the total number of steps to perform during time integration.
+ * Holds an integer value.
+ */
 struct StepCount{
   using value_type = int32_t;
   value_type value_{};
@@ -119,6 +160,13 @@ struct StepCount{
   constexpr value_type get() const { return value_; }
 };
 
+/**
+ * IntermediateStepCount
+ *
+ * Represents the number of intermediate steps
+ * that should be produced within the main step sequence.
+ * Holds an integer value.
+ */
 struct IntermediateStepCount{
   using value_type = int32_t;
   value_type value_{};
