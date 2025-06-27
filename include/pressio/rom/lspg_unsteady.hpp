@@ -62,8 +62,14 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(1)*/
     lspg_residual_type, lspg_jacobian_type,
     TrialSubspaceType, FomSystemType>;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem);
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager));
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
+
+  //using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
+  //return return_type(schemeName, trialSpace, fomSystem);
 }
 
 // -------------------------------------------------------------
@@ -110,8 +116,13 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(2)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, masker);
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), masker);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
+
+  // using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
+  // return return_type(schemeName, trialSpace, fomSystem, masker);
 }
 
 // -------------------------------------------------------------
@@ -147,8 +158,13 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(3)*/
     lspg_residual_type, lspg_jacobian_type,
     TrialSubspaceType, FomSystemType, HypRedUpdaterType>;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, hypRedUpdater);
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), hypRedUpdater);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
+
+  // using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
+  // return return_type(schemeName, trialSpace, fomSystem, hypRedUpdater);
 }
 
 
@@ -187,8 +203,14 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(4)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, scaler);
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), scaler);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
+
+  // using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
+  // return return_type(schemeName, trialSpace, fomSystem, scaler);
 }
 
 // -------------------------------------------------------------
@@ -226,8 +248,14 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(5)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, scaler, hypRedUpdater);
+
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), scaler, hypRedUpdater);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
+
+  // using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
+  // return return_type(schemeName, trialSpace, fomSystem, scaler, hypRedUpdater);
 }
 
 
@@ -262,9 +290,15 @@ auto create_unsteady_problem(const TrialSubspaceType & trialSpace,     /*(6)*/
     lspg_residual_type, lspg_jacobian_type,
     TrialSubspaceType, FomSystemType>;
 
-  using return_type = impl::LspgUnsteadyProblemFullyDiscreteAPI<
-    TotalNumberOfDesiredStates, TrialSubspaceType, system_type>;
-  return return_type(trialSpace, fomSystem);
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager<TotalNumberOfDesiredStates>(trialSpace));
+  auto system  = std::make_unique<system_type>(trialSpace, fomSystem, std::move(fomStatesManager));
+
+  return ::pressio::ode::create_implicit_stepper<TotalNumberOfDesiredStates>(std::move(system));
+
+  // using return_type = impl::LspgUnsteadyProblemFullyDiscreteAPI<
+  //   TotalNumberOfDesiredStates, TrialSubspaceType, system_type>;
+  // return return_type(trialSpace, fomSystem);
 }
 
 

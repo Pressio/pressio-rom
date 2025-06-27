@@ -123,11 +123,10 @@ TEST(rom_lspg_unsteady, test10)
   romState[2]=2.;
 
   auto problem = rom::lspg::create_unsteady_problem<2>(space, fomSystem);
-  auto & stepper = problem.lspgStepper();
 
   const double dt = 2.;
   FakeNonLinSolver<phi_t> nonLinSolver(N, phi, dt);
-  ode::advance_n_steps(stepper, romState, 0., dt,
+  ode::advance_n_steps(problem, romState, 0., dt,
 		       ode::StepCount(3), nonLinSolver);
   std::cout << romState << std::endl;
   // EXPECT_DOUBLE_EQ(romState[0], 4.);

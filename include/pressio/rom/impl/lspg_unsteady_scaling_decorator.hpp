@@ -70,11 +70,10 @@ public:
   template <class FomSystemType, class ...Args>
   LspgScalingDecorator(const TrialSubspaceType & trialSubspace,
 		       const FomSystemType & fomSystem,
-		       FomStatesManager<TrialSubspaceType> & fomStatesManager,
+		       std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		       const UserProvidedScalerType & scaler,
 		       Args && ... args)
-    : ToDecorate(trialSubspace, fomSystem, fomStatesManager, std::forward<Args>(args)...),
-      fomStatesManager_(fomStatesManager),
+    : ToDecorate(trialSubspace, fomSystem, std::move(fomStatesManager), std::forward<Args>(args)...),
       scaler_(scaler)
   {}
 
@@ -95,12 +94,11 @@ public:
 			   rhsEvaluationTime, step, dt, R, Jo);
 
     // fomStateAt_np1 is only valid IF already reconstructed in the base class
-    const auto & fomStateAt_np1 = fomStatesManager_(::pressio::ode::nPlusOne());
+    const auto & fomStateAt_np1 = (*this->fomStatesManager_)(::pressio::ode::nPlusOne());
     scaler_(fomStateAt_np1, rhsEvaluationTime.get(), R, Jo);
   }
 
 private:
-  std::reference_wrapper<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::reference_wrapper<const UserProvidedScalerType> scaler_;
 };
 

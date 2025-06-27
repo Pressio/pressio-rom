@@ -75,9 +75,9 @@ public:
   template <class TrialSubspaceType, class FomSystemType>
   LspgMaskDecorator(const TrialSubspaceType & trialSubspace,
 		    const FomSystemType & fomSystem,
-		    FomStatesManager<TrialSubspaceType> & fomStatesManager,
+		    std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		    const MaskerType & masker)
-    : Maskable(trialSubspace, fomSystem, fomStatesManager),
+    : Maskable(trialSubspace, fomSystem, std::move(fomStatesManager)),
       masker_(masker),
       unMaskedResidual_(Maskable::createResidual()),
       unMaskedJacobian_(Maskable::createJacobian())

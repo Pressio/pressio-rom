@@ -62,6 +62,8 @@ template <
   >
 class LspgUnsteadyResidualJacobianPolicyHypRed
 {
+  using fom_states_mgr_type = FomStatesManager<TrialSubspaceType>;
+
 public:
   // required
   using independent_variable_type = IndVarType;
@@ -70,17 +72,21 @@ public:
   using jacobian_type = LspgJacobianType;
 
 public:
-  LspgUnsteadyResidualJacobianPolicyHypRed() = delete;
   LspgUnsteadyResidualJacobianPolicyHypRed(const TrialSubspaceType & trialSubspace,
 					   const FomSystemType & fomSystem,
-					   FomStatesManager<TrialSubspaceType> & fomStatesManager,
+					   std::unique_ptr<fom_states_mgr_type> fomStatesManager,
 					   const HypRedUpdaterType & hrUpdater)
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
-      fomStatesManager_(fomStatesManager),
       hypRedUpdater_(hrUpdater),
-      fomStateHelperInstance_(trialSubspace.createFullState())
+      fomStateHelperInstance_(trialSubspace.createFullState()),
+      fomStatesManager_(std::move(fomStatesManager))
   {}
+
+  LspgUnsteadyResidualJacobianPolicyHypRed(LspgUnsteadyResidualJacobianPolicyHypRed const &) = delete;
+  LspgUnsteadyResidualJacobianPolicyHypRed& operator=(LspgUnsteadyResidualJacobianPolicyHypRed const&) = delete;
+  LspgUnsteadyResidualJacobianPolicyHypRed(LspgUnsteadyResidualJacobianPolicyHypRed &&) = default;
+  LspgUnsteadyResidualJacobianPolicyHypRed& operator=(LspgUnsteadyResidualJacobianPolicyHypRed &&) = default;
 
 public:
   state_type createState() const{
@@ -154,9 +160,9 @@ private:
        we might be inside a subiteration of the non-linear solve
        where the time step does not change but the predicted state does
      */
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(predictedReducedState,
+    fomStatesManager_->reconstructAtWithoutStencilUpdate(predictedReducedState,
 							      ::pressio::ode::nPlusOne());
-    const auto & fomStateAt_np1 = fomStatesManager_(::pressio::ode::nPlusOne());
+    const auto & fomStateAt_np1 = (*fomStatesManager_)(::pressio::ode::nPlusOne());
 
     /* previous FOM states should only be recomputed when the time step changes.
        The method below does not recompute all previous states, but only
@@ -164,7 +170,7 @@ private:
        FOM states stored. */
     if (stepTracker_ != step){
       const auto & lspgStateAt_n = reducedStatesStencilManager(::pressio::ode::n());
-      fomStatesManager_.get().reconstructAtWithStencilUpdate(lspgStateAt_n,
+      fomStatesManager_->reconstructAtWithStencilUpdate(lspgStateAt_n,
 							     ::pressio::ode::n());
       stepTracker_ = step;
     }
@@ -180,7 +186,7 @@ private:
       // step 1
       fomSystem_.get().rhs(fomStateAt_np1, rhsEvaluationTime, R);
       // step 2
-      const auto & fomStateAt_n = fomStatesManager_(::pressio::ode::n());
+      const auto & fomStateAt_n = (*fomStatesManager_)(::pressio::ode::n());
       using fom_state_type = typename FomSystemType::state_type;
       using sc_t = typename ::pressio::Traits<fom_state_type>::scalar_type;
       constexpr auto cnp1 = ::pressio::ode::constants::bdf1<sc_t>::c_np1_;
@@ -205,8 +211,8 @@ private:
       // step 1
       fomSystem_.get().rhs(fomStateAt_np1, rhsEvaluationTime, R);
       // step 2
-      const auto & fomStateAt_n = fomStatesManager_(::pressio::ode::n());
-      const auto & fomStateAt_nm1 = fomStatesManager_(::pressio::ode::nMinusOne());
+      const auto & fomStateAt_n = (*fomStatesManager_)(::pressio::ode::n());
+      const auto & fomStateAt_nm1 = (*fomStatesManager_)(::pressio::ode::nMinusOne());
 
       using fom_state_type = typename FomSystemType::state_type;
       using sc_t = typename ::pressio::Traits<fom_state_type>::scalar_type;
@@ -258,9 +264,11 @@ private:
 
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  std::reference_wrapper<FomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::reference_wrapper<const HypRedUpdaterType> hypRedUpdater_;
   mutable typename FomSystemType::state_type fomStateHelperInstance_;
+
+protected:
+  std::unique_ptr<fom_states_mgr_type> fomStatesManager_;
 };
 
 }}}
