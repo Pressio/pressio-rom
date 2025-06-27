@@ -61,18 +61,15 @@
 
 namespace pressio{ namespace ode{
 
-template<
-  class SystemType,
-  std::enable_if_t<
-    RealValuedOdeSystemFusingRhsAndJacobian<mpl::remove_cvref_t<SystemType>>::value ||
-    RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
-    int > = 0
-  >
+template<class SystemType>
 auto create_implicit_stepper(StepScheme schemeName,
 			     SystemType const & system)
 {
-  static constexpr bool complete_system = RealValuedCompleteOdeSystem<
-    mpl::remove_cvref_t<SystemType>>::value;
+  using system_type = mpl::remove_cvref_t<SystemType>;
+  static_assert(RealValuedOdeSystemFusingRhsAndJacobian<system_type>::value ||
+		RealValuedCompleteOdeSystem<system_type>::value,
+  "the system provided to create an implicit stepper does not meet the required concepts");
+  static constexpr bool complete_system = RealValuedCompleteOdeSystem<system_type>::value;
 
   assert(
 	 schemeName == StepScheme::BDF1 ||
@@ -84,7 +81,6 @@ auto create_implicit_stepper(StepScheme schemeName,
     assert(schemeName != StepScheme::CrankNicolson);
   }
 
-  using system_type   = mpl::remove_cvref_t<SystemType>;
   using ind_var_type  = typename system_type::independent_variable_type;
   using state_type    = typename system_type::state_type;
   using residual_type = typename system_type::rhs_type;
@@ -116,18 +112,15 @@ auto create_implicit_stepper(StepScheme schemeName,
   }
 }
 
-template<
-  class SystemType,
-  std::enable_if_t<
-    RealValuedOdeSystemFusingRhsAndJacobian<mpl::remove_cvref_t<SystemType>>::value ||
-    RealValuedCompleteOdeSystem<mpl::remove_cvref_t<SystemType>>::value,
-    int > = 0
-  >
+template<class SystemType>
 auto create_implicit_stepper(StepScheme schemeName,
 			     std::unique_ptr<SystemType> system)
 {
-  static constexpr bool complete_system = RealValuedCompleteOdeSystem<
-    mpl::remove_cvref_t<SystemType>>::value;
+  using system_type = mpl::remove_cvref_t<SystemType>;
+  static_assert(RealValuedOdeSystemFusingRhsAndJacobian<system_type>::value ||
+		RealValuedCompleteOdeSystem<system_type>::value,
+  "the system provided to create an implicit stepper does not meet the required concepts");
+  static constexpr bool complete_system = RealValuedCompleteOdeSystem<system_type>::value;
 
   assert(
 	 schemeName == StepScheme::BDF1 ||
@@ -139,7 +132,6 @@ auto create_implicit_stepper(StepScheme schemeName,
     assert(schemeName != StepScheme::CrankNicolson);
   }
 
-  using system_type   = mpl::remove_cvref_t<SystemType>;
   using ind_var_type  = typename system_type::independent_variable_type;
   using state_type    = typename system_type::state_type;
   using residual_type = typename system_type::rhs_type;
@@ -171,22 +163,18 @@ auto create_implicit_stepper(StepScheme schemeName,
   }
 }
 
-template<
-  class ResidualJacobianPolicyType,
-  std::enable_if_t<
-    ::pressio::ode::ImplicitResidualJacobianPolicy<
-      mpl::remove_cvref_t<ResidualJacobianPolicyType>>::value, int
-    > = 0
-  >
+template<class ResidualJacobianPolicyType>
 auto create_implicit_stepper_with_custom_policy(StepScheme schemeName,
 						ResidualJacobianPolicyType && policy)
 {
+  using policy_type = mpl::remove_cvref_t<ResidualJacobianPolicyType>;
+  static_assert(ImplicitResidualJacobianPolicy<policy_type>::value,
+  "the custom policy provided to create an implicit stepper does not meet the required concepts");
 
   assert(schemeName == StepScheme::BDF1 ||
 	 schemeName == StepScheme::BDF2 ||
 	 schemeName == StepScheme::CrankNicolson);
 
-  using policy_type   = mpl::remove_cvref_t<ResidualJacobianPolicyType>;
   using ind_var_type  = typename policy_type::independent_variable_type;
   using state_type    = typename policy_type::state_type;
   using residual_type = typename policy_type::residual_type;

@@ -56,17 +56,15 @@
 
 namespace pressio{ namespace ode{
 
-template<
-  class SystemType,
-  std::enable_if_t<
-    RealValuedOdeSystem<mpl::remove_cvref_t<SystemType>>::value ||
-    RealValuedOdeSystemFusingMassMatrixAndRhs<mpl::remove_cvref_t<SystemType>>::value,
-    int > = 0
-  >
+template<class SystemType>
 auto create_explicit_stepper(StepScheme schemeName,
 			     SystemType const & odeSystem)
 {
   using sys_type = mpl::remove_cvref_t<SystemType>;
+  static_assert(
+    RealValuedOdeSystem<sys_type>::value ||
+    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value);
+
   using ind_var_type = typename sys_type::independent_variable_type;
   using state_type   = typename sys_type::state_type;
   using rhs_type = typename sys_type::rhs_type;
@@ -75,6 +73,7 @@ auto create_explicit_stepper(StepScheme schemeName,
   // meaning that the user need to ensure the odeSystem lives long enough
   // for the stepper to be used
   using wrap_type = impl::SystemInternalWrapper<0, sys_type>;
+  wrap_type ws(odeSystem);
 
   static constexpr bool need_mass_matrix =
     RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value;
@@ -83,26 +82,24 @@ auto create_explicit_stepper(StepScheme schemeName,
 
     using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
       wrap_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, wrap_type(odeSystem));
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
   }
   else{
     using impl_type = impl::ExplicitStepperNoMassMatrixImpl<
       wrap_type, state_type, ind_var_type, rhs_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, wrap_type(odeSystem));
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
   }
 }
 
-template<
-  class SystemType,
-  std::enable_if_t<
-    RealValuedOdeSystem<mpl::remove_cvref_t<SystemType>>::value ||
-    RealValuedOdeSystemFusingMassMatrixAndRhs<mpl::remove_cvref_t<SystemType>>::value,
-    int > = 0
-  >
+template<class SystemType>
 auto create_explicit_stepper(StepScheme schemeName,
 			     std::unique_ptr<SystemType> system)
 {
   using sys_type = mpl::remove_cvref_t<SystemType>;
+  static_assert(
+    RealValuedOdeSystem<sys_type>::value ||
+    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value);
+
   using ind_var_type = typename sys_type::independent_variable_type;
   using state_type   = typename sys_type::state_type;
   using rhs_type = typename sys_type::rhs_type;
