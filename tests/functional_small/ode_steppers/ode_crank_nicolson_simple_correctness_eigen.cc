@@ -264,7 +264,7 @@ TEST(ode, implicit_crank_nicolson_correctness_custom_policy)
   using pol_t = pressio::ode::impl::ResidualJacobianStandardPolicy<
     wrap_type, time_type, state_t, res_t, jac_t>;
 
-  auto stepperObj = pressio::ode::create_cranknicolson_stepper(pol_t(wrap_type(appObj)));
+  auto stepperObj = pressio::ode::create_cranknicolson_stepper_with_custom_policy(pol_t(wrap_type(appObj)));
   pressio::ode::advance_n_steps(stepperObj, y, 0., 1.5, pressio::ode::StepCount(3), solver);
 
   EXPECT_TRUE(y(0)==7.);

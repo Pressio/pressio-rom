@@ -11,7 +11,7 @@ template <> struct DeducedStepperType<-1>{
   // note: to deduce the stepper_type it does not really matter
   // what scheme enum value we use, as long as it is an implicit one
   template<class T>
-  using type = decltype(::pressio::ode::create_implicit_stepper
+  using type = decltype(::pressio::ode::create_implicit_stepper_with_custom_policy
 			(::pressio::ode::StepScheme::BDF1,
 			 std::declval<T &>()
 			 ));
@@ -62,7 +62,7 @@ public:
 											     fomSystem,
 											     *fomStatesManager_,
 											     std::forward<Args>(args)...)),
-      stepper_( ::pressio::ode::create_implicit_stepper(odeSchemeName, *rjPolicyOrFullyDiscreteSystem_))
+      stepper_( ::pressio::ode::create_implicit_stepper_with_custom_policy(odeSchemeName, *rjPolicyOrFullyDiscreteSystem_))
   {}
 
   template<

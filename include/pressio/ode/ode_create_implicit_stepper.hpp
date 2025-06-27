@@ -74,10 +74,11 @@ auto create_implicit_stepper(StepScheme schemeName,
   static constexpr bool complete_system = RealValuedCompleteOdeSystem<
     mpl::remove_cvref_t<SystemType>>::value;
 
-  [[maybe_unused]] const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
-    schemeName == StepScheme::BDF2 ||
-    schemeName == StepScheme::CrankNicolson;
-  assert(allowed_scheme);
+  assert(
+	 schemeName == StepScheme::BDF1 ||
+	 schemeName == StepScheme::BDF2 ||
+	 schemeName == StepScheme::CrankNicolson
+	 );
   if constexpr(complete_system){
     // for systems with mass matrix CN not supported yet
     assert(schemeName != StepScheme::CrankNicolson);
@@ -90,6 +91,7 @@ auto create_implicit_stepper(StepScheme schemeName,
   using jacobian_type = typename system_type::jacobian_type;
 
   using wrap_type = impl::SystemInternalWrapper<0, system_type>;
+  wrap_type ws(system);
 
   if constexpr (complete_system){
     using mass_mat_type = typename system_type::mass_matrix_type;
@@ -101,7 +103,7 @@ auto create_implicit_stepper(StepScheme schemeName,
     using impl_type = impl::ImplicitStepperStandardImpl<
       ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
     return impl::create_implicit_stepper_impl<
-      impl_type>(schemeName, policy_type(wrap_type(system)));
+      impl_type>(schemeName, policy_type(std::move(ws)));
   }
   else{
     using policy_type = impl::ResidualJacobianStandardPolicy<
@@ -110,7 +112,7 @@ auto create_implicit_stepper(StepScheme schemeName,
     using impl_type = impl::ImplicitStepperStandardImpl<
       ind_var_type, state_type, residual_type, jacobian_type, policy_type>;
     return impl::create_implicit_stepper_impl<
-      impl_type>(schemeName, policy_type(wrap_type(system)));
+      impl_type>(schemeName, policy_type(std::move(ws)));
   }
 }
 
@@ -127,10 +129,11 @@ auto create_implicit_stepper(StepScheme schemeName,
   static constexpr bool complete_system = RealValuedCompleteOdeSystem<
     mpl::remove_cvref_t<SystemType>>::value;
 
-  [[maybe_unused]] const bool allowed_scheme = schemeName == StepScheme::BDF1 ||
-    schemeName == StepScheme::BDF2 ||
-    schemeName == StepScheme::CrankNicolson;
-  assert(allowed_scheme);
+  assert(
+	 schemeName == StepScheme::BDF1 ||
+	 schemeName == StepScheme::BDF2 ||
+	 schemeName == StepScheme::CrankNicolson
+	 );
   if constexpr(complete_system){
     // for systems with mass matrix CN not supported yet
     assert(schemeName != StepScheme::CrankNicolson);
@@ -175,8 +178,8 @@ template<
       mpl::remove_cvref_t<ResidualJacobianPolicyType>>::value, int
     > = 0
   >
-auto create_implicit_stepper(StepScheme schemeName,
-			     ResidualJacobianPolicyType && policy)
+auto create_implicit_stepper_with_custom_policy(StepScheme schemeName,
+						ResidualJacobianPolicyType && policy)
 {
 
   assert(schemeName == StepScheme::BDF1 ||
@@ -217,6 +220,25 @@ auto create_cranknicolson_stepper(Args && ... args){
   return create_implicit_stepper(StepScheme::CrankNicolson,
 				 std::forward<Args>(args)...);
 }
+
+template<class ...Args>
+auto create_bdf1_stepper_with_custom_policy(Args && ... args){
+  return create_implicit_stepper_with_custom_policy(StepScheme::BDF1,
+						    std::forward<Args>(args)...);
+}
+
+template<class ...Args>
+auto create_bdf2_stepper_with_custom_policy(Args && ... args){
+  return create_implicit_stepper_with_custom_policy(StepScheme::BDF2,
+						    std::forward<Args>(args)...);
+}
+
+template<class ...Args>
+auto create_cranknicolson_stepper_with_custom_policy(Args && ... args){
+  return create_implicit_stepper_with_custom_policy(StepScheme::CrankNicolson,
+						    std::forward<Args>(args)...);
+}
+
 
 /**
  * Constructs and returns a stepper for doing implicit time integration on

@@ -46,7 +46,7 @@ TEST(ode, implicit_bdf2_custom_policy)
   using jac_t = typename problem_t::jacobian_type;
   using wrap_type = ode::impl::SystemInternalWrapper<0, problem_t>;  
   using pol_t = ode::impl::ResidualJacobianStandardPolicy<wrap_type, time_type, state_t, res_t, jac_t>;
-  auto stepperObj = ode::create_bdf2_stepper(pol_t(wrap_type(problemObj)));
+  auto stepperObj = ode::create_bdf2_stepper_with_custom_policy(pol_t(wrap_type(problemObj)));
 
   using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;

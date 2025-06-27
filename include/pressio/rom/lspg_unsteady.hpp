@@ -27,19 +27,36 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(1)*/
 			     const FomSystemType & fomSystem)
 {
 
+  // check that the trial subspace meets the right concept
+  static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
+  // check that the fom system meets the right concept
+  static_assert(RealValuedSemiDiscreteFomWithJacobianAction<
+		FomSystemType,
+		typename TrialSubspaceType::basis_matrix_type>::value);
+  // check that the trial space reconstructs a fom state that is compatible
+  // with the fom state used in the fom system class
+  static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
+		typename FomSystemType::state_type>::value);
+
+  // lspg requires an implicit scheme
   impl::valid_scheme_for_lspg_else_throw(schemeName);
 
+  // the types to use for the lspg data
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
+  // for LSPG residual we use the same type as the FOM's rhs
   using lspg_residual_type = typename FomSystemType::rhs_type;
+  // for LSPG jacobian use the type of actiono of the FOM jacobian on the basis
   using lspg_jacobian_type =
     decltype(
 	     fomSystem.createResultOfJacobianActionOn(trialSpace.basisOfTranslatedSpace())
 	     );
 
-  // defining an unsteady lspg problem boils down to
-  // defining a "custom" residual and jacobian policy
-  // since for lspg we need to customize how we do time stepping
+  // defining an unsteady lspg problem basically boils down to defining
+  // a "custom" residual and jacobian policy since for lspg we need
+  // to customize how we do time stepping.
+  // So here we need to figure out the correct implementation class for the
+  // residual and jacobian to use and then instantiate the problem
   using rj_policy_type = impl::LspgUnsteadyResidualJacobianPolicy<
     ind_var_type, reduced_state_type,
     lspg_residual_type, lspg_jacobian_type,
