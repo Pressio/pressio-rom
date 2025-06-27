@@ -63,7 +63,8 @@ auto create_explicit_stepper(StepScheme schemeName,
   using sys_type = mpl::remove_cvref_t<SystemType>;
   static_assert(
     RealValuedOdeSystem<sys_type>::value ||
-    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value);
+    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value,
+    "To create an explicit stepper you must provide an ODE system that meets either the RealValuedOdeSystem or the RealValuedOdeSystemFusingMassMatrixAndRhs concept.");
 
   using ind_var_type = typename sys_type::independent_variable_type;
   using state_type   = typename sys_type::state_type;
@@ -72,8 +73,8 @@ auto create_explicit_stepper(StepScheme schemeName,
   // in this case the user-provided ode system is captured by "reference"
   // meaning that the user need to ensure the odeSystem lives long enough
   // for the stepper to be used
-  using wrap_type = impl::SystemInternalWrapper<0, sys_type>;
-  wrap_type ws(odeSystem);
+  using system_wrapper_type = impl::SystemInternalWrapper<0, sys_type>;
+  system_wrapper_type sw(odeSystem);
 
   static constexpr bool need_mass_matrix =
     RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value;
@@ -81,31 +82,34 @@ auto create_explicit_stepper(StepScheme schemeName,
     using mass_matrix_type = typename sys_type::mass_matrix_type;
 
     using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
-      wrap_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+      system_wrapper_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(sw));
   }
   else{
     using impl_type = impl::ExplicitStepperNoMassMatrixImpl<
-      wrap_type, state_type, ind_var_type, rhs_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+      system_wrapper_type, state_type, ind_var_type, rhs_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(sw));
   }
 }
 
 template<class SystemType>
 auto create_explicit_stepper(StepScheme schemeName,
-			     std::unique_ptr<SystemType> system)
+			     std::unique_ptr<SystemType> odeSystem)
 {
   using sys_type = mpl::remove_cvref_t<SystemType>;
   static_assert(
     RealValuedOdeSystem<sys_type>::value ||
-    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value);
+    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value,
+    "To create an explicit stepper you must provide an ODE system that meets either the RealValuedOdeSystem or the RealValuedOdeSystemFusingMassMatrixAndRhs concept.");
 
   using ind_var_type = typename sys_type::independent_variable_type;
   using state_type   = typename sys_type::state_type;
   using rhs_type = typename sys_type::rhs_type;
 
-  using wrap_type = impl::SystemInternalWrapper<1, sys_type>;
-  wrap_type ws(std::move(system));
+  // the user provides its ode system as a unique_ptr, so here we
+  // need to take ownership of it and store it properly inside.
+  using system_wrapper_type = impl::SystemInternalWrapper<1, sys_type>;
+  system_wrapper_type sw(std::move(odeSystem));
 
   static constexpr bool need_mass_matrix =
     RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value;
@@ -113,13 +117,13 @@ auto create_explicit_stepper(StepScheme schemeName,
     using mass_matrix_type = typename sys_type::mass_matrix_type;
 
     using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
-      wrap_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+      system_wrapper_type, state_type, ind_var_type, rhs_type, mass_matrix_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(sw));
   }
   else{
     using impl_type = impl::ExplicitStepperNoMassMatrixImpl<
-      wrap_type, state_type, ind_var_type, rhs_type>;
-    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(ws));
+      system_wrapper_type, state_type, ind_var_type, rhs_type>;
+    return impl::create_explicit_stepper<impl_type>(schemeName, std::move(sw));
   }
 }
 
