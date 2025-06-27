@@ -73,9 +73,17 @@ public:
 		       std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		       const UserProvidedScalerType & scaler,
 		       Args && ... args)
-    : ToDecorate(trialSubspace, fomSystem, std::move(fomStatesManager), std::forward<Args>(args)...),
+    : ToDecorate(trialSubspace,
+		 fomSystem,
+		 std::move(fomStatesManager),
+		 std::forward<Args>(args)...),
       scaler_(scaler)
   {}
+
+  LspgScalingDecorator(LspgScalingDecorator const &) = delete;
+  LspgScalingDecorator& operator=(LspgScalingDecorator const&) = delete;
+  LspgScalingDecorator(LspgScalingDecorator &&) = default;
+  LspgScalingDecorator& operator=(LspgScalingDecorator &&) = default;
 
 public:
   template <class StencilStatesContainerType, class StencilRhsContainerType>

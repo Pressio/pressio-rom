@@ -87,6 +87,12 @@ public:
       fomStatesManager_(std::move(fomStatesManager))
   {}
 
+  LspgFullyDiscreteSystem(LspgFullyDiscreteSystem const &) = delete;
+  LspgFullyDiscreteSystem& operator=(LspgFullyDiscreteSystem const&) = delete;
+  LspgFullyDiscreteSystem(LspgFullyDiscreteSystem &&) = default;
+  LspgFullyDiscreteSystem& operator=(LspgFullyDiscreteSystem &&) = default;
+
+public:
   state_type createState() const{
     // this needs to create an instance of the reduced state
     return trialSubspace_.get().createReducedState();

@@ -83,6 +83,11 @@ public:
       unMaskedJacobian_(Maskable::createJacobian())
   {}
 
+  LspgMaskDecorator(LspgMaskDecorator const &) = delete;
+  LspgMaskDecorator& operator=(LspgMaskDecorator const&) = delete;
+  LspgMaskDecorator(LspgMaskDecorator &&) = default;
+  LspgMaskDecorator& operator=(LspgMaskDecorator &&) = default;
+
 public:
   state_type createState() const{
     return Maskable::createState();
