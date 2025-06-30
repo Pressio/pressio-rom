@@ -168,3 +168,11 @@
   -webkit-mask-image: var(--icon--pied-piper);
   mask-image: var(--icon--pied-piper);
 }
+
+/*
+customize the widght of the page
+https://stackoverflow.com/questions/23211695/modifying-content-width-of-the-sphinx-theme-read-the-docs
+*/
+.wy-nav-content {
+    max-width: none;
+}

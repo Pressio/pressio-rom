@@ -3,10 +3,8 @@
 
 .. include:: mydefs.rst
 
-pressio-rom C++ library
-===================
-
-Documentation of the `C++ library <https://github.com/Pressio/pressio-rom>`__, one element of the `Pressio ecosystem <https://pressio.github.io/>`_.
+pressio-rom
+===========
 
 This work was started with a focus on projection-based reduced-order models (ROMs),
 which is a strongly **multidisciplinary** topic.
@@ -82,52 +80,6 @@ Get Started
 * Explore the `tutorials showing the individual capabilities <https://pressio.github.io/pressio-tutorials>`_
 
 
-Generic programming and concepts
---------------------------------
-
-Arguably the main foundation of pressio-rom is the use of
-generic programming--*or, more humbly, we can at least say that it is what we strive for*.
-Since the early development stages, we have relied on concept-driven design.
-Note, that, if you have used or use C++ templates, you *have* used
-concepts knowingly or not. This is because when you write a function or class
-template, you have some expectations of what a template needs to expose/do.
-C++20 concepts are, in some sense, a way to *explicitly* formalize those expectations.
-
-
-Until we can stably upgrade to C++20, we cannot by default use C++20 concepts,
-so we currently guard the concepts in pressio-rom inside a
-preprocessor directive ``#ifdef PRESSIO_ENABLE_CXX20``.
-The behavior is as follows:
-
-- if ``PRESSIO_ENABLE_CXX20`` is *enabled*: concepts are compiled and
-  enforced *stricto sensu* on the pressio APIs as discussed by this documentation
-
-- if ``PRESSIO_ENABLE_CXX20`` is *disabled*: this is the default case because the
-  default pressio C++ standard is currently C++17. In this case, the "C++20 concepts"
-  are not compiled but the constraints they represent are still valid and implemented
-  differently such that their enforcement is done via a combination of SFINAE and static asserts.
-
-.. important::
-
-   Well-defined concepts are hard to design and it takes time. Concepts used in pressio are
-   still being developed. Some are more mature than others. The approach we adopt is to first
-   focus on the syntax, then then we will revise them with proper semantics. Keep this in mind
-   if some concepts seem incomplete.
-
-Read more about `concepts in Pressio <concepts_note.html>`_.
-
-..
-   Here, the term concept does not necessarily
-   refer to the C++ concepts feature introduced in C++20.
-   You can think of it more broadly as "what properties/syntax a type meets,
-   what you can do with it and, also, what a type should definitely satisfy".
-   The message we want to convey is that *"concepts" are a fundamental
-   design part of pressio*. In our documentation, we make the effort to
-   highlight the use of concepts
-   by dedicating to each component of the library a full section
-   to discuss and formalize how concepts are used in that component.
-
-
 License and Citation
 --------------------
 
@@ -143,22 +95,42 @@ Find us on Slack: https://pressioteam.slack.com or
 open an issue on `github <https://github.com/Pressio/pressio>`_.
 
 
+
 .. toctree::
    :maxdepth: 1
    :hidden:
 
    configuration
    keywords
-   concepts_note
+
 
 .. toctree::
-   :caption: API
+   :caption: ROMs
    :maxdepth: 1
    :hidden:
 
-   ./components/rom
-   ./components/ode
-   ./components/nonlinsolvers
+   ./components/rom_concepts
+
+.. toctree::
+   :caption: ODE
+   :maxdepth: 1
+   :hidden:
+
+   ./components/ode_concepts
+
+.. toctree::
+   :caption: Nonlinear solvers
+   :maxdepth: 1
+   :hidden:
+
+   ./components/nonlinsolvers_newton
+   ./components/nonlinsolvers_enums
+
+.. toctree::
+   :caption: Linear solvers
+   :maxdepth: 1
+   :hidden:
+
    ./components/linsolvers
 
 .. toctree::
@@ -166,7 +138,56 @@ open an issue on `github <https://github.com/Pressio/pressio>`_.
    :maxdepth: 1
    :hidden:
 
-   Tutorials <https://pressio.github.io/pressio-tutorials>
-   GitHub Repo <https://github.com/Pressio/pressio-rom>
-   Open an issue/feature req. <https://github.com/Pressio/pressio-rom/issues>
+   GitHub Repo <https://github.com/Pressio/pressio-ops>
+   Open an issue/feature req. <https://github.com/Pressio/pressio-ops/issues>
    license
+
+
+
+
+
+..
+   Generic programming and concepts
+   --------------------------------
+
+   Arguably the main foundation of pressio-rom is the use of
+   generic programming--*or, more humbly, we can at least say that it is what we strive for*.
+   Since the early development stages, we have relied on concept-driven design.
+   Note, that, if you have used or use C++ templates, you *have* used
+   concepts knowingly or not. This is because when you write a function or class
+   template, you have some expectations of what a template needs to expose/do.
+   C++20 concepts are, in some sense, a way to *explicitly* formalize those expectations.
+
+
+   Until we can stably upgrade to C++20, we cannot by default use C++20 concepts,
+   so we currently guard the concepts in pressio-rom inside a
+   preprocessor directive ``#ifdef PRESSIO_ENABLE_CXX20``.
+   The behavior is as follows:
+
+   - if ``PRESSIO_ENABLE_CXX20`` is *enabled*: concepts are compiled and
+     enforced *stricto sensu* on the pressio APIs as discussed by this documentation
+
+   - if ``PRESSIO_ENABLE_CXX20`` is *disabled*: this is the default case because the
+     default pressio C++ standard is currently C++17. In this case, the "C++20 concepts"
+     are not compiled but the constraints they represent are still valid and implemented
+     differently such that their enforcement is done via a combination of SFINAE and static asserts.
+
+   .. important::
+
+      Well-defined concepts are hard to design and it takes time. Concepts used in pressio are
+      still being developed. Some are more mature than others. The approach we adopt is to first
+      focus on the syntax, then then we will revise them with proper semantics. Keep this in mind
+      if some concepts seem incomplete.
+
+   .. Read more about `concepts in Pressio <concepts_note.html>`_.
+
+   ..
+      Here, the term concept does not necessarily
+      refer to the C++ concepts feature introduced in C++20.
+      You can think of it more broadly as "what properties/syntax a type meets,
+      what you can do with it and, also, what a type should definitely satisfy".
+      The message we want to convey is that *"concepts" are a fundamental
+      design part of pressio*. In our documentation, we make the effort to
+      highlight the use of concepts
+      by dedicating to each component of the library a full section
+      to discuss and formalize how concepts are used in that component.
