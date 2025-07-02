@@ -31,23 +31,6 @@ struct SteadyGalerkinDefaultReducedOperatorsTraits<
 };
 #endif
 
-namespace impl{
-template<class SubspaceType>
-using steady_galerkin_default_reduced_state_t =
-  typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_state_type;
-
-template<class SubspaceType>
-using steady_galerkin_default_reduced_residual_t =
-  typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_residual_type;
-
-template<class SubspaceType>
-using steady_galerkin_default_reduced_jacobian_t =
-  typename SteadyGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_jacobian_type;
-} //end namespace pressio:rom::impl
-
 /*
   unsteady explicit galerkin
 */
@@ -69,23 +52,6 @@ struct ExplicitGalerkinDefaultReducedOperatorsTraits<
   using reduced_mass_matrix_type = Eigen::Matrix<typename Traits<T>::scalar_type, -1, -1>;
 };
 #endif
-
-namespace impl{
-template<class SubspaceType>
-using explicit_galerkin_default_reduced_state_t =
-  typename ExplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_state_type;
-
-template<class SubspaceType>
-using explicit_galerkin_default_reduced_rhs_t =
-  typename ExplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_rhs_type;
-
-template<class SubspaceType>
-using explicit_galerkin_default_reduced_mass_matrix_t =
-  typename ExplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_mass_matrix_type;
-} //end namespace pressio:rom::impl
 
 
 /*
@@ -111,28 +77,6 @@ struct ImplicitGalerkinDefaultReducedOperatorsTraits<
   using reduced_mass_matrix_type = Eigen::Matrix<typename Traits<T>::scalar_type, -1, -1>;
 };
 #endif
-
-namespace impl{
-template<class SubspaceType>
-using implicit_galerkin_default_reduced_state_t =
-  typename ImplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_state_type;
-
-template<class SubspaceType>
-using implicit_galerkin_default_reduced_residual_t =
-  typename ImplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_residual_type;
-
-template<class SubspaceType>
-using implicit_galerkin_default_reduced_jacobian_t =
-  typename ImplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_jacobian_type;
-
-template<class SubspaceType>
-using implicit_galerkin_default_reduced_mass_matrix_t =
-  typename ImplicitGalerkinDefaultReducedOperatorsTraits<
-    typename SubspaceType::reduced_state_type>::reduced_mass_matrix_type;
-} //end namespace pressio:rom::impl
 
 
 /*

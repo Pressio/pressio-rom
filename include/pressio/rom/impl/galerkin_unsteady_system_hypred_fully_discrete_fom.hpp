@@ -42,11 +42,10 @@ public:
   using discrete_residual_type    = ReducedResidualType;
   using discrete_jacobian_type    = ReducedJacobianType;
 
-  GalerkinHypRedFullyDiscreteSystem() = delete;
-  GalerkinHypRedFullyDiscreteSystem(const GalerkinHypRedFullyDiscreteSystem &) = default;
+  GalerkinHypRedFullyDiscreteSystem(const GalerkinHypRedFullyDiscreteSystem &) = delete;
   GalerkinHypRedFullyDiscreteSystem & operator=(const GalerkinHypRedFullyDiscreteSystem &) = delete;
   GalerkinHypRedFullyDiscreteSystem(GalerkinHypRedFullyDiscreteSystem &&) = default;
-  GalerkinHypRedFullyDiscreteSystem & operator=(GalerkinHypRedFullyDiscreteSystem &&) = delete;
+  GalerkinHypRedFullyDiscreteSystem & operator=(GalerkinHypRedFullyDiscreteSystem &&) = default;
   ~GalerkinHypRedFullyDiscreteSystem() = default;
 
   GalerkinHypRedFullyDiscreteSystem(const TrialSubspaceType & trialSubspace,
@@ -60,6 +59,7 @@ public:
       fomJacAction_(fomSystem.createResultOfDiscreteTimeJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+public:
   state_type createState() const{
     // this needs to instantiate the reduced state
     return trialSubspace_.get().createReducedState();
@@ -213,7 +213,7 @@ protected:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
   std::reference_wrapper<const HyperReducerType> hyperReducer_;
-  mutable GalerkinFomStatesManager<TrialSubspaceType> fomStatesManager_;
+  mutable FomStatesManager<TrialSubspaceType> fomStatesManager_;
   mutable typename FomSystemType::discrete_residual_type fomResidual_;
   mutable fom_jac_action_result_type fomJacAction_;
 };

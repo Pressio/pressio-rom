@@ -1,5 +1,14 @@
 set(ROOTNAME ${TESTING_LEVEL}_solvers_nonlinear)
 
+if (PRESSIO_ENABLE_TPL_EIGEN)
+  set(name doc_main1)
+  add_serial_exe_and_test(${name} ${ROOTNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
+
+  set(name doc_main2)
+  add_serial_exe_and_test(${name} ${ROOTNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
+endif()
+
+
 # -----------------------------
 # newton method
 # -----------------------------

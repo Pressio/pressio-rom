@@ -66,6 +66,8 @@ class LspgFullyDiscreteSystem
   static_assert(std::is_signed<raw_step_type>::value, "");
   using fom_state_type = typename TrialSubspaceType::full_state_type;
 
+  using fom_states_mgr_type = FomStatesManager<TrialSubspaceType>;
+
 public:
   // required
   using independent_variable_type   = IndVarType;
@@ -79,12 +81,18 @@ public:
 
   LspgFullyDiscreteSystem(const TrialSubspaceType & trialSubspace,
 			  const FomSystemType & fomSystem,
-			  LspgFomStatesManager<TrialSubspaceType> & fomStatesManager)
+			  std::unique_ptr<fom_states_mgr_type> fomStatesManager)
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
-      fomStatesManager_(fomStatesManager)
+      fomStatesManager_(std::move(fomStatesManager))
   {}
 
+  LspgFullyDiscreteSystem(LspgFullyDiscreteSystem const &) = delete;
+  LspgFullyDiscreteSystem& operator=(LspgFullyDiscreteSystem const&) = delete;
+  LspgFullyDiscreteSystem(LspgFullyDiscreteSystem &&) = default;
+  LspgFullyDiscreteSystem& operator=(LspgFullyDiscreteSystem &&) = default;
+
+public:
   state_type createState() const{
     // this needs to create an instance of the reduced state
     return trialSubspace_.get().createReducedState();
@@ -110,17 +118,17 @@ public:
   {
     /* this method is called once before starting a step, so we need to update
        the proposed state and the previous state */
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
+    fomStatesManager_->reconstructAtWithoutStencilUpdate(lspg_state_np1,
      							      ::pressio::ode::nPlusOne());
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_n,
+    fomStatesManager_->reconstructAtWithoutStencilUpdate(lspg_state_n,
 							      ::pressio::ode::n());
 
     static constexpr bool hashook = ::pressio::ode::has_const_pre_step_hook_method<
       mpl::remove_cvref_t<FomSystemType>, _n, StepIntType, IndVarType, fom_state_type
       >::value;
     if constexpr(hashook){
-      const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
-      const auto & yn   = fomStatesManager_(::pressio::ode::n());
+      const auto & ynp1 = (*fomStatesManager_)(::pressio::ode::nPlusOne());
+      const auto & yn   = (*fomStatesManager_)(::pressio::ode::n());
       fomSystem_.get().preStepHook(stepNumber, time, dt, ynp1, yn);
     }
   }
@@ -142,11 +150,11 @@ public:
      * reconstructed inside the preStepHook and has not changed inside the
      * solver loop
      */
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(lspg_state_np1,
+    fomStatesManager_->reconstructAtWithoutStencilUpdate(lspg_state_np1,
 							      ::pressio::ode::nPlusOne());
 
-    const auto & ynp1 = fomStatesManager_(::pressio::ode::nPlusOne());
-    const auto & yn   = fomStatesManager_(::pressio::ode::n());
+    const auto & ynp1 = (*fomStatesManager_)(::pressio::ode::nPlusOne());
+    const auto & yn   = (*fomStatesManager_)(::pressio::ode::n());
     const auto phi = trialSubspace_.get().basisOfTranslatedSpace();
 
     try
@@ -162,7 +170,7 @@ public:
 protected:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+  std::unique_ptr<fom_states_mgr_type> fomStatesManager_;
 };
 
 }}}

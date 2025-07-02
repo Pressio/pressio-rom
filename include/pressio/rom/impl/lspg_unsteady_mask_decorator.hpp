@@ -72,20 +72,21 @@ public:
 
   LspgMaskDecorator() = delete;
 
-  template <
-    class TrialSubspaceType,
-    class FomSystemType,
-    template<class> class LspgFomStatesManager
-    >
+  template <class TrialSubspaceType, class FomSystemType>
   LspgMaskDecorator(const TrialSubspaceType & trialSubspace,
 		    const FomSystemType & fomSystem,
-		    LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+		    std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		    const MaskerType & masker)
-    : Maskable(trialSubspace, fomSystem, fomStatesManager),
+    : Maskable(trialSubspace, fomSystem, std::move(fomStatesManager)),
       masker_(masker),
       unMaskedResidual_(Maskable::createResidual()),
       unMaskedJacobian_(Maskable::createJacobian())
   {}
+
+  LspgMaskDecorator(LspgMaskDecorator const &) = delete;
+  LspgMaskDecorator& operator=(LspgMaskDecorator const&) = delete;
+  LspgMaskDecorator(LspgMaskDecorator &&) = default;
+  LspgMaskDecorator& operator=(LspgMaskDecorator &&) = default;
 
 public:
   state_type createState() const{

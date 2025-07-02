@@ -53,6 +53,12 @@ public:
       fomJacAction_(fomSystem.createResultOfDiscreteTimeJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
   {}
 
+  GalerkinDefaultFullyDiscreteSystem(GalerkinDefaultFullyDiscreteSystem const &) = delete;
+  GalerkinDefaultFullyDiscreteSystem& operator=(GalerkinDefaultFullyDiscreteSystem const&) = delete;
+  GalerkinDefaultFullyDiscreteSystem(GalerkinDefaultFullyDiscreteSystem &&) = default;
+  GalerkinDefaultFullyDiscreteSystem& operator=(GalerkinDefaultFullyDiscreteSystem &&) = default;
+
+public:
   state_type createState() const{
     // this needs to instantiate the reduced state
     return trialSubspace_.get().createReducedState();
@@ -176,7 +182,7 @@ private:
 protected:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  mutable GalerkinFomStatesManager<TrialSubspaceType> fomStatesManager_;
+  mutable FomStatesManager<TrialSubspaceType> fomStatesManager_;
   mutable typename FomSystemType::discrete_residual_type fomResidual_;
   mutable fom_jac_action_result_type fomJacAction_;
 };

@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # The master toctree document.
 master_doc = "index"
 
-project = 'Pressio-ROM'
+project = 'pressio-rom'
 # copyright = f'{datetime.datetime.now().year}, 2021, National Technology & Engineering Solutions of Sandia, LLC (NTESS)'
 copyright = u"2021, National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
 author = 'Francesco Rizzi'
@@ -57,7 +57,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['components/to_revise/*.rst']
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -79,26 +79,27 @@ pygments_dark_style = "monokai"
 
 html_title = project + "-"+release
 
-html_theme = 'furo'
+html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
-  "sidebar_hide_name": False,
-  "light_css_variables": {
-    "color-brand-primary": "#336790",  # blue
-    "color-brand-content": "#336790"
-  },
-  "dark_css_variables": {
-    "color-brand-primary": "#E5B62F",  # yellow1
-    "color-brand-content": "#E5B62F"
-    #"color-brand-primary": "#F4EB4D",  # yellow2
-    #"color-brand-content": "#F4EB4D"
-    #"color-brand-primary": "#F39C12",  # orange
-    #"color-brand-content": "#F39C12",
-    #"color-brand-primary": "#00FF40",  # lime
-    #"color-brand-content": "#00FF40"
-    #"color-brand-primary": "#6ed0f5",  # cyan
-    #"color-brand-content": "#6ed0f5"
-  },
+    "navigation_depth": 2
+  # "sidebar_hide_name": False,
+  # "light_css_variables": {
+  #   "color-brand-primary": "#336790",  # blue
+  #   "color-brand-content": "#336790"
+  # },
+  # "dark_css_variables": {
+  #   "color-brand-primary": "#E5B62F",  # yellow1
+  #   "color-brand-content": "#E5B62F"
+  #   #"color-brand-primary": "#F4EB4D",  # yellow2
+  #   #"color-brand-content": "#F4EB4D"
+  #   #"color-brand-primary": "#F39C12",  # orange
+  #   #"color-brand-content": "#F39C12",
+  #   #"color-brand-primary": "#00FF40",  # lime
+  #   #"color-brand-content": "#00FF40"
+  #   #"color-brand-primary": "#6ed0f5",  # cyan
+  #   #"color-brand-content": "#6ed0f5"
+  # },
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -122,15 +123,15 @@ html_last_updated_fmt = "%b %d, %Y"
 # .. include:: special.rst
 # """
 
-html_sidebars = {
-    "**": [
-        "sidebar/scroll-start.html",
-        "sidebar/brand.html",
-        "sidebar/search.html",
-        "sidebar/navigation.html",
-        "sidebar/ethical-ads.html",
-        "sidebar/scroll-end.html",
-    ]
-}
+# html_sidebars = {
+#     "**": [
+#         "sidebar/scroll-start.html",
+#         "sidebar/brand.html",
+#         "sidebar/search.html",
+#         "sidebar/navigation.html",
+#         "sidebar/ethical-ads.html",
+#         "sidebar/scroll-end.html",
+#     ]
+# }
 
 html_logo = "_static/logo.png"

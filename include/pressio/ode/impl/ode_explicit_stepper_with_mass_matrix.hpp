@@ -58,14 +58,14 @@ namespace pressio{ namespace ode{ namespace impl{
 // templates are handled and passed properly there.
 
 template<
+  class SysWrapperType,
   class StateType,
   class IndVarType,
-  class SystemType,
-  class RightHandSideType
+  class RightHandSideType,
+  class MassMatrixType
   >
 class ExplicitStepperWithMassMatrixImpl
 {
-  using mass_matrix_type = typename mpl::remove_cvref_t<SystemType>::mass_matrix_type;
 
 public:
   using independent_variable_type  = IndVarType;
@@ -73,61 +73,63 @@ public:
 
 private:
   StepScheme name_;
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   RightHandSideType rhsInstance_;
 
   // xInstances is a container of instances of states
   // that are used in the solve M x = b
   std::vector<StateType> xInstances_;
 
-  mass_matrix_type massMatrix_;
+  MassMatrixType massMatrix_;
 
 public:
-  ExplicitStepperWithMassMatrixImpl() = delete;
-  ExplicitStepperWithMassMatrixImpl(const ExplicitStepperWithMassMatrixImpl &) = default;
+  ExplicitStepperWithMassMatrixImpl() = default;
+  ExplicitStepperWithMassMatrixImpl(const ExplicitStepperWithMassMatrixImpl &) = delete;
   ExplicitStepperWithMassMatrixImpl & operator=(const ExplicitStepperWithMassMatrixImpl &) = delete;
+  ExplicitStepperWithMassMatrixImpl(ExplicitStepperWithMassMatrixImpl &&) = default;
+  ExplicitStepperWithMassMatrixImpl & operator=(ExplicitStepperWithMassMatrixImpl &&) = default;
   ~ExplicitStepperWithMassMatrixImpl() = default;
 
   ExplicitStepperWithMassMatrixImpl(ode::ForwardEuler /*tag*/,
-				    SystemType && systemObj)
+				    SysWrapperType && sysObjW)
     : name_(StepScheme::ForwardEuler),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstance_{systemObj.createRhs()},
-      xInstances_{systemObj.createState()},
-      massMatrix_(systemObj.createMassMatrix())
+      systemObj_(std::move(sysObjW)),
+      rhsInstance_{systemObj_.get().createRhs()},
+      xInstances_{systemObj_.get().createState()},
+      massMatrix_(systemObj_.get().createMassMatrix())
   {}
 
   ExplicitStepperWithMassMatrixImpl(ode::RungeKutta4  /*tag*/,
-				    SystemType && systemObj)
+				    SysWrapperType && sysObjW)
     : name_(StepScheme::RungeKutta4),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstance_{systemObj.createRhs()},
-      xInstances_{systemObj.createState(),
-		  systemObj.createState(),
-		  systemObj.createState(),
-		  systemObj.createState(),
-		  systemObj.createState()},
-      massMatrix_(systemObj.createMassMatrix())
+      systemObj_(std::move(sysObjW)),
+      rhsInstance_{systemObj_.get().createRhs()},
+      xInstances_{systemObj_.get().createState(),
+		  systemObj_.get().createState(),
+		  systemObj_.get().createState(),
+		  systemObj_.get().createState(),
+		  systemObj_.get().createState()},
+      massMatrix_(systemObj_.get().createMassMatrix())
   {}
 
   ExplicitStepperWithMassMatrixImpl(ode::AdamsBashforth2 /*tag*/,
-				    SystemType && systemObj)
+				    SysWrapperType && sysObjW)
     : name_(StepScheme::AdamsBashforth2),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstance_{systemObj.createRhs()},
-      xInstances_{systemObj.createState(),
-                  systemObj.createState()},
-      massMatrix_(systemObj.createMassMatrix())
+      systemObj_(std::move(sysObjW)),
+      rhsInstance_{systemObj_.get().createRhs()},
+      xInstances_{systemObj_.get().createState(),
+                  systemObj_.get().createState()},
+      massMatrix_(systemObj_.get().createMassMatrix())
   {}
 
   ExplicitStepperWithMassMatrixImpl(ode::SSPRungeKutta3 /*tag*/,
-				    SystemType && systemObj)
+				    SysWrapperType && sysObjW)
     : name_(StepScheme::SSPRungeKutta3),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstance_{systemObj.createRhs()},
-      xInstances_{systemObj.createState(),
-                  systemObj.createState()},
-      massMatrix_(systemObj.createMassMatrix())
+      systemObj_(std::move(sysObjW)),
+      rhsInstance_{systemObj_.get().createRhs()},
+      xInstances_{systemObj_.get().createState(),
+                  systemObj_.get().createState()},
+      massMatrix_(systemObj_.get().createMassMatrix())
   {}
 
 public:
@@ -137,7 +139,7 @@ public:
   //   std::is_void<
   //     decltype(
   //       std::declval<LinearSolverType &>().solve(
-  //        std::declval<mass_matrix_type const &>(),
+  //        std::declval<MassMatrixType const &>(),
   // 	    std::declval<StateType &>(),
   // 	    std::declval<RightHandSideType const &>()
   // 	)

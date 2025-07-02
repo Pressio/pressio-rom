@@ -52,7 +52,7 @@
 namespace pressio{ namespace ode{ namespace impl{
 
 template<
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -69,13 +69,15 @@ public:
   using jacobian_type = JacobianType;
 
 public:
-  ResidualJacobianStandardPolicy() = delete;
+  ResidualJacobianStandardPolicy() = default;
 
-  explicit ResidualJacobianStandardPolicy(SystemType && systemIn)
-    : systemObj_( std::forward<SystemType>(systemIn) ){}
+  explicit ResidualJacobianStandardPolicy(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)) {}
 
-  ResidualJacobianStandardPolicy(const ResidualJacobianStandardPolicy &) = default;
-  ResidualJacobianStandardPolicy & operator=(const ResidualJacobianStandardPolicy &) = default;
+  ResidualJacobianStandardPolicy(const ResidualJacobianStandardPolicy &) = delete;
+  ResidualJacobianStandardPolicy & operator=(const ResidualJacobianStandardPolicy &) = delete;
+  ResidualJacobianStandardPolicy(ResidualJacobianStandardPolicy &&) = default;
+  ResidualJacobianStandardPolicy & operator=(ResidualJacobianStandardPolicy &&) = default;
   ~ResidualJacobianStandardPolicy() = default;
 
 public:
@@ -266,7 +268,7 @@ private:
   }
 
 private:
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   mutable int32_t stepTracker_ = -1;
 };
 

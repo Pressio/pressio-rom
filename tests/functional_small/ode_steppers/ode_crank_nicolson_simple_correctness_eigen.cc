@@ -260,10 +260,11 @@ TEST(ode, implicit_crank_nicolson_correctness_custom_policy)
   using res_t  = typename app_t::rhs_type;
   using jac_t  = typename app_t::jacobian_type;
   using time_type = typename app_t::independent_variable_type;
-  using pol_t = pressio::ode::impl::ResidualJacobianStandardPolicy<app_t&, time_type,
-								   state_t, res_t, jac_t>;
+  using wrap_type = pressio::ode::impl::SystemInternalWrapper<0, app_t>;  
+  using pol_t = pressio::ode::impl::ResidualJacobianStandardPolicy<
+    wrap_type, time_type, state_t, res_t, jac_t>;
 
-  auto stepperObj = pressio::ode::create_cranknicolson_stepper(pol_t(appObj));
+  auto stepperObj = pressio::ode::create_cranknicolson_stepper_with_custom_policy(pol_t(wrap_type(appObj)));
   pressio::ode::advance_n_steps(stepperObj, y, 0., 1.5, pressio::ode::StepCount(3), solver);
 
   EXPECT_TRUE(y(0)==7.);

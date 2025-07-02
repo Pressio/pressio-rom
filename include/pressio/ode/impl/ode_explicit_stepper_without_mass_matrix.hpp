@@ -57,9 +57,9 @@ namespace pressio{ namespace ode{ namespace impl{
 // One needs to use the public create_* functions because
 // templates are handled and passed properly there.
 template<
+  class SysWrapperType,
   class StateType,
   class IndVarType,
-  class SystemType,
   class RightHandSideType
   >
 class ExplicitStepperNoMassMatrixImpl{
@@ -70,50 +70,52 @@ public:
 
 private:
   StepScheme name_;
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   std::vector<RightHandSideType> rhsInstances_;
   StateType auxiliaryState_;
 
 public:
-  ExplicitStepperNoMassMatrixImpl() = delete;
-  ExplicitStepperNoMassMatrixImpl(const ExplicitStepperNoMassMatrixImpl &) = default;
+  ExplicitStepperNoMassMatrixImpl() = default;
+  ExplicitStepperNoMassMatrixImpl(const ExplicitStepperNoMassMatrixImpl &) = delete;
   ExplicitStepperNoMassMatrixImpl & operator=(const ExplicitStepperNoMassMatrixImpl &) = delete;
+  ExplicitStepperNoMassMatrixImpl(ExplicitStepperNoMassMatrixImpl &&) = default;
+  ExplicitStepperNoMassMatrixImpl & operator=(ExplicitStepperNoMassMatrixImpl &&) = default;
   ~ExplicitStepperNoMassMatrixImpl() = default;
 
   ExplicitStepperNoMassMatrixImpl(ode::ForwardEuler,
-				  SystemType && systemObj)
+				  SysWrapperType && sysObjW)
     : name_(StepScheme::ForwardEuler),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstances_{systemObj.createRhs()},
-      auxiliaryState_{systemObj.createState()}
+      systemObj_(std::move(sysObjW)),
+      rhsInstances_{systemObj_.get().createRhs()},
+      auxiliaryState_{systemObj_.get().createState()}
   {}
 
   ExplicitStepperNoMassMatrixImpl(ode::RungeKutta4,
-				  SystemType && systemObj)
+				  SysWrapperType && sysObjW)
     : name_(StepScheme::RungeKutta4),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstances_{systemObj.createRhs(),
-		    systemObj.createRhs(),
-		    systemObj.createRhs(),
-		    systemObj.createRhs()},
-      auxiliaryState_{systemObj.createState()}
+      systemObj_(std::move(sysObjW)),
+      rhsInstances_{systemObj_.get().createRhs(),
+		    systemObj_.get().createRhs(),
+		    systemObj_.get().createRhs(),
+		    systemObj_.get().createRhs()},
+      auxiliaryState_{systemObj_.get().createState()}
   {}
 
   ExplicitStepperNoMassMatrixImpl(ode::AdamsBashforth2,
-				  SystemType && systemObj)
+				  SysWrapperType && sysObjW)
     : name_(StepScheme::AdamsBashforth2),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstances_{systemObj.createRhs(),
-		    systemObj.createRhs()},
-      auxiliaryState_{systemObj.createState()}
+      systemObj_(std::move(sysObjW)),
+      rhsInstances_{systemObj_.get().createRhs(),
+		    systemObj_.get().createRhs()},
+      auxiliaryState_{systemObj_.get().createState()}
   {}
 
   ExplicitStepperNoMassMatrixImpl(ode::SSPRungeKutta3,
-				  SystemType && systemObj)
+				  SysWrapperType && sysObjW)
     : name_(StepScheme::SSPRungeKutta3),
-      systemObj_(std::forward<SystemType>(systemObj)),
-      rhsInstances_{systemObj.createRhs()},
-      auxiliaryState_{systemObj.createState()}
+      systemObj_(std::move(sysObjW)),
+      rhsInstances_{systemObj_.get().createRhs()},
+      auxiliaryState_{systemObj_.get().createState()}
   {}
 
 public:

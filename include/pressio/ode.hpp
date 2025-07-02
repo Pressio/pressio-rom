@@ -49,9 +49,10 @@
 #ifndef PRESSIO_ODE_ALL_TOPLEVEL_INCLUDE_HPP_
 #define PRESSIO_ODE_ALL_TOPLEVEL_INCLUDE_HPP_
 
-#include "ode_concepts.hpp"
-#include "ode_steppers_explicit.hpp"
-#include "ode_steppers_implicit.hpp"
-#include "ode_advancers.hpp"
+// local includes
+#include "./ode_concepts.hpp"
+#include "./ode_steppers_explicit.hpp"
+#include "./ode_steppers_implicit.hpp"
+#include "./ode_advancers.hpp"
 
 #endif

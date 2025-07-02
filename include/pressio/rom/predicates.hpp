@@ -4,7 +4,42 @@
 
 #include "./impl/ode_has_const_discrete_residual_jacobian_action_method.hpp"
 
+/*
+  ==============================================================================
+  Header containing type traits for concept-based introspection of types
+  ==============================================================================
+
+  These traits detect the presence, const-qualification, and return types of
+  methods used in ROM components, including:
+    - Trial subspace interfaces
+    - Full-order model (FOM) systems
+    - Residual and Jacobian operations
+    - Mass matrix and time-dependent methods
+
+  Notes:
+    - All traits use `std::declval<T const>()` to check for const-qualified member functions.
+    - Most traits follow the pattern:
+        - Primary template: inherits from `std::false_type`
+        - Specialized template: uses `enable_if_t` and `decltype` to check method signature
+          and return type, inherits from `std::true_type` if check passes
+    - Macro-generated traits are used for common method-name/return-type pairs.
+
+  Usage:
+    These traits are primarily used to implement or enforce Pressio concepts via
+    SFINAE or `static_assert`, ensuring that types provided to ROM factories or
+    stepper builders conform to expected interfaces.
+    See for example rom_concepts.hpp
+*/
+
 namespace pressio{ namespace rom{
+
+//==============================================================================
+// Macro to define a trait that checks whether a const-qualified method
+// `create<NameB>()` exists and returns type `T::<nameA>_type`.
+// Example instantiations below check for:
+//   - createReducedState() -> T::reduced_state_type
+//   - createFullState()    -> T::full_state_type
+//==============================================================================
 
 #define PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(NAMEA, NAMEB)	\
 template <class T, class = void> \
@@ -25,6 +60,7 @@ PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(reduced_state,
 						ReducedState)
 PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(full_state,
 						FullState)
+
 // ---------------------------------------------------------------
 
 template <class T, class = void>

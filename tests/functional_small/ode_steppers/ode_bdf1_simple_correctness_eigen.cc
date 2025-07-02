@@ -42,10 +42,12 @@ TEST(ode, implicit_bdf1_custom_policy)
   problem_t problemObj;
   state_t y = problemObj.getInitCond();
 
+  using wrap_type = ode::impl::SystemInternalWrapper<0, problem_t>;
+
   using rj_pol_t = ode::impl::ResidualJacobianStandardPolicy<
-    problem_t&, time_type, state_t, res_t, jac_t>;
-  auto stepperObj = ode::create_implicit_stepper(ode::StepScheme::BDF1,
-						 rj_pol_t(problemObj));
+    wrap_type, time_type, state_t, res_t, jac_t>;
+  auto stepperObj = ode::create_implicit_stepper_with_custom_policy(ode::StepScheme::BDF1,
+						 rj_pol_t(wrap_type(problemObj)));
 
   using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
