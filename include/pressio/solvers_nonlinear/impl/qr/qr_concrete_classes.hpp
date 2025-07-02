@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// qr_in_place.hpp
+// qr_concrete_classes.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)

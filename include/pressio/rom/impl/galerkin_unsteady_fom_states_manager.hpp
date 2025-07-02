@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_manager_fom_states.hpp
+// galerkin_unsteady_fom_states_manager.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)

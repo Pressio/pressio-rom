@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// exceptions.hpp
+// ode_strong_types.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// qr_eigen_dense_out_of_place_impl.hpp
+// qr_eigen_impl.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
