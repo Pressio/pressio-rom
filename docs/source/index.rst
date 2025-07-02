@@ -117,6 +117,7 @@ open an issue on `github <https://github.com/Pressio/pressio>`_.
    :hidden:
 
    ./components/ode_concepts
+   ./components/ode_examples
 
 .. toctree::
    :caption: Nonlinear solvers
@@ -125,6 +126,7 @@ open an issue on `github <https://github.com/Pressio/pressio>`_.
 
    ./components/nonlinsolvers_newton
    ./components/nonlinsolvers_enums
+   ./components/nonlinsolvers_examples
 
 .. toctree::
    :caption: Linear solvers
