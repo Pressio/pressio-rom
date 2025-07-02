@@ -1,6 +1,6 @@
 
-#ifndef PRESSIO_ROM_LINEAR_ROM_HPP_
-#define PRESSIO_ROM_LINEAR_ROM_HPP_
+#ifndef PRESSIOROM_ROM_LINEAR_ROM_HPP_
+#define PRESSIOROM_ROM_LINEAR_ROM_HPP_
 
 #include <fstream>
 
@@ -321,4 +321,4 @@ void export_ascii(const impl::RomLinearThingyConstVector<Ts...> & o,
 }
 
 }}}
-#endif  // PRESSIO_ROM_LINEAR_ROM_HPP_
+#endif  // PRESSIOROM_ROM_LINEAR_ROM_HPP_

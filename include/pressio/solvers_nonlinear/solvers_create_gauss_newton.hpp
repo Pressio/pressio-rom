@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_
 
 #include "solvers_default_types.hpp"
 #include "./impl/solvers_tagbased_registry.hpp"
@@ -269,4 +269,4 @@ auto create_gauss_newton_qr_solver(const SystemType & system,
 }//end experimental
 
 } // end namespace pressio
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_

@@ -1,6 +1,6 @@
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_HELPERS_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_HELPERS_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_HELPERS_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_HELPERS_HPP_
 
 namespace pressio{ namespace rom{ namespace impl{
 
@@ -41,4 +41,4 @@ void steady_lspg_static_check_api_return_type(){
 }
 
 }}} // end pressio::rom::impl
-#endif  // PRESSIO_ROM_IMPL_LSPG_HELPERS_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_HELPERS_HPP_

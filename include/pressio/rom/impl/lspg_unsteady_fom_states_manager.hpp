@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_UNSTEADY_FOM_STATES_MANAGER_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_FOM_STATES_MANAGER_HPP_
 
 #include "fom_states_manager.hpp"
 
@@ -110,4 +110,4 @@ auto create_lspg_fom_states_manager(const TrialSubspaceType & trialSubspace)
 
 }}}//end namespace pressio::rom::impl
 
-#endif  // PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_FOM_STATES_MANAGER_HPP_

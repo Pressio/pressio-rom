@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_LINEAR_SOLVERS_PUBLIC_API_HPP_
-#define PRESSIO_SOLVERS_LINEAR_SOLVERS_PUBLIC_API_HPP_
+#ifndef PRESSIOROM_SOLVERS_LINEAR_SOLVERS_LINEAR_API_HPP_
+#define PRESSIOROM_SOLVERS_LINEAR_SOLVERS_LINEAR_API_HPP_
 
 // the following tags are defined here so that they are visible
 // by the impl headers included below.
@@ -166,4 +166,4 @@ template<typename TagType, typename MatrixType, typename ... Args>
 using Solver = typename impl::Selector<TagType, MatrixType, Args...>::type;
 
 }}
-#endif
+#endif  // PRESSIOROM_SOLVERS_LINEAR_SOLVERS_LINEAR_API_HPP_

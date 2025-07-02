@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_STRONG_TYPES_HPP_
-#define PRESSIO_ODE_ODE_STRONG_TYPES_HPP_
+#ifndef PRESSIOROM_ODE_ODE_STRONG_TYPES_HPP_
+#define PRESSIOROM_ODE_ODE_STRONG_TYPES_HPP_
 
 namespace pressio{ namespace ode{
 
@@ -177,4 +177,4 @@ struct IntermediateStepCount{
 
 }}// end namespace ode
 
-#endif  // PRESSIO_ODE_ODE_STRONG_TYPES_HPP_
+#endif  // PRESSIOROM_ODE_ODE_STRONG_TYPES_HPP_

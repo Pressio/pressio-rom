@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_ROM_CONCEPTS_HPP_
-#define PRESSIO_ROM_ROM_CONCEPTS_HPP_
+#ifndef PRESSIOROM_ROM_CONCEPTS_HPP_
+#define PRESSIOROM_ROM_CONCEPTS_HPP_
 
 #include "./concepts_helpers.hpp"
 #include "./predicates.hpp"
@@ -687,4 +687,4 @@ struct MaskableWith<
 
 }} // end namespace pressio::rom
 
-#endif  // PRESSIO_ROM_ROM_CONCEPTS_HPP_
+#endif  // PRESSIOROM_ROM_CONCEPTS_HPP_

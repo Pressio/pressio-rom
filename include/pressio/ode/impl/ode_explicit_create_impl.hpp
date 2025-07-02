@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
-#define PRESSIO_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
 
 namespace pressio{ namespace ode{ namespace impl{
 
@@ -75,4 +75,4 @@ auto create_explicit_stepper(StepScheme name,
 }
 
 }}}
-#endif  // PRESSIO_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_

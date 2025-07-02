@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_
 
 namespace pressio{ namespace qr{
 
@@ -98,4 +98,4 @@ using QRSolver = impl::QRSolver<matrix_type, algorithm, in_place, void>;
 // using QRSolverWrapR = impl::QRSolver<matrix_type, algorithm, in_place, R_type>;
 
 }}//end namespace pressio::qr
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_FWD_HPP_

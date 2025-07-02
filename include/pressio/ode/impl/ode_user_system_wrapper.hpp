@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
-#define PRESSIO_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_
 
 #include <variant>
 
@@ -95,4 +95,4 @@ private:
 };
 
 }}}//end namespace pressio::ode::explicitmethods::impl
-#endif
+#endif  // PRESSIOROM_ODE_IMPL_ODE_USER_SYSTEM_WRAPPER_HPP_

@@ -1,6 +1,6 @@
 
-#ifndef PRESSIO_ODE_CONCEPTS_ODE_OTHERS_HPP_
-#define PRESSIO_ODE_CONCEPTS_ODE_OTHERS_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_OTHERS_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_OTHERS_HPP_
 
 namespace pressio{ namespace ode{
 
@@ -124,4 +124,4 @@ struct StepSizePolicyWithReductionScheme<
   > : std::true_type{};
 
 }} // end namespace pressio::ode
-#endif  // PRESSIO_ODE_CONCEPTS_ODE_OTHERS_HPP_
+#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_OTHERS_HPP_

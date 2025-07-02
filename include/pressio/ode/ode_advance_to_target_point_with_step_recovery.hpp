@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
-#define PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
 #include "./impl/ode_advance_to_target_time.hpp"
@@ -111,4 +111,4 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 
 
 }}//end namespace pressio::ode
-#endif  // PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_

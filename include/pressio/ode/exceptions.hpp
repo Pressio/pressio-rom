@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_EXCEPTIONS_HPP_
-#define PRESSIO_ODE_EXCEPTIONS_HPP_
+#ifndef PRESSIOROM_ODE_EXCEPTIONS_HPP_
+#define PRESSIOROM_ODE_EXCEPTIONS_HPP_
 
 #include <exception>
 
@@ -126,4 +126,4 @@ public:
 };
 
 }}//end namespace pressio::eh
-#endif  // PRESSIO_ODE_EXCEPTIONS_HPP_
+#endif  // PRESSIOROM_ODE_EXCEPTIONS_HPP_

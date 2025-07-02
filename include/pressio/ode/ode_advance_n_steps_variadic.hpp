@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
-#define PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
 #include "./impl/ode_advance_n_steps.hpp"
@@ -182,4 +182,4 @@ advance_n_steps(StepperType & stepper,
 }
 
 }} //end namespace pressio::ode
-#endif  // PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_

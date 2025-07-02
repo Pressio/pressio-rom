@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
-#define PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
 
 #include "ode_advance_printing_helpers.hpp"
 
@@ -130,4 +130,4 @@ void advance_n_steps_with_fixed_dt(StepperType & stepper,
 }
 
 }}}//end namespace pressio::ode::impl
-#endif  // PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_

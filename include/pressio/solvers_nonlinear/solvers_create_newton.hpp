@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
 
 #include "solvers_default_types.hpp"
 #include "./impl/solvers_tagbased_registry.hpp"
@@ -146,4 +146,4 @@ auto create_matrixfree_newtonkrylov_solver(const SystemType & system)
 }
 
 } //end namespace pressio
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_

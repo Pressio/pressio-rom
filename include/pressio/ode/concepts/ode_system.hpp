@@ -1,6 +1,6 @@
 
-#ifndef PRESSIO_ODE_CONCEPTS_ODE_SYSTEM_HPP_
-#define PRESSIO_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
 
 #include "ode_predicates_for_system.hpp"
 #include "ode_has_const_discrete_residual_jacobian_method.hpp"
@@ -327,4 +327,4 @@ struct ImplicitResidualJacobianPolicy<
   > : std::true_type{};
 
 }}
-#endif  // PRESSIO_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
