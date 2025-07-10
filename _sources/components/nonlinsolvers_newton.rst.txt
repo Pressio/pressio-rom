@@ -11,34 +11,34 @@ API
    :lines: 60-62, 80-110, 130-131
 
 
-Parameters
-~~~~~~~~~~
+.. Parameters
+.. ~~~~~~~~~~
 
-.. list-table::
-   :widths: 18 82
-   :header-rows: 1
-   :align: left
+.. .. list-table::
+..    :widths: 18 82
+..    :header-rows: 1
+..    :align: left
 
-   * -
-     -
+..    * -
+..      -
 
-   * - ``system``
-     - instance of your problem
+..    * - ``system``
+..      - instance of your problem
 
-   * - ``linSolver``
-     - linear solver to use within each nonlinear iteration
+..    * - ``linSolver``
+..      - linear solver to use within each nonlinear iteration
 
-Constraints
-~~~~~~~~~~~
+.. Constraints
+.. ~~~~~~~~~~~
 
-Concepts are documented `here <nonlinsolvers_concepts.html>`__.
-Note: constraints are enforced via proper C++20 concepts when ``PRESSIO_ENABLE_CXX20`` is enabled,
-otherwise via SFINAE and static asserts.
+.. Concepts are documented `here <nonlinsolvers_concepts.html>`__.
+.. Note: constraints are enforced via proper C++20 concepts when ``PRESSIO_ENABLE_CXX20`` is enabled,
+.. otherwise via SFINAE and static asserts.
 
-Examples
---------
+.. Examples
+.. --------
 
-.. admonition:: Demos
-   :class: tip
+.. .. admonition:: Demos
+..    :class: tip
 
-   1. `full demo <https://pressio.github.io/pressio-tutorials/using_eigen/nonlinsolvers1.html>`__
+..    1. `full demo <https://pressio.github.io/pressio-tutorials/using_eigen/nonlinsolvers1.html>`__

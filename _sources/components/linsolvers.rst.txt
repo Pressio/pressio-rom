@@ -1,5 +1,5 @@
-``linear_solvers``
-==================
+``Usage``
+=========
 
 Header ``<pressio/solvers_linear.hpp>``
 
