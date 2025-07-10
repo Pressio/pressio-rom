@@ -51,13 +51,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout pressio examples
-        uses: actions/checkout@v4
-        with:
-          repository: Pressio/pressio-templates-usage-as-library
-          path: examples
-          ref: main
-
       - name: Checkout pressio-log
         uses: actions/checkout@v4
         with:
@@ -71,32 +64,6 @@ jobs:
           repository: Pressio/pressio-ops
           path: pressio-ops
           ref: develop
-
-      - name: Example - include only
-        working-directory: examples
-        run: |
-          $CXX \
-            --std=c++17 \
-            -DPRESSIO_ENABLE_TPL_KOKKOS \
-            -I/kokkos/install/include \
-            -I/kokkos-kernels/install/include \
-            -I${GITHUB_WORKSPACE}/pressio-log/include \
-            -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio-rom/include \
-            -c main.cpp
-
-      - name: Example - include only with embedded definitions
-        working-directory: examples
-        run: |
-          $CXX \
-            --std=c++17 \
-            -DPRESSIO_ENABLE_TPL_KOKKOS \
-            -I/kokkos/install/include \
-            -I/kokkos-kernels/install/include \
-            -I${GITHUB_WORKSPACE}/pressio-log/include \
-            -I${GITHUB_WORKSPACE}/pressio-ops/include \
-            -I${GITHUB_WORKSPACE}/pressio-rom/include \
-            -c main_with_defines.cpp
 
       - name: Configure Tests
         run: |

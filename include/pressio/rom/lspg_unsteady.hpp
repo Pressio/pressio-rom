@@ -1,6 +1,53 @@
+/*
+//@HEADER
+// ************************************************************************
+//
+// lspg_unsteady.hpp
+//                     		  Pressio
+//                             Copyright 2019
+//    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
+//
+// Under the terms of Contract DE-NA0003525 with NTESS, the
+// U.S. Government retains certain rights in this software.
+//
+// Pressio is licensed under BSD-3-Clause terms of use:
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+// contributors may be used to endorse or promote products derived
+// from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// Questions? Contact Francesco Rizzi (fnrizzi@sandia.gov)
+//
+// ************************************************************************
+//@HEADER
+*/
 
-#ifndef PRESSIO_ROM_LSPG_UNSTEADY_HPP_
-#define PRESSIO_ROM_LSPG_UNSTEADY_HPP_
+#ifndef PRESSIOROM_ROM_LSPG_UNSTEADY_HPP_
+#define PRESSIOROM_ROM_LSPG_UNSTEADY_HPP_
 
 #include "./impl/lspg_helpers.hpp"
 #include "./impl/lspg_unsteady_fom_states_manager.hpp"
@@ -9,7 +56,6 @@
 #include "./impl/lspg_unsteady_fully_discrete_system.hpp"
 #include "./impl/lspg_unsteady_mask_decorator.hpp"
 #include "./impl/lspg_unsteady_scaling_decorator.hpp"
-#include "./impl/lspg_unsteady_problem.hpp"
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
 #include "./impl/lspg_unsteady_reconstructor.hpp"
 #endif
@@ -27,26 +73,47 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(1)*/
 			     const FomSystemType & fomSystem)
 {
 
+  // check that the trial subspace meets the right concept
+  static_assert(PossiblyAffineRealValuedTrialColumnSubspace<TrialSubspaceType>::value);
+  // check that the fom system meets the right concept
+  static_assert(RealValuedSemiDiscreteFomWithJacobianAction<
+		FomSystemType,
+		typename TrialSubspaceType::basis_matrix_type>::value);
+  // check that the trial space reconstructs a fom state that is compatible
+  // with the fom state used in the fom system class
+  static_assert(std::is_same<typename TrialSubspaceType::full_state_type,
+		typename FomSystemType::state_type>::value);
+
+  // lspg requires an implicit scheme
   impl::valid_scheme_for_lspg_else_throw(schemeName);
 
+  // the types to use for the lspg data
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
+  // for LSPG residual we use the same type as the FOM's rhs
   using lspg_residual_type = typename FomSystemType::rhs_type;
+  // for LSPG jacobian use the type of actiono of the FOM jacobian on the basis
   using lspg_jacobian_type =
     decltype(
 	     fomSystem.createResultOfJacobianActionOn(trialSpace.basisOfTranslatedSpace())
 	     );
 
-  // defining an unsteady lspg problem boils down to
-  // defining a "custom" residual and jacobian policy
-  // since for lspg we need to customize how we do time stepping
+  // defining an unsteady lspg problem basically boils down to defining
+  // a "custom" residual and jacobian policy since for lspg we need
+  // to customize how we do time stepping.
+  // So here we need to figure out the correct implementation class for the
+  // residual and jacobian to use.
   using rj_policy_type = impl::LspgUnsteadyResidualJacobianPolicy<
-    ind_var_type, reduced_state_type,
-    lspg_residual_type, lspg_jacobian_type,
+    ind_var_type, reduced_state_type, lspg_residual_type, lspg_jacobian_type,
     TrialSubspaceType, FomSystemType>;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  // create the policy and the stepper
+  rj_policy_type policy(trialSpace, fomSystem, std::move(fomStatesManager));
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(policy));
 }
 
 // -------------------------------------------------------------
@@ -93,8 +160,13 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(2)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, masker);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  // create the policy and the stepper
+  rj_policy_type policy(trialSpace, fomSystem, std::move(fomStatesManager), masker);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(policy));
 }
 
 // -------------------------------------------------------------
@@ -126,12 +198,17 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(3)*/
 	     );
 
   using rj_policy_type = impl::LspgUnsteadyResidualJacobianPolicyHypRed<
-    ind_var_type, reduced_state_type,
-    lspg_residual_type, lspg_jacobian_type,
-    TrialSubspaceType, FomSystemType, HypRedUpdaterType>;
+    ind_var_type, reduced_state_type, lspg_residual_type, lspg_jacobian_type,
+    TrialSubspaceType, FomSystemType, HypRedUpdaterType
+    >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, hypRedUpdater);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  // create the policy and the stepper
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), hypRedUpdater);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
 }
 
 
@@ -170,8 +247,13 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(4)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, scaler);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  // create the policy and the stepper
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), scaler);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
 }
 
 // -------------------------------------------------------------
@@ -209,8 +291,13 @@ auto create_unsteady_problem(::pressio::ode::StepScheme schemeName,    /*(5)*/
 	>
     >;
 
-  using return_type = impl::LspgUnsteadyProblemSemiDiscreteAPI<TrialSubspaceType, rj_policy_type>;
-  return return_type(schemeName, trialSpace, fomSystem, scaler, hypRedUpdater);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager(schemeName, trialSpace));
+
+  // create the policy and the stepper
+  rj_policy_type pol(trialSpace, fomSystem, std::move(fomStatesManager), scaler, hypRedUpdater);
+  return ::pressio::ode::create_implicit_stepper_with_custom_policy(schemeName, std::move(pol));
 }
 
 
@@ -228,6 +315,8 @@ template<
 auto create_unsteady_problem(const TrialSubspaceType & trialSpace,     /*(6)*/
 			     const FomSystemType & fomSystem)
 {
+  static_assert(TotalNumberOfDesiredStates == 2,
+		"lspg::create_unsteady_problem currently only supports 2 total states");
 
   using ind_var_type = typename FomSystemType::time_type;
   using reduced_state_type = typename TrialSubspaceType::reduced_state_type;
@@ -240,12 +329,16 @@ auto create_unsteady_problem(const TrialSubspaceType & trialSpace,     /*(6)*/
 
   using system_type = impl::LspgFullyDiscreteSystem<
     TotalNumberOfDesiredStates, ind_var_type, reduced_state_type,
-    lspg_residual_type, lspg_jacobian_type,
-    TrialSubspaceType, FomSystemType>;
+    lspg_residual_type, lspg_jacobian_type, TrialSubspaceType, FomSystemType
+    >;
 
-  using return_type = impl::LspgUnsteadyProblemFullyDiscreteAPI<
-    TotalNumberOfDesiredStates, TrialSubspaceType, system_type>;
-  return return_type(trialSpace, fomSystem);
+  // create the container for the fom states that we need
+  using fom_states_type = impl::FomStatesManager<TrialSubspaceType>;
+  auto fomStatesManager = std::make_unique<fom_states_type>(impl::create_lspg_fom_states_manager<TotalNumberOfDesiredStates>(trialSpace));
+
+  // create the discrete system to pass to the stepper instantiation
+  auto system  = std::make_unique<system_type>(trialSpace, fomSystem, std::move(fomStatesManager));
+  return ::pressio::ode::create_implicit_stepper<TotalNumberOfDesiredStates>(std::move(system));
 }
 
 
@@ -264,4 +357,4 @@ auto create_reconstructor(const TrialSubspaceType & trialSpace)
 #endif
 
 }}} // end pressio::rom::lspg
-#endif  // PRESSIO_ROM_LSPG_UNSTEADY_HPP_
+#endif  // PRESSIOROM_ROM_LSPG_UNSTEADY_HPP_

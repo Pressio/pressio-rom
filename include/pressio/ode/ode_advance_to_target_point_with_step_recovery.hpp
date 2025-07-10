@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_advance_to_target_time.hpp
+// ode_advance_to_target_point_with_step_recovery.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
-#define PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
 #include "./impl/ode_advance_to_target_time.hpp"
@@ -62,7 +62,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-     StronglySteppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType &&, IndVarType>::value
   >
 advance_to_target_point_with_step_recovery(StepperType & stepper,
@@ -89,7 +89,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-     StronglySteppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && StateObserver<ObserverType&&, IndVarType, StateType>::value
   >
@@ -111,4 +111,4 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 
 
 }}//end namespace pressio::ode
-#endif  // PRESSIO_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_

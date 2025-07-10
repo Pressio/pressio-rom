@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_galerkin.hpp
+// rom.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -49,11 +49,12 @@
 #ifndef PRESSIO_ROM_TOPLEVEL_INCLUDE_ROM_ALL_HPP_
 #define PRESSIO_ROM_TOPLEVEL_INCLUDE_ROM_ALL_HPP_
 
-#include "rom_concepts.hpp"
-#include "rom_subspaces.hpp"
-#include "rom_galerkin_steady.hpp"
-#include "rom_galerkin_unsteady.hpp"
-#include "rom_lspg_steady.hpp"
-#include "rom_lspg_unsteady.hpp"
+// local includes
+#include "./rom_concepts.hpp"
+#include "./rom_subspaces.hpp"
+#include "./rom_galerkin_steady.hpp"
+#include "./rom_galerkin_unsteady.hpp"
+#include "./rom_lspg_steady.hpp"
+#include "./rom_lspg_unsteady.hpp"
 
 #endif

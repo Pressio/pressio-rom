@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_advance_n_steps.hpp
+// ode_advance_n_steps_variadic.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,11 +46,10 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
-#define PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
-#include "./impl/ode_advance_noop_guesser.hpp"
 #include "./impl/ode_advance_n_steps.hpp"
 #include "./impl/ode_advance_mandates.hpp"
 
@@ -61,29 +60,27 @@ template<
   class StepperType,
   class StateType,
   class IndVarType,
-  class AuxT,
-  class ...Args>
+  class SolverType,
+  class ...SolverArgs>
   std::enable_if_t<
-    SteppableWithAuxiliaryArgs<void, StepperType, AuxT &&, Args && ...>::value
+    ImplicitStepper<void, StepperType, SolverType &&, SolverArgs && ...>::value
   >
 advance_n_steps(StepperType & stepper,
 		StateType & state,
 		const IndVarType & startVal,
 		const IndVarType & stepSize,
 		StepCount numSteps,
-		AuxT && auxArg,
-		Args && ... args)
+		SolverType && solver,
+		SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   observer_t observer;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state, observer,
-				      guesser_t(),
-				      std::forward<AuxT>(auxArg),
-				      std::forward<Args>(args)...);
+				      std::forward<SolverType>(solver),
+				      std::forward<SolverArgs>(solverArgs)...);
 }
 
 //
@@ -94,10 +91,10 @@ template<
   class StateType,
   class StepSizePolicyType,
   class IndVarType,
-  class AuxT,
-  class ...Args>
+  class SolverType,
+  class ...SolverArgs>
 std::enable_if_t<
-  SteppableWithAuxiliaryArgs<void, StepperType, AuxT &&, Args && ...>::value
+  ImplicitStepper<void, StepperType, SolverType &&, SolverArgs && ...>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
   >
 advance_n_steps(StepperType & stepper,
@@ -105,18 +102,17 @@ advance_n_steps(StepperType & stepper,
 		const IndVarType & startVal,
 		StepSizePolicyType && stepSizePolicy,
 		StepCount numSteps,
-		AuxT && auxArg,
-		Args && ... args)
+		SolverType && solver,
+		SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       observer_t(), guesser_t(),
-				       std::forward<AuxT>(auxArg),
-				       std::forward<Args>(args)...);
+				       observer_t(),
+				       std::forward<SolverType>(solver),
+				       std::forward<SolverArgs>(solverArgs)...);
 }
 
 //
@@ -127,10 +123,10 @@ template<
   class StateType,
   class ObserverType,
   class IndVarType,
-  class AuxT,
-  class ...Args>
+  class SolverType,
+  class ...SolverArgs>
 std::enable_if_t<
-  SteppableWithAuxiliaryArgs<void, StepperType, AuxT &&, Args && ...>::value
+  ImplicitStepper<void, StepperType, SolverType &&, SolverArgs && ...>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
   >
 advance_n_steps(StepperType & stepper,
@@ -139,18 +135,16 @@ advance_n_steps(StepperType & stepper,
 		const IndVarType & stepSize,
 		StepCount numSteps,
 		ObserverType && observer,
-		AuxT && auxArg,
-		Args && ... args)
+		SolverType && solver,
+		SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state,
 				      std::forward<ObserverType>(observer),
-				      guesser_t(),
-				      std::forward<AuxT>(auxArg),
-				      std::forward<Args>(args)...);
+				      std::forward<SolverType>(solver),
+				      std::forward<SolverArgs>(solverArgs)...);
 }
 
 //
@@ -162,10 +156,10 @@ template<
   class StepSizePolicyType,
   class ObserverType,
   class IndVarType,
-  class AuxT,
-  class ...Args>
+  class SolverType,
+  class ...SolverArgs>
 std::enable_if_t<
-     SteppableWithAuxiliaryArgs<void, StepperType, AuxT &&, Args && ...>::value
+     ImplicitStepper<void, StepperType, SolverType &&, SolverArgs && ...>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
   >
@@ -175,19 +169,17 @@ advance_n_steps(StepperType & stepper,
 		StepSizePolicyType && stepSizePolicy,
 		StepCount numSteps,
 		ObserverType && observer,
-		AuxT && auxArg,
-		Args && ... args)
+		SolverType && solver,
+		SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
 				       std::forward<ObserverType>(observer),
-				       guesser_t(),
-				       std::forward<AuxT>(auxArg),
-				       std::forward<Args>(args)...);
+				       std::forward<SolverType>(solver),
+				       std::forward<SolverArgs>(solverArgs)...);
 }
 
 }} //end namespace pressio::ode
-#endif  // PRESSIO_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_

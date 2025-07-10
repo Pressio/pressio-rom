@@ -1,7 +1,4 @@
 
-set(ROM_SOURCES_CONCEPTS ${CMAKE_CURRENT_SOURCE_DIR}/concept_linear_subspace.cc)
-add_serial_utest(${TESTING_LEVEL}_rom_concepts ${ROM_SOURCES_CONCEPTS})
-
 if(PRESSIO_ENABLE_TPL_EIGEN)
   set(SRC concept_trial_subspace)
   add_serial_utest(${TESTING_LEVEL}_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
@@ -11,8 +8,6 @@ endif()
 # subspaces
 #
 if(PRESSIO_ENABLE_TPL_EIGEN)
-  set(SRC linear_subspace_test1)
-  add_serial_utest(${TESTING_LEVEL}_rom_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
   set(SRC trial_subspace_stdvec_full_state_eigen_reduced_state)
   add_serial_utest(${TESTING_LEVEL}_rom_${SRC} ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}.cc)
 endif()
@@ -46,7 +41,6 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main2.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main3.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main4.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main5.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/galerkin_unsteady_implicit/main6.cc)
   add_serial_utest(${TESTING_LEVEL}_rom_galerkin_unsteady_implicit ${SOURCES_GALERKIN_UNSTEADY_IMP})
 
@@ -66,7 +60,7 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main6.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main7.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main8.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main9.cc)
+    ${CMAKE_CURRENT_SOURCE_DIR}/lspg_unsteady/main10.cc)
   add_serial_utest(${TESTING_LEVEL}_rom_lspg_unsteady ${SOURCES_LSPG_UNSTEADY})
 
   add_serial_utest(${TESTING_LEVEL}_rom_linear linear_rom.cc)

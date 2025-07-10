@@ -46,11 +46,10 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_ADVANCE_N_STEPS_HPP_
-#define PRESSIO_ODE_ODE_ADVANCE_N_STEPS_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
 
 #include "./impl/ode_advance_noop_observer.hpp"
-#include "./impl/ode_advance_noop_guesser.hpp"
 #include "./impl/ode_advance_n_steps.hpp"
 #include "./impl/ode_advance_mandates.hpp"
 
@@ -60,7 +59,7 @@ namespace pressio{ namespace ode{
 // const dt
 //
 template<class StepperType, class StateType, class IndVarType>
-std::enable_if_t< Steppable<StepperType>::value >
+std::enable_if_t< ExplicitStepper<StepperType>::value >
 advance_n_steps(StepperType & stepper,
 		StateType & state,
 		const IndVarType & startVal,
@@ -70,10 +69,9 @@ advance_n_steps(StepperType & stepper,
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state,
-				      observer_t(), guesser_t());
+				      observer_t());
 }
 
 //
@@ -86,7 +84,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-  Steppable<StepperType>::value
+  ExplicitStepper<StepperType>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
 >
 advance_n_steps(StepperType & stepper,
@@ -98,10 +96,9 @@ advance_n_steps(StepperType & stepper,
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       observer_t(), guesser_t());
+				       observer_t());
 }
 
 //
@@ -114,7 +111,7 @@ template<
   class IndVarType
   >
 std::enable_if_t<
-  Steppable<StepperType>::value
+  ExplicitStepper<StepperType>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
 >
 advance_n_steps(StepperType & stepper,
@@ -126,11 +123,9 @@ advance_n_steps(StepperType & stepper,
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
 				      stepSize, state,
-				      std::forward<ObserverType>(observer),
-				      guesser_t());
+				      std::forward<ObserverType>(observer));
 }
 
 //
@@ -143,7 +138,7 @@ template<
   class StepSizePolicyType,
   class IndVarType>
 std::enable_if_t<
-     Steppable<StepperType>::value
+     ExplicitStepper<StepperType>::value
   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
   && StateObserver<ObserverType &&, IndVarType, StateType>::value
 >
@@ -156,12 +151,10 @@ advance_n_steps(StepperType & stepper,
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using guesser_t  = impl::NoOpStateGuesser<IndVarType, StateType>;
   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
 				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       std::forward<ObserverType>(observer),
-				       guesser_t());
+				       std::forward<ObserverType>(observer));
 }
 
 }} //end namespace pressio::ode
-#endif  // PRESSIO_ODE_ODE_ADVANCE_N_STEPS_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_

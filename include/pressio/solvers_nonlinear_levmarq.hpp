@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_nonlinear.hpp
+// solvers_nonlinear_levmarq.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -49,17 +49,18 @@
 #ifndef PRESSIO_NONLINEAR_SOLVERS_LEVEN_MAR_HPP_
 #define PRESSIO_NONLINEAR_SOLVERS_LEVEN_MAR_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/expressions.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./solvers_linear.hpp"
-
-#include "solvers_nonlinear_concepts.hpp"
-#include "solvers_nonlinear/solvers_exceptions.hpp"
-#include "solvers_nonlinear/solvers_nonlinear_enums_and_tags.hpp"
-#include "solvers_nonlinear/solvers_create_levenberg_marquardt.hpp"
+#include "./solvers_nonlinear_concepts.hpp"
+#include "./solvers_nonlinear/solvers_exceptions.hpp"
+#include "./solvers_nonlinear/solvers_nonlinear_enums_and_tags.hpp"
+#include "./solvers_nonlinear/solvers_create_levenberg_marquardt.hpp"
 
 #endif

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_lspg_unsteady_cont_time_decorators.hpp
+// lspg_unsteady_mask_decorator.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_
 
 namespace pressio{ namespace rom{ namespace impl{
 
@@ -72,20 +72,21 @@ public:
 
   LspgMaskDecorator() = delete;
 
-  template <
-    class TrialSubspaceType,
-    class FomSystemType,
-    template<class> class LspgFomStatesManager
-    >
+  template <class TrialSubspaceType, class FomSystemType>
   LspgMaskDecorator(const TrialSubspaceType & trialSubspace,
 		    const FomSystemType & fomSystem,
-		    LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+		    std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		    const MaskerType & masker)
-    : Maskable(trialSubspace, fomSystem, fomStatesManager),
+    : Maskable(trialSubspace, fomSystem, std::move(fomStatesManager)),
       masker_(masker),
       unMaskedResidual_(Maskable::createResidual()),
       unMaskedJacobian_(Maskable::createJacobian())
   {}
+
+  LspgMaskDecorator(LspgMaskDecorator const &) = delete;
+  LspgMaskDecorator& operator=(LspgMaskDecorator const&) = delete;
+  LspgMaskDecorator(LspgMaskDecorator &&) = default;
+  LspgMaskDecorator& operator=(LspgMaskDecorator &&) = default;
 
 public:
   state_type createState() const{
@@ -133,4 +134,4 @@ private:
 };
 
 }}}
-#endif  // PRESSIO_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_MASK_DECORATOR_HPP_

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_admissible_linear_solver_for_nonlinear_least_squares.hpp
+// solvers_concepts.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_
 
 #include "./solvers_predicates.hpp"
 
@@ -141,4 +141,4 @@ using scalar_of_t = typename scalar_of<T>::type;
 
 
 }} // end namespace pressio::nonlinearsolvers
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_

@@ -19,7 +19,7 @@ struct MyProblem{
 };
 
 struct Weigher{
-  int leadingDim() { return {}; }
+  int leadingDim() const { return {}; }
   void operator()(const CustomVecB & /*operand*/, CustomVecB & /*result*/) const{}
   void operator()(const CustomMat  & /*operand*/, CustomMat  & /*result*/) const{}
 };
@@ -66,7 +66,9 @@ int main()
     using tag_t      = nonlinearsolvers::impl::CompactWeightedGaussNewtonNormalEqTag;
     problem_t sys;
     state_t y;
-    auto nonLinSolver = create_gauss_newton_solver(sys, MyLinSolver{}, Weigher{}, tag_t{});
+    MyLinSolver ls{}; 
+    Weigher W{};
+    auto nonLinSolver = create_gauss_newton_solver(sys, ls, W, tag_t{});
     nonLinSolver.solve(y);
     (void)y;
     std::cout << "PASSED" << std::endl;

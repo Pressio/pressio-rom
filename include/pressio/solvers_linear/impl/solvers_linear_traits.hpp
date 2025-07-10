@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_
-#define PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_
+#ifndef PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_
+#define PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_
 
 #ifdef PRESSIO_ENABLE_TPL_EIGEN
 #include <Eigen/Core>
@@ -196,65 +196,11 @@ struct Traits<::pressio::linearsolvers::direct::PartialPivLU>
 
   static constexpr bool eigen_enabled = true;
 #endif
-};
 
-template <>
-struct Traits<::pressio::linearsolvers::direct::potrsL>
-{
-  static constexpr bool iterative = false;
-  static constexpr bool direct = true;
-
-#ifdef PRESSIO_ENABLE_TPL_EIGEN
-  template <typename MatrixT>
-  using eigen_solver_type = Eigen::LLT<MatrixT, Eigen::Lower>;
-  static constexpr bool eigen_enabled = true;
-#endif
-
-#if defined PRESSIO_ENABLE_TPL_TRILINOS or defined PRESSIO_ENABLE_TPL_KOKKOS
-  static constexpr bool kokkos_enabled = true;
-#endif
-};
-
-template <>
-struct Traits<::pressio::linearsolvers::direct::potrsU>
-{
-  static constexpr bool direct = true;
-  static constexpr bool eigen_enabled = true;
-
-#ifdef PRESSIO_ENABLE_TPL_EIGEN
-  template <typename MatrixT>
-  using eigen_solver_type = Eigen::LLT<MatrixT, Eigen::Upper>;
-#endif
-
-#if defined PRESSIO_ENABLE_TPL_TRILINOS or defined PRESSIO_ENABLE_TPL_KOKKOS
-  static constexpr bool kokkos_enabled = true;
-#endif
-};
-
-template <>
-struct Traits<::pressio::linearsolvers::direct::getrs>
-{
-  static constexpr bool direct = true;
-#ifdef PRESSIO_ENABLE_TPL_EIGEN
-  static constexpr bool eigen_enabled = false;
-#endif
-
-#if defined PRESSIO_ENABLE_TPL_TRILINOS or defined PRESSIO_ENABLE_TPL_KOKKOS
-  static constexpr bool kokkos_enabled = true;
-#endif
-};
-
-template <>
-struct Traits<::pressio::linearsolvers::direct::geqrf>
-{
-  static constexpr bool direct = true;
-#ifdef PRESSIO_ENABLE_TPL_EIGEN
-  static constexpr bool eigen_enabled = false;
-#endif
-#if defined PRESSIO_ENABLE_TPL_TRILINOS or defined PRESSIO_ENABLE_TPL_KOKKOS
+#if defined PRESSIO_ENABLE_TPL_TRILINOS
   static constexpr bool kokkos_enabled = true;
 #endif
 };
 
 }}
-#endif  // PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_
+#endif  // PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_TRAITS_HPP_

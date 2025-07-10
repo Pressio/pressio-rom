@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_has_const_create_gradient_method_return_result.hpp
+// solvers_predicates.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_
 
 #include <optional>
 
@@ -188,4 +188,4 @@ struct has_const_residualandjacobian_method_accept_state_result_return_void<
   > : std::true_type{};
 
 }} // namespace pressio::solvers
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_PREDICATES_HPP_

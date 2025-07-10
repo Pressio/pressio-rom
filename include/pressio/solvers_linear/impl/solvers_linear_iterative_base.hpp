@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
-#define PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
+#ifndef PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
+#define PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
 
 namespace pressio { namespace linearsolvers{ namespace impl{
 
@@ -55,6 +55,11 @@ template<typename DerivedType>
 struct IterativeBase
 {
   using iteration_type = unsigned int;
+
+  IterativeBase() = default;
+  // non-copyable and non-movable
+  IterativeBase(IterativeBase const &) = delete;
+  IterativeBase& operator=(IterativeBase const &) = delete;
 
   /** Get the number of iterations performed. */
   iteration_type numIterationsExecuted() const {
@@ -80,4 +85,4 @@ protected:
 };
 
 }}}
-#endif  // PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
+#endif  // PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_

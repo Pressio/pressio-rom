@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_nonlinear_enums.hpp
+// solvers_nonlinear_enums_and_tags.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
 
 namespace pressio{ namespace nonlinearsolvers{
 
@@ -210,4 +210,4 @@ struct WeightedResidualTag{};
 struct WeightedJacobianTag{};
 
 }} //end namespace pressio::nonlinearsolvers
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_

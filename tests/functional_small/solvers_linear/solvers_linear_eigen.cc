@@ -23,8 +23,8 @@ TEST(solvers_linear_eigen, sparse_iterative_lscg)
   solver_t solver;
   solver.solve(A,b,y);
 
-  const auto e1 = std::abs(y(0) - (2.0)); 
-  const auto e2 = std::abs(y(1) - (-1.0)); 
+  const auto e1 = std::abs(y(0) - (2.0));
+  const auto e2 = std::abs(y(1) - (-1.0));
   ASSERT_TRUE(e1 <= 1e-13 and e2 <= 1e-13);
 }
 
@@ -65,4 +65,42 @@ TEST(solvers_linear_eigen, dense_direct_houseqr)
 {
   using tag = pressio::linearsolvers::direct::HouseholderQR;
   PRESSIO_SOLVERS_LINEAR_EIGEN_DENSE_UTEST(tag);
+}
+
+
+// Define all tags we want to test
+using SolverTags = ::testing::Types<
+  pressio::linearsolvers::iterative::CG,
+  pressio::linearsolvers::iterative::LSCG,
+  pressio::linearsolvers::iterative::Bicgstab,
+  pressio::linearsolvers::direct::HouseholderQR,
+  pressio::linearsolvers::direct::ColPivHouseholderQR,
+  pressio::linearsolvers::direct::PartialPivLU
+>;
+
+// Define typed test fixture
+template <typename T>
+class LinearSolverDefaultConstructibilityTest : public ::testing::Test {};
+
+// Register typed test suite
+TYPED_TEST_SUITE(LinearSolverDefaultConstructibilityTest, SolverTags);
+
+TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible)
+{
+  using TagType = TypeParam;
+  using Solver = pressio::linearsolvers::Solver<TagType, Eigen::MatrixXd>;
+  static_assert(std::is_default_constructible<Solver>::value,
+		"Solver is not default constructible");
+  Solver solver;  // actually default construct it
+  (void)solver;   // avoid unused warning
+}
+
+TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible2)
+{
+  using TagType = TypeParam;
+  using Solver = pressio::linearsolvers::Solver<TagType, Eigen::SparseMatrix<double>>;
+  static_assert(std::is_default_constructible<Solver>::value,
+		"Solver is not default constructible");
+  Solver solver;  // actually default construct it
+  (void)solver;   // avoid unused warning
 }

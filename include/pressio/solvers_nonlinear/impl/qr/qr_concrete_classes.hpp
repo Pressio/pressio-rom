@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// qr_in_place.hpp
+// qr_concrete_classes.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_
 
 #ifdef PRESSIO_ENABLE_TPL_TRILINOS
 #include "Teuchos_SerialDenseMatrix.hpp"
@@ -148,4 +148,4 @@ private:
 
 
 }}} // end namespace pressio::qr::impl
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_CONCRETE_CLASSES_HPP_

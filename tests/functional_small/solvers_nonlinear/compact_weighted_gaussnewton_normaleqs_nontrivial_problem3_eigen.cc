@@ -19,7 +19,7 @@ struct RangeWeigher{
     }
   }
 
-  int leadingDim() { return 4; }
+  int leadingDim() const { return 4; }
 
   void operator()(const Eigen::Matrix<scalar_t, -1, 1> & operand,
 		  Eigen::Matrix<scalar_t, -1, 1> & result) const
@@ -112,8 +112,8 @@ int main()
   using solver_tag	= linearsolvers::iterative::LSCG;
   using linear_solver_t = linearsolvers::Solver<solver_tag, hessian_t>;
   linear_solver_t linSolver;
-
-  auto GNSolver = create_gauss_newton_solver(problem, linSolver, RangeWeigher<double>{}, tag_t{});
+  RangeWeigher<double> W{};
+  auto GNSolver = create_gauss_newton_solver(problem, linSolver, W, tag_t{});
 
   x(0) = 2.0; x(1) = 0.25;
   testC1(sentinel, problem, x, GNSolver);

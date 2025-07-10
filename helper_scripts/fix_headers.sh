@@ -24,5 +24,5 @@ for packName in ${pcks[@]}; do
     # first, convert all guards to pragmas
     guard2once -r .
     # then converts from pragmas to header with specific pattern
-    once2guard -r -p "path -1 | prepend PRESSIO_${packName}_ | upper | append _" -s "#endif  // %\n" .
+    once2guard -r -p "path -1 | prepend PRESSIOROM_${packName}_ | upper | append _" -s "#endif  // %\n" .
 done

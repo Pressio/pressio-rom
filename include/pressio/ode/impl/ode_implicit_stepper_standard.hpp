@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_
-#define PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_
 
 namespace pressio{ namespace ode{ namespace impl{
 
@@ -93,8 +93,10 @@ private:
 
 public:
   ImplicitStepperStandardImpl() = delete;
-  ImplicitStepperStandardImpl(const ImplicitStepperStandardImpl & other)  = default;
-  ImplicitStepperStandardImpl & operator=(const ImplicitStepperStandardImpl & other) = delete;
+  ImplicitStepperStandardImpl(const ImplicitStepperStandardImpl &)  = delete;
+  ImplicitStepperStandardImpl & operator=(const ImplicitStepperStandardImpl &) = delete;
+  ImplicitStepperStandardImpl(ImplicitStepperStandardImpl &&)  = default;
+  ImplicitStepperStandardImpl & operator=(ImplicitStepperStandardImpl &&) = default;
   ~ImplicitStepperStandardImpl() = default;
 
   // *** BDF1 ***//
@@ -321,4 +323,4 @@ private:
 };
 
 }}} // end namespace pressio::ode::implicitmethods
-#endif  // PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_STANDARD_HPP_

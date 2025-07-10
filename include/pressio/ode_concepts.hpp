@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_galerkin.hpp
+// ode_concepts.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -49,15 +49,16 @@
 #ifndef PRESSIO_ODE_CONCEPTS_TOPLEVEL_INC_HPP_
 #define PRESSIO_ODE_CONCEPTS_TOPLEVEL_INC_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./ode/ode_strong_types.hpp"
 #include "./ode/ode_enum_and_tags.hpp"
 #include "./ode/ode_stencil_containers.hpp"
-
 #include "./ode/concepts/ode_system.hpp"
 #include "./ode/concepts/ode_others.hpp"
 

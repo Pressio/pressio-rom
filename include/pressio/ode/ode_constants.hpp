@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// pressio_ode_common.hpp
+// ode_constants.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_CONSTANTS_HPP_
-#define PRESSIO_ODE_ODE_CONSTANTS_HPP_
+#ifndef PRESSIOROM_ODE_ODE_CONSTANTS_HPP_
+#define PRESSIOROM_ODE_ODE_CONSTANTS_HPP_
 
 namespace pressio{ namespace ode{
 
@@ -103,4 +103,4 @@ struct cranknicolson{
 
 }}}//end namespace pressio::ode::constants
 
-#endif  // PRESSIO_ODE_ODE_CONSTANTS_HPP_
+#endif  // PRESSIOROM_ODE_ODE_CONSTANTS_HPP_

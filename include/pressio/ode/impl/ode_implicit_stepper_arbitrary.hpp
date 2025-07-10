@@ -46,14 +46,14 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_
-#define PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_
 
 namespace pressio{ namespace ode{ namespace impl{
 
 template<
   int n_states,
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -61,6 +61,9 @@ template<
   >
 class StepperArbitrary
 {
+  static_assert(n_states == 2,
+		"StepperArbitrary currently only supports 2 total states");
+
 public:
   // required
   using independent_variable_type = IndVarType;
@@ -68,31 +71,38 @@ public:
   using residual_type	= ResidualType;
   using jacobian_type	= JacobianType;
 
-  // numAuxStates is the number of auxiliary states needed, so all other beside y_n
+  // numAuxStates is the number of **auxiliary** states needed,
+  // so total states - 1
   static constexpr std::size_t numAuxStates = n_states - 1;
   using tag_name = ::pressio::ode::ImplicitArbitrary;
   using stencil_states_t = ImplicitStencilStatesStaticContainer<StateType, numAuxStates>;
 
 private:
-  IndVarType rhsEvaluationTime_  = {};
-  IndVarType dt_ = {};
   typename StepCount::value_type stepNumber_  = {};
+  IndVarType dt_ = {};
+  // for implicit integration, the time at the start of a step is
+  // not equal to the time needed to evalaute the residual/jacobian.
+  // so we keep track of both
+  IndVarType timeAtStepStart_  = {};
+  IndVarType rhsEvaluationTime_  = {};
 
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   stencil_states_t stencilStates_;
   // state object to ensure the strong guarantee for handling excpetions
   StateType recoveryState_;
 
 public:
   StepperArbitrary() = delete;
-  StepperArbitrary(const StepperArbitrary & other)  = default;
-  StepperArbitrary & operator=(const StepperArbitrary & other) = delete;
+  StepperArbitrary(const StepperArbitrary &)  = delete;
+  StepperArbitrary & operator=(const StepperArbitrary &) = delete;
+  StepperArbitrary(StepperArbitrary &&)  = default;
+  StepperArbitrary & operator=(StepperArbitrary &&) = default;
   ~StepperArbitrary() = default;
 
-  StepperArbitrary(SystemType && systemObj)
-    : systemObj_(std::forward<SystemType>(systemObj)),
-      stencilStates_(systemObj.createState()), //stencilstates handles right semantics
-      recoveryState_{systemObj.createState()}
+  StepperArbitrary(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)),
+      stencilStates_(systemObj_.get().createState()), //stencilstates handles right semantics
+      recoveryState_{systemObj_.get().createState()}
     {}
 
 public:
@@ -117,11 +127,17 @@ public:
 		  Args && ...args)
   {
     PRESSIOLOG_DEBUG("arbitrary stepper: do step");
-    dt_ = stepSize.get();
-    rhsEvaluationTime_ = stepStartVal.get() + dt_;
-    stepNumber_ = stepNumber.get();
 
+    // cache things before starting the step
+    stepNumber_ = stepNumber.get();
+    dt_ = stepSize.get();
+    timeAtStepStart_ = stepStartVal.get();
+    rhsEvaluationTime_ = stepStartVal.get() + dt_;
+
+    // need to update auxiliary things **before** starting the step
     updateAuxiliaryStorage<numAuxStates>(odeState);
+
+    callPreStepHookIfApplicable(odeState);
 
     try{
       solver.solve(*this, odeState, std::forward<Args>(args)...);
@@ -151,49 +167,21 @@ public:
     }
   }
 
-  // 2 aux states, 3 total states
-  template< std::size_t _numAuxStates = numAuxStates>
-  std::enable_if_t< _numAuxStates==2 >
-  residualAndJacobian(const state_type & odeState,
-		      residual_type & R,
-		      std::optional<jacobian_type*> Jo) const
-  {
-    const auto & yn = stencilStates_(ode::n());
-    const auto & ynm1 = stencilStates_(ode::nMinusOne());
-
-    try{
-      systemObj_.get().discreteResidualAndJacobian
-	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo,
-	 odeState, yn, ynm1);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-  }
-
-  // 3 aux states, 4 total states
-  template< std::size_t _numAuxStates = numAuxStates>
-  std::enable_if_t< _numAuxStates==3 >
-  residualAndJacobian(const state_type & odeState,
-		      residual_type & R,
-		      std::optional<jacobian_type*> Jo) const
-  {
-    const auto & yn = stencilStates_(ode::n());
-    const auto & ynm1 = stencilStates_(ode::nMinusOne());
-    const auto & ynm2 = stencilStates_(ode::nMinusTwo());
-
-    try{
-      systemObj_.get().discreteResidualAndJacobian
-	(stepNumber_, rhsEvaluationTime_, dt_, R, Jo,
-	 odeState, yn, ynm1, ynm2);
-    }
-    catch (::pressio::eh::DiscreteTimeResidualFailureUnrecoverable const & e){
-      throw ::pressio::eh::ResidualEvaluationFailureUnrecoverable();
-    }
-  }
-
 private:
-  // one aux states
+  void callPreStepHookIfApplicable(const StateType & odeState)
+  {
+    using wrapped_system_type = typename SysWrapperType::system_type;
+    if constexpr (numAuxStates == 1 && has_const_pre_step_hook_method<
+		  mpl::remove_cvref_t<wrapped_system_type>, n_states,
+		  typename StepCount::value_type, IndVarType, state_type
+		  >::value)
+    {
+      const auto & yn = stencilStates_(ode::n());
+      systemObj_.get().preStepHook(stepNumber_, timeAtStepStart_, dt_,
+				   odeState, yn);
+    }
+  }
+
   template<std::size_t nAux>
   std::enable_if_t<nAux==1>
   updateAuxiliaryStorage(const StateType & odeState)
@@ -211,57 +199,7 @@ private:
     ::pressio::ops::deep_copy(odeState, y_n);
     ::pressio::ops::deep_copy(y_n, recoveryState_);
   }
-
-  // two aux states
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==2>
-  updateAuxiliaryStorage(const StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    ::pressio::ops::deep_copy(recoveryState_, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_n);
-    ::pressio::ops::deep_copy(y_n, odeState);
-  }
-
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==2>
-  rollBackStates(StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    ::pressio::ops::deep_copy(odeState, y_n);
-    ::pressio::ops::deep_copy(y_n, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, recoveryState_);
-  }
-
-  // three aux states
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==3>
-  updateAuxiliaryStorage(const StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    auto & y_nm2 = stencilStates_(ode::nMinusTwo());
-    ::pressio::ops::deep_copy(recoveryState_, y_nm2);
-    ::pressio::ops::deep_copy(y_nm2, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_n);
-    ::pressio::ops::deep_copy(y_n, odeState);
-  }
-
-  template<std::size_t nAux>
-  std::enable_if_t<nAux==3>
-  rollBackStates(StateType & odeState)
-  {
-    auto & y_n = stencilStates_(ode::n());
-    auto & y_nm1 = stencilStates_(ode::nMinusOne());
-    auto & y_nm2 = stencilStates_(ode::nMinusTwo());
-    ::pressio::ops::deep_copy(odeState, y_n);
-    ::pressio::ops::deep_copy(y_n, y_nm1);
-    ::pressio::ops::deep_copy(y_nm1, y_nm2);
-    ::pressio::ops::deep_copy(y_nm2, recoveryState_);
-  }
 };
 
 }}}
-#endif  // PRESSIO_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_STEPPER_ARBITRARY_HPP_

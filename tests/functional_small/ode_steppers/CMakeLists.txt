@@ -3,6 +3,28 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
   add_serial_utest(ode_steppers_concepts ${CMAKE_CURRENT_SOURCE_DIR}/concepts.cc)
 endif()
 
+
+if (PRESSIO_ENABLE_TPL_EIGEN)
+  set(name doc_main1)
+  add_serial_exe_and_test(
+    ${name} 
+    ode_steppers
+    ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
+
+  set(name doc_main2)
+  add_serial_exe_and_test(
+    ${name} 
+    ode_steppers 
+    ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
+
+  set(name doc_main3)
+  add_serial_exe_and_test(
+    ${name} 
+    ode_steppers 
+    ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
+endif()
+
+
 # ========================
 #
 # EXPLICIT METHODS
@@ -144,18 +166,6 @@ if(PRESSIO_ENABLE_TPL_EIGEN)
     integrate_to_time_with_failure_arbitrary_stepper_1_aux_state
     ode_steppers_implicit
     arbitrary_stepper_1_aux_state_with_step_recovery.cc "PASSED")
-
-  # arbitrary stepper 2 states, step recovery
-  add_serial_exe_and_test(
-    integrate_to_time_with_failure_arbitrary_stepper_2_aux_state
-    ode_steppers_implicit
-    arbitrary_stepper_2_aux_state_with_step_recovery.cc "PASSED")
-
-  # arbitrary stepper 3 states, step recovery
-  add_serial_exe_and_test(
-    integrate_to_time_with_failure_arbitrary_stepper_3_aux_state
-    ode_steppers_implicit
-    arbitrary_stepper_3_aux_state_with_step_recovery.cc "PASSED")
 
   add_serial_utest(ode_adjoint_logic_1
     ${CMAKE_CURRENT_SOURCE_DIR}/adjoint_logic_1.cc)

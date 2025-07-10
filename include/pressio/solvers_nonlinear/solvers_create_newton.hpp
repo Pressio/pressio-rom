@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_create_public_api.hpp
+// solvers_create_newton.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
 
 #include "solvers_default_types.hpp"
 #include "./impl/solvers_tagbased_registry.hpp"
@@ -56,7 +56,7 @@
 #include "./impl/diagnostics.hpp"
 #include "./impl/functions.hpp"
 #include "./impl/updaters.hpp"
-#include "./impl/root_finder.cpp"
+#include "./impl/root_finder.hpp"
 
 namespace pressio{
 
@@ -107,12 +107,8 @@ template<class SystemType, class LinearSolverType>
   }
 #endif
 auto create_newton_solver(const SystemType & system,
-			  LinearSolverType && linSolver)
+			  LinearSolverType & linSolver)
 {
-  // A newton iteration solves: J_k delta_k = - r_k,
-  // where delta_k = x_k+1 - x_k and J_k is dr_k/dx
-  // so the new approximation of the solution is: x_k+1 = x_k + delta_
-
   using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> diagnostics =
     {Diagnostic::residualAbsolutel2Norm,
@@ -125,7 +121,7 @@ auto create_newton_solver(const SystemType & system,
   using reg_t    = nonlinearsolvers::impl::RegistryNewton<SystemType, LinearSolverType>;
   using scalar_t = nonlinearsolvers::scalar_of_t<SystemType>;
   return nonlinearsolvers::impl::RootFinder<tag, state_t, reg_t, scalar_t>
-    (tag{}, diagnostics, system, std::forward<LinearSolverType>(linSolver));
+    (tag{}, diagnostics, system, linSolver);
 }
 
 namespace experimental{
@@ -150,4 +146,4 @@ auto create_matrixfree_newtonkrylov_solver(const SystemType & system)
 }
 
 } //end namespace pressio
-#endif  // PRESSIO_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_

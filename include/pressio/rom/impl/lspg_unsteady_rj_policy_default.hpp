@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_lspg_unsteady_policy_residual.hpp
+// lspg_unsteady_rj_policy_default.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_
 
 namespace pressio{ namespace rom{ namespace impl{
 
@@ -61,6 +61,8 @@ template <
   >
 class LspgUnsteadyResidualJacobianPolicy
 {
+  using fom_states_mgr_type = FomStatesManager<TrialSubspaceType>;
+
 public:
   // required
   using independent_variable_type = IndVarType;
@@ -71,11 +73,16 @@ public:
 public:
   LspgUnsteadyResidualJacobianPolicy(const TrialSubspaceType & trialSubspace,
 				     const FomSystemType & fomSystem,
-				     LspgFomStatesManager<TrialSubspaceType> & fomStatesManager)
+				     std::unique_ptr<fom_states_mgr_type> fomStatesManager)
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
-      fomStatesManager_(fomStatesManager)
+      fomStatesManager_(std::move(fomStatesManager))
   {}
+
+  LspgUnsteadyResidualJacobianPolicy(LspgUnsteadyResidualJacobianPolicy const &) = delete;
+  LspgUnsteadyResidualJacobianPolicy& operator=(LspgUnsteadyResidualJacobianPolicy const&) = delete;
+  LspgUnsteadyResidualJacobianPolicy(LspgUnsteadyResidualJacobianPolicy &&) = default;
+  LspgUnsteadyResidualJacobianPolicy& operator=(LspgUnsteadyResidualJacobianPolicy &&) = default;
 
 public:
   state_type createState() const{
@@ -148,9 +155,9 @@ private:
        we might be inside a subiteration of the non-linear solve
        where the time step does not change but the predicted state does
      */
-    fomStatesManager_.get().reconstructAtWithoutStencilUpdate(predictedReducedState,
-							      ::pressio::ode::nPlusOne());
-    const auto & fomStateAt_np1 = fomStatesManager_(::pressio::ode::nPlusOne());
+    fomStatesManager_->reconstructAtWithoutStencilUpdate(predictedReducedState,
+							 ::pressio::ode::nPlusOne());
+    const auto & fomStateAt_np1 = (*fomStatesManager_)(::pressio::ode::nPlusOne());
 
     /* previous FOM states should only be recomputed when the time step changes.
        The method below does not recompute all previous states, but only
@@ -158,8 +165,8 @@ private:
        FOM states stored. */
     if (stepTracker_ != step){
       const auto & lspgStateAt_n = reducedStatesStencilManager(::pressio::ode::n());
-      fomStatesManager_.get().reconstructAtWithStencilUpdate(lspgStateAt_n,
-								::pressio::ode::n());
+      fomStatesManager_->reconstructAtWithStencilUpdate(lspgStateAt_n,
+							::pressio::ode::n());
 
       stepTracker_ = step;
     }
@@ -169,7 +176,7 @@ private:
     // default lspg does not do anything special, so we can use the
     // available ode functions for computing the discrete residual
     ::pressio::ode::impl::discrete_residual(OdeTag(), fomStateAt_np1,
-					    R, fomStatesManager_.get(), dt);
+					    R, *fomStatesManager_, dt);
 
     // deal with jacobian if needed
     if (Jo){
@@ -207,9 +214,11 @@ private:
 
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
+
+protected:
+  std::unique_ptr<fom_states_mgr_type> fomStatesManager_;
 };
 
 }}}
 
-#endif  // PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RJ_POLICY_DEFAULT_HPP_

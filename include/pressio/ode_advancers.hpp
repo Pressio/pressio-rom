@@ -49,20 +49,18 @@
 #ifndef PRESSIO_ODE_ADVANCERS_HPP_
 #define PRESSIO_ODE_ADVANCERS_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 
-#include "pressio/pressio_macros.hpp"
-
+// local includes
+#include "./pressio_macros.hpp"
 #include "./ode_concepts.hpp"
 #include "./ode/exceptions.hpp"
 #include "./ode/ode_strong_types.hpp"
 #include "./ode/ode_constants.hpp"
-
 #include "./ode/ode_advance_n_steps.hpp"
 #include "./ode/ode_advance_n_steps_variadic.hpp"
-#include "./ode/ode_advance_n_steps_with_guesser.hpp"
-#include "./ode/ode_advance_n_steps_with_guesser_variadic.hpp"
 #include "./ode/ode_advance_to_target_point.hpp"
 #include "./ode/ode_advance_to_target_point_variadic.hpp"
 #include "./ode/ode_advance_to_target_point_with_step_recovery.hpp"

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// pressio_ode_common.hpp
+// ode_stencil_containers.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_ODE_STENCIL_CONTAINERS_HPP_
-#define PRESSIO_ODE_ODE_STENCIL_CONTAINERS_HPP_
+#ifndef PRESSIOROM_ODE_ODE_STENCIL_CONTAINERS_HPP_
+#define PRESSIOROM_ODE_ODE_STENCIL_CONTAINERS_HPP_
 
 #include "./impl/ode_stencil_data_container_static.hpp"
 #include "./impl/ode_stencil_data_container_dynamic.hpp"
@@ -76,4 +76,4 @@ using ImplicitStencilStatesDynamicContainer
 
 }}//end namespace pressio::ode
 
-#endif  // PRESSIO_ODE_ODE_STENCIL_CONTAINERS_HPP_
+#endif  // PRESSIOROM_ODE_ODE_STENCIL_CONTAINERS_HPP_

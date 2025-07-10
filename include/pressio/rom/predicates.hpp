@@ -1,10 +1,92 @@
+/*
+//@HEADER
+// ************************************************************************
+//
+// predicates.hpp
+//                     		  Pressio
+//                             Copyright 2019
+//    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
+//
+// Under the terms of Contract DE-NA0003525 with NTESS, the
+// U.S. Government retains certain rights in this software.
+//
+// Pressio is licensed under BSD-3-Clause terms of use:
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+// contributors may be used to endorse or promote products derived
+// from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// Questions? Contact Francesco Rizzi (fnrizzi@sandia.gov)
+//
+// ************************************************************************
+//@HEADER
+*/
 
-#ifndef PRESSIO_ROM_PREDICATES_HPP_
-#define PRESSIO_ROM_PREDICATES_HPP_
+#ifndef PRESSIOROM_ROM_PREDICATES_HPP_
+#define PRESSIOROM_ROM_PREDICATES_HPP_
 
 #include "./impl/ode_has_const_discrete_residual_jacobian_action_method.hpp"
 
+/*
+  ==============================================================================
+  Header containing type traits for concept-based introspection of types
+  ==============================================================================
+
+  These traits detect the presence, const-qualification, and return types of
+  methods used in ROM components, including:
+    - Trial subspace interfaces
+    - Full-order model (FOM) systems
+    - Residual and Jacobian operations
+    - Mass matrix and time-dependent methods
+
+  Notes:
+    - All traits use `std::declval<T const>()` to check for const-qualified member functions.
+    - Most traits follow the pattern:
+        - Primary template: inherits from `std::false_type`
+        - Specialized template: uses `enable_if_t` and `decltype` to check method signature
+          and return type, inherits from `std::true_type` if check passes
+    - Macro-generated traits are used for common method-name/return-type pairs.
+
+  Usage:
+    These traits are primarily used to implement or enforce Pressio concepts via
+    SFINAE or `static_assert`, ensuring that types provided to ROM factories or
+    stepper builders conform to expected interfaces.
+    See for example rom_concepts.hpp
+*/
+
 namespace pressio{ namespace rom{
+
+//==============================================================================
+// Macro to define a trait that checks whether a const-qualified method
+// `create<NameB>()` exists and returns type `T::<nameA>_type`.
+// Example instantiations below check for:
+//   - createReducedState() -> T::reduced_state_type
+//   - createFullState()    -> T::full_state_type
+//==============================================================================
 
 #define PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(NAMEA, NAMEB)	\
 template <class T, class = void> \
@@ -25,6 +107,7 @@ PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(reduced_state,
 						ReducedState)
 PRESSIO_ROM_IMPL_HAS_CONST_CREATE_RETURN_RESULT(full_state,
 						FullState)
+
 // ---------------------------------------------------------------
 
 template <class T, class = void>
@@ -270,4 +353,4 @@ struct has_const_rhs_method_accept_state_indvar_result_return_void<
   > : std::true_type{};
 
 }} // end pressio::rom
-#endif  // PRESSIO_ROM_PREDICATES_HPP_
+#endif  // PRESSIOROM_ROM_PREDICATES_HPP_

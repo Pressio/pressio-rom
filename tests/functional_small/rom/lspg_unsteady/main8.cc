@@ -208,7 +208,6 @@ TEST(rom_lspg_unsteady, fully_discrete_with_recovery_n2)
   romState[2]=2.;
 
   auto problem = pressio::rom::lspg::create_unsteady_problem<2>(space, fomSystem);
-  auto & stepper = problem.lspgStepper();
 
   auto dtManager = [](pressio::ode::StepCount /*unused*/,
 		      pressio::ode::StepStartAt<double> /*unused*/,
@@ -223,7 +222,7 @@ TEST(rom_lspg_unsteady, fully_discrete_with_recovery_n2)
 
   MyFakeSolver solver;
   pressio::ode::advance_to_target_point_with_step_recovery
-    (stepper, romState, 0., 2., dtManager, solver);
+    (problem, romState, 0., 2., dtManager, solver);
 
   PRESSIOLOG_FINALIZE();
 }

@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
-#define PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
 
 #include "ode_advance_printing_helpers.hpp"
 
@@ -59,7 +59,6 @@ template <
   class dt_policy,
   class StateType,
   class ObserverType,
-  class GuesserType,
   class ... Args
   >
 void advance_n_steps_with_dt_policy(StepperType & stepper,
@@ -68,7 +67,6 @@ void advance_n_steps_with_dt_policy(StepperType & stepper,
 				    StateType & odeState,
 				    dt_policy && dtManager,
 				    ObserverType && observer,
-				    GuesserType && guesser,
 				    Args && ... args)
 {
 
@@ -90,10 +88,6 @@ void advance_n_steps_with_dt_policy(StepperType & stepper,
 		dt);
       print_step_and_current_time(step, time, dt.get());
 
-      // before we do a step, call the guesser
-      // which is the trivial case is a noop
-      guesser(stepWrap, ::pressio::ode::StepStartAt<IndVarType>(time), odeState);
-
       stepper(odeState,
 	      ::pressio::ode::StepStartAt<IndVarType>(time),
 	      stepWrap, dt,
@@ -110,7 +104,6 @@ template <
   class IndVarType,
   class StateType,
   class ObserverType,
-  class GuesserType,
   class ... Args
   >
 void advance_n_steps_with_fixed_dt(StepperType & stepper,
@@ -119,7 +112,6 @@ void advance_n_steps_with_fixed_dt(StepperType & stepper,
 				   const IndVarType & step_size,
 				   StateType & odeState,
 				   ObserverType && observer,
-				   GuesserType && guesser,
 				   Args && ... args)
 {
 
@@ -134,9 +126,8 @@ void advance_n_steps_with_fixed_dt(StepperType & stepper,
   advance_n_steps_with_dt_policy(stepper, numSteps,
 				 start_val, odeState, dtSetter,
 				 std::forward<ObserverType>(observer),
-				 std::forward<GuesserType>(guesser),
 				 std::forward<Args>(args)...);
 }
 
 }}}//end namespace pressio::ode::impl
-#endif  // PRESSIO_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_

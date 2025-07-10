@@ -13,18 +13,10 @@ add_serial_utest(
   ${ROOTNAME}_concepts_state_observer
   ${CMAKE_CURRENT_SOURCE_DIR}/concepts_state_observer.cc)
 
-add_serial_utest(
-  ${ROOTNAME}_concepts_state_guesser
-  ${CMAKE_CURRENT_SOURCE_DIR}/concepts_state_guesser.cc)
-
 #
 add_serial_utest(
   ${ROOTNAME}_api_check_advance_n_steps
   ${CMAKE_CURRENT_SOURCE_DIR}/api_check_advance_n_steps.cc)
-
-add_serial_utest(
-  ${ROOTNAME}_api_check_advance_n_steps_with_guesser
-  ${CMAKE_CURRENT_SOURCE_DIR}/api_check_advance_n_steps_with_guesser.cc)
 
 #
 add_serial_utest(
@@ -42,14 +34,6 @@ add_serial_utest(
 add_serial_utest(
   ${ROOTNAME}_advance_n_steps_check_time_and_step
   ${CMAKE_CURRENT_SOURCE_DIR}/advance_n_steps_check_time_and_step.cc)
-
-add_serial_utest(
-  ${ROOTNAME}_advance_n_steps_per_step_guesser_const_dt
-  ${CMAKE_CURRENT_SOURCE_DIR}/advance_n_steps_per_step_guesser_const_dt.cc)
-
-add_serial_utest(
-  ${ROOTNAME}_advance_n_steps_per_step_guesser_varying_dt
-  ${CMAKE_CURRENT_SOURCE_DIR}/advance_n_steps_per_step_guesser_varying_dt.cc)
 
 if(PRESSIO_ENABLE_TPL_EIGEN)
 add_serial_exe_and_test(

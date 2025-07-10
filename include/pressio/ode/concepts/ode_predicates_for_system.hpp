@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_has_const_discrete_time_residual_method_accept_step_time_dt_result_states_return_void.hpp
+// ode_predicates_for_system.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
-#define PRESSIO_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
 
 namespace pressio{ namespace ode{
 
@@ -161,5 +161,33 @@ struct has_const_create_discrete_jacobian_method_return_result<
     >
   > : std::true_type{};
 
+
+template <
+  class T, int numStates, class StepType, class IndVarType, class StateType,
+  class = void
+  >
+struct has_const_pre_step_hook_method
+  : std::false_type{};
+
+template <class T, class StepType, class IndVarType, class StateType>
+struct has_const_pre_step_hook_method<
+  T, 2, StepType, IndVarType, StateType,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T const>().preStepHook
+       (
+	std::declval<StepType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<StateType const&>(),
+	std::declval<StateType const&>()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
 }}
-#endif  // PRESSIO_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
+#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_

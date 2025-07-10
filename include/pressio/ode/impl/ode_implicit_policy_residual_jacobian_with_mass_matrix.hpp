@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_implicit_policy_residual.hpp
+// ode_implicit_policy_residual_jacobian_with_mass_matrix.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,13 +46,13 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_
-#define PRESSIO_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_
 
 namespace pressio{ namespace ode{ namespace impl{
 
 template<
-  class SystemType,
+  class SysWrapperType,
   class IndVarType,
   class StateType,
   class ResidualType,
@@ -69,17 +69,19 @@ public:
   using jacobian_type = JacobianType;
 
 public:
-  ResidualJacobianWithMassMatrixStandardPolicy() = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy() = default;
 
-  explicit ResidualJacobianWithMassMatrixStandardPolicy(SystemType && systemIn)
-    : systemObj_( std::forward<SystemType>(systemIn) ),
-      scratchState_(systemIn.createState()),
-      massMatrix_(systemIn.createMassMatrix()),
-      rhs_(systemIn.createRhs())
+  explicit ResidualJacobianWithMassMatrixStandardPolicy(SysWrapperType && sysObjW)
+    : systemObj_(std::move(sysObjW)),
+      scratchState_(systemObj_.get().createState()),
+      massMatrix_(systemObj_.get().createMassMatrix()),
+      rhs_(systemObj_.get().createRhs())
   {}
 
-  ResidualJacobianWithMassMatrixStandardPolicy(const ResidualJacobianWithMassMatrixStandardPolicy &) = default;
-  ResidualJacobianWithMassMatrixStandardPolicy & operator=(const ResidualJacobianWithMassMatrixStandardPolicy &) = default;
+  ResidualJacobianWithMassMatrixStandardPolicy(const ResidualJacobianWithMassMatrixStandardPolicy &) = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy & operator=(const ResidualJacobianWithMassMatrixStandardPolicy &) = delete;
+  ResidualJacobianWithMassMatrixStandardPolicy(ResidualJacobianWithMassMatrixStandardPolicy &&) = default;
+  ResidualJacobianWithMassMatrixStandardPolicy & operator=(ResidualJacobianWithMassMatrixStandardPolicy &&) = default;
   ~ResidualJacobianWithMassMatrixStandardPolicy() = default;
 
 public:
@@ -187,7 +189,7 @@ private:
 
     try{
       systemObj_.get().massMatrixAndRhsAndJacobian(predictedState, evalTime,
-						   massMatrix_, rhs_, Jo);
+					      massMatrix_, rhs_, Jo);
       if (cond()){
 	discrete_residual(BDF1(), predictedState, scratchState_, rhs_,
 			  massMatrix_, R, stencilStatesManager, dt);
@@ -212,7 +214,7 @@ private:
   }
 
 private:
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<SystemType> systemObj_;
+  SysWrapperType systemObj_;
   mutable int32_t stepTracker_ = -1;
   mutable StateType scratchState_;
   mutable MassMatrixType massMatrix_;
@@ -220,4 +222,4 @@ private:
 };
 
 }}}//end namespace pressio::ode::implicitmethods::policy
-#endif  // PRESSIO_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_IMPLICIT_POLICY_RESIDUAL_JACOBIAN_WITH_MASS_MATRIX_HPP_

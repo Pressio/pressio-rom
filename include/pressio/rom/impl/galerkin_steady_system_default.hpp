@@ -1,6 +1,53 @@
+/*
+//@HEADER
+// ************************************************************************
+//
+// galerkin_steady_system_default.hpp
+//                     		  Pressio
+//                             Copyright 2019
+//    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
+//
+// Under the terms of Contract DE-NA0003525 with NTESS, the
+// U.S. Government retains certain rights in this software.
+//
+// Pressio is licensed under BSD-3-Clause terms of use:
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+// contributors may be used to endorse or promote products derived
+// from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// Questions? Contact Francesco Rizzi (fnrizzi@sandia.gov)
+//
+// ************************************************************************
+//@HEADER
+*/
 
-#ifndef PRESSIO_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_
-#define PRESSIO_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_
+#define PRESSIOROM_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_
 
 namespace pressio{ namespace rom{ namespace impl{
 
@@ -29,8 +76,7 @@ class GalerkinSteadyDefaultSystem
 
   using basis_matrix_type = typename TrialSubspaceType::basis_matrix_type;
 
-  // deduce from the fom object the type of result of
-  // applying the Jacobian to the basis
+  // Type resulting from applying the FOM Jacobian to the basis
   using fom_jac_action_result_type =
     decltype(std::declval<FomSystemType const>().createResultOfJacobianActionOn
 	     (std::declval<basis_matrix_type const &>()) );
@@ -48,11 +94,16 @@ public:
     : trialSubspace_(trialSubspace),
       fomSystem_(fomSystem),
       fomState_(trialSubspace.createFullState()),
-      auxFomVec_(pressio::ops::clone(fomState_)),
-      auxFomVec2_(pressio::ops::clone(fomState_)),
       fomResidual_(fomSystem.createResidual()),
-      fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace()))
+      fomJacAction_(fomSystem.createResultOfJacobianActionOn(trialSubspace_.get().basisOfTranslatedSpace())),
+      auxFomVec_(pressio::ops::clone(fomState_)),
+      auxFomVec2_(pressio::ops::clone(fomState_))
   {}
+
+  GalerkinSteadyDefaultSystem(GalerkinSteadyDefaultSystem const &) = delete;
+  GalerkinSteadyDefaultSystem& operator=(GalerkinSteadyDefaultSystem const&) = delete;
+  GalerkinSteadyDefaultSystem(GalerkinSteadyDefaultSystem &&) = default;
+  GalerkinSteadyDefaultSystem& operator=(GalerkinSteadyDefaultSystem &&) = default;
 
 public:
   state_type createState() const{
@@ -78,28 +129,51 @@ public:
 			    1, phi, fomResidual_, 0, reducedResidual);
   }
 
+  /*
+   * Computes the reduced-order residual and, optionally, the reduced Jacobian
+   *
+   * Parameters:
+   *   - reducedState:       current ROM state vector
+   *   - reducedResidual:    output reduced residual vector (to be computed)
+   *   - reducedJacobian:    optional output reduced Jacobian matrix
+   *
+   * This function:
+   *   1. Maps the reduced state to the full-order space.
+   *   2. Computes the FOM residual and (optionally) the action of the FOM Jacobian on the basis.
+   *   3. Projects the FOM residual onto the trial subspace to compute the ROM residual.
+   *   4. If requested, projects the FOM Jacobian action result to compute the ROM Jacobian.
+   */
   void residualAndJacobian(const state_type & reducedState,
 			   residual_type & reducedResidual,
 			   std::optional<jacobian_type*> reducedJacobian) const
   {
 
+    // Get a reference to the basis matrix from the trial subspace
     const auto & phi = trialSubspace_.get().basisOfTranslatedSpace();
+    // Map the reduced state to the full-order state:
+    // fomState = phi * reducedState + reference state
     trialSubspace_.get().mapFromReducedState(reducedState, fomState_);
 
+    // Define scalar types and scaling constants for projections
     using phi_scalar_t = typename ::pressio::Traits<basis_matrix_type>::scalar_type;
     constexpr auto alpha = static_cast<phi_scalar_t>(1);
     using R_scalar_t = typename ::pressio::Traits<residual_type>::scalar_type;
     constexpr auto beta = static_cast<R_scalar_t>(0);
 
+    // Prepare an optional pointer to store the result of Jacobian action, if needed
     std::optional<fom_jac_action_result_type *> fomJacActionOpt;
     if (reducedJacobian) {
       fomJacActionOpt = &fomJacAction_;
     }
+    // Compute the FOM residual and optionally the Jacobian applied to phi
     fomSystem_.get().residualAndJacobianAction(fomState_, fomResidual_, phi, fomJacActionOpt);
 
+    // Project the FOM residual to the reduced space: reducedResidual = phi^T * fomResidual
     ::pressio::ops::product(::pressio::transpose(),
 			    alpha, phi, fomResidual_, beta, reducedResidual);
 
+    // If the reduced Jacobian is requested
+    // compute reducedJacobian = phi^T * (J_fom * phi)
     if (reducedJacobian){
       using J_scalar_t = typename ::pressio::Traits<jacobian_type>::scalar_type;
       constexpr auto beta = static_cast<J_scalar_t>(0);
@@ -110,6 +184,7 @@ public:
     }
   }
 
+  // these is here for matrix-free methods
   template<class OperandT, class ResultT>
   void applyJacobian(const state_type & reducedState,
 		     OperandT const & reducedOperand,
@@ -133,12 +208,16 @@ public:
 private:
   std::reference_wrapper<const TrialSubspaceType> trialSubspace_;
   std::reference_wrapper<const FomSystemType> fomSystem_;
+
+  // FOM state, residual and jacobian action
   mutable typename FomSystemType::state_type fomState_;
-  mutable typename FomSystemType::state_type auxFomVec_;
-  mutable typename FomSystemType::state_type auxFomVec2_;
   mutable typename FomSystemType::residual_type fomResidual_;
   mutable fom_jac_action_result_type fomJacAction_;
+
+  // Extra auxiliary vectors
+  mutable typename FomSystemType::state_type auxFomVec_;
+  mutable typename FomSystemType::state_type auxFomVec2_;
 };
 
 }}} // end pressio::rom::impl
-#endif  // PRESSIO_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_GALERKIN_STEADY_SYSTEM_DEFAULT_HPP_

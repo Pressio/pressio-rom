@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_has_const_discrete_time_residual_method_accept_step_time_dt_result_states_return_void.hpp
+// ode_has_const_discrete_residual_jacobian_method.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
-#define PRESSIO_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
 
 #include <optional>
 
@@ -164,4 +164,4 @@ struct has_const_discrete_residual_jacobian_method<
   > : std::true_type{};
 
 }}
-#endif  // PRESSIO_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
+#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_

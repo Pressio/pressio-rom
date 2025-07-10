@@ -46,19 +46,18 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_
-#define PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_
+#ifndef PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_
+#define PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_
 
 #ifdef PRESSIO_ENABLE_TPL_EIGEN
 #include "solvers_linear_eigen_direct_impl.hpp"
 #include "solvers_linear_eigen_iterative_impl.hpp"
 #include "solvers_linear_eigen_iterative_matrix_free_impl.hpp"
 #endif
-#ifdef PRESSIO_ENABLE_TPL_KOKKOS
-#include "solvers_linear_kokkos_direct_geqrf_impl.hpp"
+
+// because this uses teuchos lapack wrapper
+#ifdef PRESSIO_ENABLE_TPL_TRILINOS
 #include "solvers_linear_kokkos_direct_getrs_impl.hpp"
-#include "solvers_linear_kokkos_direct_potrs_lower_impl.hpp"
-#include "solvers_linear_kokkos_direct_potrs_upper_impl.hpp"
 #endif
 
 namespace pressio{ namespace linearsolvers{ namespace impl{
@@ -77,7 +76,7 @@ struct Selector<
 {
   using tag_t = iterative::GMRES;
   using solver_traits = ::pressio::linearsolvers::Traits<tag_t>;
-  using type = EigenIterativeMatrixFree<tag_t, UserDefinedLinearOperatorType>;
+  using type = EigenIterativeMatrixFreeWrapper<tag_t, UserDefinedLinearOperatorType>;
 };
 
 template<typename TagType, typename MatrixType>
@@ -91,7 +90,7 @@ struct Selector<
   >
 {
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenIterative<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::EigenIterativeWrapper<TagType, MatrixType>;
 };
 
 template<typename TagType, typename MatrixType>
@@ -104,11 +103,11 @@ struct Selector<
   >
 {
   using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenDirect<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::EigenDirectWrapper<TagType, MatrixType>;
 };
 #endif
 
-#ifdef PRESSIO_ENABLE_TPL_KOKKOS
+#ifdef PRESSIO_ENABLE_TPL_TRILINOS
 template<typename TagType, typename MatrixType>
 struct Selector<
   TagType, MatrixType,
@@ -119,9 +118,9 @@ struct Selector<
   >
 {
   using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::KokkosDirect<TagType, MatrixType>;
+  using type = ::pressio::linearsolvers::impl::KokkosDirectGETRS<MatrixType>;
 };
 #endif
 
 }}}
-#endif  // PRESSIO_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_
+#endif  // PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_SOLVER_SELECTOR_IMPL_HPP_

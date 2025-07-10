@@ -49,11 +49,13 @@
 #ifndef PRESSIO_ODE_STEPPERS_IMPLICIT_HPP_
 #define PRESSIO_ODE_STEPPERS_IMPLICIT_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./solvers.hpp"
 #include "./ode_concepts.hpp"
 #include "./ode/exceptions.hpp"

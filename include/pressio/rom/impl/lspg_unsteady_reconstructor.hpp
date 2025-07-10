@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_lspg_unsteady_discrete_time_default_system.hpp
+// lspg_unsteady_reconstructor.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_
 
 #include <fstream>
 
@@ -364,4 +364,4 @@ private:
 };
 
 }}}
-#endif  // PRESSIO_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_RECONSTRUCTOR_HPP_

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_lspg_unsteady_cont_time_decorators.hpp
+// lspg_unsteady_scaling_decorator.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_
-#define PRESSIO_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_
+#define PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_
 
 namespace pressio{ namespace rom{ namespace impl{
 
@@ -67,20 +67,23 @@ public:
   using residual_type = typename ToDecorate::residual_type;
   using jacobian_type = typename ToDecorate::jacobian_type;
 
-  template <
-    class FomSystemType,
-    template<class> class LspgFomStatesManager,
-    class ...Args
-    >
+  template <class FomSystemType, class ...Args>
   LspgScalingDecorator(const TrialSubspaceType & trialSubspace,
 		       const FomSystemType & fomSystem,
-		       LspgFomStatesManager<TrialSubspaceType> & fomStatesManager,
+		       std::unique_ptr<FomStatesManager<TrialSubspaceType>> fomStatesManager,
 		       const UserProvidedScalerType & scaler,
 		       Args && ... args)
-    : ToDecorate(trialSubspace, fomSystem, fomStatesManager, std::forward<Args>(args)...),
-      fomStatesManager_(fomStatesManager),
+    : ToDecorate(trialSubspace,
+		 fomSystem,
+		 std::move(fomStatesManager),
+		 std::forward<Args>(args)...),
       scaler_(scaler)
   {}
+
+  LspgScalingDecorator(LspgScalingDecorator const &) = delete;
+  LspgScalingDecorator& operator=(LspgScalingDecorator const&) = delete;
+  LspgScalingDecorator(LspgScalingDecorator &&) = default;
+  LspgScalingDecorator& operator=(LspgScalingDecorator &&) = default;
 
 public:
   template <class StencilStatesContainerType, class StencilRhsContainerType>
@@ -99,14 +102,13 @@ public:
 			   rhsEvaluationTime, step, dt, R, Jo);
 
     // fomStateAt_np1 is only valid IF already reconstructed in the base class
-    const auto & fomStateAt_np1 = fomStatesManager_(::pressio::ode::nPlusOne());
+    const auto & fomStateAt_np1 = (*this->fomStatesManager_)(::pressio::ode::nPlusOne());
     scaler_(fomStateAt_np1, rhsEvaluationTime.get(), R, Jo);
   }
 
 private:
-  std::reference_wrapper<LspgFomStatesManager<TrialSubspaceType>> fomStatesManager_;
   std::reference_wrapper<const UserProvidedScalerType> scaler_;
 };
 
 }}}
-#endif  // PRESSIO_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_LSPG_UNSTEADY_SCALING_DECORATOR_HPP_

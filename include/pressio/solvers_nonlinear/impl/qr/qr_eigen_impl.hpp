@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// qr_eigen_dense_out_of_place_impl.hpp
+// qr_eigen_impl.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_
 
 #include <Eigen/QR>
 
@@ -120,4 +120,4 @@ public:
 };
 
 }}} // end namespace pressio::qr::impl
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_EIGEN_IMPL_HPP_

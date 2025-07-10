@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_HPP_
 
 #include "qr/qr_fwd.hpp"
 #include "qr/qr_base_classes.hpp"
@@ -62,4 +62,4 @@
 #include "qr/qr_tpetra_impl.hpp"
 #endif // PRESSIO_ENABLE_TPL_TRILINOS
 
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_HPP_

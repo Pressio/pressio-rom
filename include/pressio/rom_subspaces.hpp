@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_galerkin.hpp
+// rom_subspaces.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -49,17 +49,17 @@
 #ifndef PRESSIO_ROM_SUBSPACES_TOPLEVEL_INCLUDE_HPP_
 #define PRESSIO_ROM_SUBSPACES_TOPLEVEL_INCLUDE_HPP_
 
+// includes from pressio-ops
 #include "pressio/mpl.hpp"
 #include "pressio/type_traits.hpp"
 #include "pressio/ops.hpp"
 
-#include "pressio/pressio_macros.hpp"
+// local includes
+#include "./pressio_macros.hpp"
 #include "./solvers_linear.hpp"
 #include "./solvers_nonlinear.hpp"
 #include "./ode.hpp"
-
-#include "rom_concepts.hpp"
-#include "rom/linear_subspace.hpp"
-#include "rom/create_subspace.hpp"
+#include "./rom_concepts.hpp"
+#include "./rom/linear_subspace.hpp"
 
 #endif

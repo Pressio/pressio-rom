@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// rom_manager_fom_states.hpp
+// galerkin_unsteady_fom_states_manager.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,20 +46,17 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
-#define PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#ifndef PRESSIOROM_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#define PRESSIOROM_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
 
-#include "lspg_unsteady_fom_states_manager.hpp"
+#include "./fom_states_manager.hpp"
 
 namespace pressio{ namespace rom{ namespace impl{
-
-template <class TrialSubspaceType>
-using GalerkinFomStatesManager = LspgFomStatesManager<TrialSubspaceType>;
 
 template <std::size_t N, class TrialSubspaceType>
 auto create_galerkin_fom_states_manager(const TrialSubspaceType & trialSubspace)
 {
-  using return_type = GalerkinFomStatesManager<TrialSubspaceType>;
+  using return_type = FomStatesManager<TrialSubspaceType>;
   auto fomStateTmp = trialSubspace.createFullState();
   if (N == 2){
     return return_type(trialSubspace,
@@ -79,4 +76,4 @@ auto create_galerkin_fom_states_manager(const TrialSubspaceType & trialSubspace)
 
 }}}//end namespace pressio::rom::impl
 
-#endif  // PRESSIO_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_
+#endif  // PRESSIOROM_ROM_IMPL_GALERKIN_UNSTEADY_FOM_STATES_MANAGER_HPP_

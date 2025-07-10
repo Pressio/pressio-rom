@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// solvers_admissible_linear_solver_for_nonlinear_least_squares.hpp
+// solvers_tagbased_registry.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
 
 namespace pressio{ namespace nonlinearsolvers{ namespace impl{
 
@@ -197,4 +197,4 @@ auto reference_capture_registry_and_extend_with(Extendable & reg, CArgs && ... c
 }
 
 }}}
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_

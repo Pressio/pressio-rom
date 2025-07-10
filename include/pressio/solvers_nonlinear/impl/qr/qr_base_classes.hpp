@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// qr_in_place_base.hpp
+// qr_base_classes.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
-#define PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
+#ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
+#define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
 
 namespace pressio{ namespace qr{
 
@@ -185,4 +185,4 @@ public:
 };
 
 }}//end namespace pressio::qr
-#endif  // PRESSIO_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
+#endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_QR_QR_BASE_CLASSES_HPP_
