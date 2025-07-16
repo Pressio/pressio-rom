@@ -191,6 +191,7 @@ public:
 		     ResultT & out) const
   {
     trialSubspace_.get().mapFromReducedState(reducedState, fomState_);
+    const auto & phi = trialSubspace_.get().basisOfTranslatedSpace();
 
     pressio::ops::set_zero(auxFomVec_);
     trialSubspace_.get().mapFromReducedStateWithoutTranslation(reducedOperand, auxFomVec_);
@@ -200,9 +201,17 @@ public:
     using scalar_t = typename ::pressio::Traits<basis_matrix_type>::scalar_type;
     scalar_t alpha{1};
     scalar_t beta{0};
-    const auto & phi = trialSubspace_.get().basisOfTranslatedSpace();
     ::pressio::ops::product(::pressio::transpose(),
           alpha, phi, auxFomVec2_, beta, out);
+  }
+
+  template<class OperandT>
+  void computePreconditioner(OperandT const & reducedOperand, precOut) const {
+    // \phi^T * P * \phi
+    fomSystem_.get().applyPreconditioner(phi, P_times_Phi); // add to sparc
+    phiT_p_Phi = transpose(phi) * P_times_Phi
+    // compute inverse of phiT_p_Phi
+    precOut = (phiT_p_Phi)^-1
   }
 
 private:

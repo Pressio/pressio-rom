@@ -202,6 +202,8 @@ public:
 
     pressio::ops::set_zero(m_auxiliary);
     m_system->applyJacobian(*m_currentNonLinearState, operand, m_auxiliary);
+    // here we need to apply preconditioner
+
     pressio::ops::update(out, 1, m_auxiliary, 1);
   }
 };
@@ -288,8 +290,12 @@ void root_solving_loop_impl(MatrixFreeNewtonTag /*problemTag*/,
 
     /* stage 2, matrix-free newton step */
     wrapper.setCurrentNonLinearState(currentState);
+    // compute preconditioner Prec and pass to wrapper
+    // apply prec to r
+
     auto & c = reg.template get<CorrectionTag>();
-    linearSolver.solve(wrapper, r, c);
+    linearSolver.solve(wrapper, r, c); // Ac = r
+
 
     // scale by -1 for sign convention
     using c_t = mpl::remove_cvref_t<decltype(c)>;
