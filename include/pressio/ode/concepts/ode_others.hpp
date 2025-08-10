@@ -75,42 +75,42 @@ struct ExplicitStepper<
     >
   > : std::true_type{};
 
-template <class T, class SolverType, class ...SolverArgs>
-struct ImplicitStepper : std::false_type{};
+// template <class T, class SolverType, class ...SolverArgs>
+// struct ImplicitStepper : std::false_type{};
 
-template <class T, class SolverType, class ...SolverArgs>
-struct ImplicitStepper<
-  std::enable_if_t<
-       ::pressio::has_independent_variable_typedef<T>::value
-    && ::pressio::has_state_typedef<T>::value
-    && std::is_void<
-      decltype
-      (
-       std::declval<T>()
-       (
-	std::declval<typename T::state_type & >(),
-	std::declval<::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
-	std::declval<::pressio::ode::StepCount >(),
-	std::declval<::pressio::ode::StepSize<typename T::independent_variable_type> >(),
-	std::declval<SolverType>(),
-	std::declval<SolverArgs>()...
-	)
-       )
-      >::value
-    && std::is_void<
-      decltype
-      (
-       std::declval<SolverType>().solve
-       (
-	std::declval<T const &>(),
-	std::declval<typename T::state_type & >(),
-	std::declval<SolverArgs>()...
-	)
-       )
-      >::value
-    >,
-  T, SolverType, SolverArgs...
-  > : std::true_type{};
+// template <class T, class SolverType, class ...SolverArgs>
+// struct ImplicitStepper<
+//   std::enable_if_t<
+//        ::pressio::has_independent_variable_typedef<T>::value
+//     && ::pressio::has_state_typedef<T>::value
+//     && std::is_void<
+//       decltype
+//       (
+//        std::declval<T>()
+//        (
+// 	std::declval<typename T::state_type & >(),
+// 	std::declval<::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
+// 	std::declval<::pressio::ode::StepCount >(),
+// 	std::declval<::pressio::ode::StepSize<typename T::independent_variable_type> >(),
+// 	std::declval<SolverType>(),
+// 	std::declval<SolverArgs>()...
+// 	)
+//        )
+//       >::value
+//     && std::is_void<
+//       decltype
+//       (
+//        std::declval<SolverType>().solve
+//        (
+// 	std::declval<T const &>(),
+// 	std::declval<typename T::state_type & >(),
+// 	std::declval<SolverArgs>()...
+// 	)
+//        )
+//       >::value
+//     >,
+//   T, SolverType, SolverArgs...
+//   > : std::true_type{};
 
 
 template <class T, class IndVarType, class StateType, class enable = void>

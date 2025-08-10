@@ -55,6 +55,7 @@
 
 namespace pressio{ namespace ode{
 
+#if 0
 template<
   class StepperType,
   class StateType,
@@ -108,7 +109,7 @@ advance_to_target_point_with_step_recovery(StepperType & stepper,
 	   std::forward<StepSizePolicyType>(stepSizePolicy),
 	   std::forward<ObserverType>(observer));
 }
-
+#endif
 
 }}//end namespace pressio::ode
 #endif  // PRESSIOROM_ODE_ODE_ADVANCE_TO_TARGET_POINT_WITH_STEP_RECOVERY_HPP_

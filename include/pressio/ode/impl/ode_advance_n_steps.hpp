@@ -88,14 +88,6 @@ void advance_n_steps_with_dt_policy(StepperType & stepper,
 		dt);
       print_step_and_current_time(step, time, dt.get());
 
-      // if constexpr ( ExplicitStepper<StepperType>::value ){
-      // 	stepper(odeState,
-      // 		::pressio::ode::StepStartAt<IndVarType>(time),
-      // 		stepWrap, dt,
-      // 		std::forward<Args>(args)...);
-      // }
-      // else{
-      // }
       // stepper(odeState,
       // 	      ::pressio::ode::StepStartAt<IndVarType>(time),
       // 	      stepWrap, dt,

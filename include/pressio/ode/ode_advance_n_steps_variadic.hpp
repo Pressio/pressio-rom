@@ -55,6 +55,7 @@
 
 namespace pressio{ namespace ode{
 
+#if 0
 // const dt
 template<
   class StepperType,
@@ -189,6 +190,7 @@ advance_n_steps(StepperType & stepper,
 				       std::forward<SolverType>(solver),
 				       std::forward<SolverArgs>(solverArgs)...);
 }
+#endif
 
 }} //end namespace pressio::ode
 #endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_VARIADIC_HPP_
