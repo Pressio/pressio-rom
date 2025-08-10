@@ -77,10 +77,15 @@ advance_n_steps(StepperType & stepper,
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
   observer_t observer;
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state, observer,
-				      std::forward<SolverType>(solver),
-				      std::forward<SolverArgs>(solverArgs)...);
+  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
+				       [sz = stepSize](StepCount /*currStep*/,
+						       StepStartAt<IndVarType> /*currTime*/,
+						       StepSize<IndVarType> & dt){
+					 dt = sz;
+				       },
+				       observer,
+				       std::forward<SolverType>(solver),
+				       std::forward<SolverArgs>(solverArgs)...);
 }
 
 //
@@ -140,11 +145,15 @@ advance_n_steps(StepperType & stepper,
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state,
-				      std::forward<ObserverType>(observer),
-				      std::forward<SolverType>(solver),
-				      std::forward<SolverArgs>(solverArgs)...);
+  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
+				       [sz = stepSize](StepCount /*currStep*/,
+						       StepStartAt<IndVarType> /*currTime*/,
+						       StepSize<IndVarType> & dt){
+					 dt = sz;
+				       },
+				       std::forward<ObserverType>(observer),
+				       std::forward<SolverType>(solver),
+				       std::forward<SolverArgs>(solverArgs)...);
 }
 
 //

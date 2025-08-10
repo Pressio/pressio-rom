@@ -58,7 +58,7 @@ template <
   class IndVarType,
   class dt_policy,
   class StateType,
-  class ObserverType,
+  class StateObserverType,
   class ... Args
   >
 void advance_n_steps_with_dt_policy(StepperType & stepper,
@@ -66,13 +66,13 @@ void advance_n_steps_with_dt_policy(StepperType & stepper,
 				    const IndVarType & start_val,
 				    StateType & odeState,
 				    dt_policy && dtManager,
-				    ObserverType && observer,
+				    StateObserverType && stateObserver,
 				    Args && ... args)
 {
 
   using step_t = typename ::pressio::ode::StepCount::value_type;
   IndVarType time = start_val;
-  observer(StepCount{0}, start_val, odeState);
+  stateObserver(StepCount{0}, start_val, odeState);
 
   // default construct
   ::pressio::ode::StepSize<IndVarType> dt;
@@ -88,46 +88,56 @@ void advance_n_steps_with_dt_policy(StepperType & stepper,
 		dt);
       print_step_and_current_time(step, time, dt.get());
 
-      stepper(odeState,
-	      ::pressio::ode::StepStartAt<IndVarType>(time),
-	      stepWrap, dt,
-	      std::forward<Args>(args)...);
+      // if constexpr ( ExplicitStepper<StepperType>::value ){
+      // 	stepper(odeState,
+      // 		::pressio::ode::StepStartAt<IndVarType>(time),
+      // 		stepWrap, dt,
+      // 		std::forward<Args>(args)...);
+      // }
+      // else{
+      // }
+      // stepper(odeState,
+      // 	      ::pressio::ode::StepStartAt<IndVarType>(time),
+      // 	      stepWrap, dt,
+      // 	      std::forward<Args>(args)...);
 
       time += dt.get();
-      observer(::pressio::ode::StepCount(step), time, odeState);
+      stateObserver(::pressio::ode::StepCount(step), time, odeState);
     }
 }
 
 
-template <
-  class StepperType,
-  class IndVarType,
-  class StateType,
-  class ObserverType,
-  class ... Args
-  >
-void advance_n_steps_with_fixed_dt(StepperType & stepper,
-				   const ::pressio::ode::StepCount & numSteps,
-				   const IndVarType & start_val,
-				   const IndVarType & step_size,
-				   StateType & odeState,
-				   ObserverType && observer,
-				   Args && ... args)
-{
+// template <
+//   class StepperType,
+//   class IndVarType,
+//   class StateType,
+//   class StateObserverType,
+//   class RhsObserverType,
+//   class ... Args
+//   >
+// void advance_n_steps_with_fixed_dt(StepperType & stepper,
+// 				   const ::pressio::ode::StepCount & numSteps,
+// 				   const IndVarType & start_val,
+// 				   const IndVarType & step_size,
+// 				   StateType & odeState,
+// 				   StateObserverType && stateObserver,
+// 				   RhsObserverType && rhsObserver,
+// 				   Args && ... args)
+// {
 
 
-  const auto dtSetter =
-    [sz = step_size](pressio::ode::StepCount /*currStep*/,
-		     pressio::ode::StepStartAt<IndVarType> /*currTime*/,
-		     pressio::ode::StepSize<IndVarType> & dt){
-      dt = sz;
-    };
+//   const auto dtSetter =
+//     [sz = step_size](pressio::ode::StepCount /*currStep*/,
+// 		     pressio::ode::StepStartAt<IndVarType> /*currTime*/,
+// 		     pressio::ode::StepSize<IndVarType> & dt){
+//       dt = sz;
+//     };
 
-  advance_n_steps_with_dt_policy(stepper, numSteps,
-				 start_val, odeState, dtSetter,
-				 std::forward<ObserverType>(observer),
-				 std::forward<Args>(args)...);
-}
+//   advance_n_steps_with_dt_policy(stepper, numSteps,
+// 				 start_val, odeState, dtSetter,
+// 				 std::forward<ObserverType>(observer),
+// 				 std::forward<Args>(args)...);
+// }
 
 }}}//end namespace pressio::ode::impl
 #endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_N_STEPS_HPP_

@@ -62,5 +62,17 @@ struct NoOpStateObserver
   }
 };
 
+template <typename IndVarType, typename RhsType>
+struct NoOpRhsObserver
+{
+  void operator()(const ::pressio::ode::StepCount /*step*/,
+		  const ::pressio::ode::IntermediateStepCount /*intermediate step*/,
+		  IndVarType /*current_val*/,
+		  const RhsType & /*current_rhs*/) const
+  {
+    // no op
+  }
+};
+
 }}}//end namespace pressio::ode::impl
 #endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_NOOP_OBSERVER_HPP_

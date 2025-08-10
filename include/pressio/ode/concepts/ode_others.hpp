@@ -58,7 +58,7 @@ template <class T>
 struct ExplicitStepper<
   T,
   std::enable_if_t<
-    ::pressio::has_independent_variable_typedef<T>::value
+       ::pressio::has_independent_variable_typedef<T>::value
     && ::pressio::has_state_typedef<T>::value
     && std::is_void<
       decltype
@@ -75,13 +75,13 @@ struct ExplicitStepper<
     >
   > : std::true_type{};
 
-template <class T, class AuxT, class ...Args>
+template <class T, class SolverType, class ...SolverArgs>
 struct ImplicitStepper : std::false_type{};
 
-template <class T, class AuxT, class ...Args>
+template <class T, class SolverType, class ...SolverArgs>
 struct ImplicitStepper<
   std::enable_if_t<
-    ::pressio::has_independent_variable_typedef<T>::value
+       ::pressio::has_independent_variable_typedef<T>::value
     && ::pressio::has_state_typedef<T>::value
     && std::is_void<
       decltype
@@ -92,12 +92,24 @@ struct ImplicitStepper<
 	std::declval<::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
 	std::declval<::pressio::ode::StepCount >(),
 	std::declval<::pressio::ode::StepSize<typename T::independent_variable_type> >(),
-	std::declval< AuxT >(), std::declval<Args>()...
+	std::declval<SolverType>(),
+	std::declval<SolverArgs>()...
+	)
+       )
+      >::value
+    && std::is_void<
+      decltype
+      (
+       std::declval<SolverType>().solve
+       (
+	std::declval<T const &>(),
+	std::declval<typename T::state_type & >(),
+	std::declval<SolverArgs>()...
 	)
        )
       >::value
     >,
-  T, AuxT, Args...
+  T, SolverType, SolverArgs...
   > : std::true_type{};
 
 
@@ -115,6 +127,27 @@ struct StateObserver<
 		std::declval< ::pressio::ode::StepCount >(),
 		std::declval< IndVarType >(),
 		std::declval<StateType const &>()
+		)
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class IndVarType, class RhsType, class enable = void>
+struct RhsObserver : std::false_type{};
+
+template <class T, class IndVarType, class RhsType>
+struct RhsObserver<
+  T, IndVarType, RhsType,
+  std::enable_if_t<
+    std::is_void<
+      decltype(
+	       std::declval<T>().operator()
+	       (
+		std::declval<::pressio::ode::StepCount>(),
+		std::declval<::pressio::ode::IntermediateStepCount>(),
+		std::declval<IndVarType >(),
+		std::declval<RhsType const &>()
 		)
 	       )
       >::value

@@ -55,106 +55,187 @@
 
 namespace pressio{ namespace ode{
 
-//
-// const dt
-//
-template<class StepperType, class StateType, class IndVarType>
+template<
+  class StepperType,
+  class StateType,
+  class IndVarType,
+  class FirstArg,        // either const dt (IndVarType) or a StepSizePolicy
+  class... Rest          // 0, 1, or 2: [StateObserver], [StateObserver, RhsObserver]
+>
 std::enable_if_t< ExplicitStepper<StepperType>::value >
 advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		const IndVarType & stepSize,
-		StepCount numSteps)
+                StateType & state,
+                const IndVarType & startVal,
+                FirstArg && first,
+                StepCount numSteps,
+                Rest&&... rest)
 {
+  static_assert(sizeof...(Rest) <= 2,
+    "advance_n_steps: only (no observers), (StateObserver), or (StateObserver, RhsObserver) are allowed.");
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state,
-				      observer_t());
+
+  using state_noop_t = impl::NoOpStateObserver<IndVarType, StateType>;
+  using rhs_noop_t   = impl::NoOpRhsObserver<IndVarType, StateType>;
+
+  // Parse optional observers
+  auto make_observers = [] (auto&&... tail)
+  {
+    // if the pack is empty, it means we don't want any observer
+    if constexpr (sizeof...(tail) == 0) {
+      return std::pair<state_noop_t, rhs_noop_t>{};
+    }
+    // if there is only one, then it must be a state observer
+    else if constexpr (sizeof...(tail) == 1) {
+      auto && s = (std::forward<decltype(tail)>(tail), ...);
+      static_assert(StateObserver<mpl::remove_cvref_t<decltype(s)>, IndVarType, StateType>::value,
+        "advance_n_steps: single trailing argument must be a valid StateObserver.");
+
+      return std::pair<decltype(s), rhs_noop_t>{ std::forward<decltype(s)>(s), rhs_noop_t{} };
+    }
+    else { // exactly 2
+      auto tup = std::forward_as_tuple(std::forward<decltype(tail)>(tail)...);
+      auto && s = std::get<0>(tup);
+      auto && r = std::get<1>(tup);
+      static_assert(StateObserver<mpl::remove_cvref_t<decltype(s)>, IndVarType, StateType>::value,
+        "advance_n_steps: first trailing argument must be a valid StateObserver.");
+
+      static_assert(RhsObserver<mpl::remove_cvref_t<decltype(r)>, IndVarType, StateType>::value,
+        "advance_n_steps: second trailing argument must be a valid RhsObserver.");
+      return std::pair<decltype(s), decltype(r)>{ std::forward<decltype(s)>(s),
+                                                  std::forward<decltype(r)>(r) };
+    }
+  };
+  auto [stateObs, rhsObs] = make_observers(std::forward<Rest>(rest)...);
+
+  // Dispatch on policy vs constant dt
+  if constexpr (StepSizePolicy<FirstArg&&, IndVarType>::value) {
+    impl::advance_n_steps_with_dt_policy(stepper,
+                                         numSteps,
+                                         startVal,
+                                         state,
+                                         std::forward<FirstArg>(first),
+                                         std::forward<decltype(stateObs)>(stateObs),
+                                         std::forward<decltype(rhsObs)>(rhsObs));
+  } else {
+    static_assert(std::is_convertible_v<std::decay_t<FirstArg>, IndVarType>,
+      "advance_n_steps: when not passing a StepSizePolicy, `first` must be convertible to IndVarType (step size).");
+    const IndVarType & stepSize = first;
+    impl::advance_n_steps_with_dt_policy(stepper,
+					 numSteps,
+					 startVal,
+					 state,
+					 [sz = stepSize](StepCount /*currStep*/,
+							 StepStartAt<IndVarType> /*currTime*/,
+							 StepSize<IndVarType> & dt){
+					   dt = sz;
+					 },
+					 std::forward<decltype(stateObs)>(stateObs),
+					 std::forward<decltype(rhsObs)>(rhsObs));
+  }
 }
 
-//
-// dt policy provided
-//
-template<
-  class StepperType,
-  class StateType,
-  class StepSizePolicyType,
-  class IndVarType
-  >
-std::enable_if_t<
-  ExplicitStepper<StepperType>::value
-  && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		StepSizePolicyType && stepSizePolicy,
-		StepCount numSteps)
-{
 
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
-				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       observer_t());
-}
+// //
+// // const dt
+// //
+// template<class StepperType, class StateType, class IndVarType>
+// std::enable_if_t< ExplicitStepper<StepperType>::value >
+// advance_n_steps(StepperType & stepper,
+// 		StateType & state,
+// 		const IndVarType & startVal,
+// 		const IndVarType & stepSize,
+// 		StepCount numSteps)
+// {
 
-//
-// const dt and observer
-//
-template<
-  class StepperType,
-  class StateType,
-  class ObserverType,
-  class IndVarType
-  >
-std::enable_if_t<
-  ExplicitStepper<StepperType>::value
-  && StateObserver<ObserverType &&, IndVarType, StateType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		const IndVarType & stepSize,
-		StepCount numSteps,
-		ObserverType && observer)
-{
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
+//   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
+// 				      stepSize, state,
+// 				      observer_t());
+// }
 
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state,
-				      std::forward<ObserverType>(observer));
-}
+// //
+// // dt policy provided
+// //
+// template<
+//   class StepperType,
+//   class StateType,
+//   class StepSizePolicyType,
+//   class IndVarType
+//   >
+// std::enable_if_t<
+//   ExplicitStepper<StepperType>::value
+//   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
+// >
+// advance_n_steps(StepperType & stepper,
+// 		StateType & state,
+// 		const IndVarType & startVal,
+// 		StepSizePolicyType && stepSizePolicy,
+// 		StepCount numSteps)
+// {
 
-//
-// dt policy provided and observer
-//
-template<
-  class StepperType,
-  class StateType,
-  class ObserverType,
-  class StepSizePolicyType,
-  class IndVarType>
-std::enable_if_t<
-     ExplicitStepper<StepperType>::value
-  && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
-  && StateObserver<ObserverType &&, IndVarType, StateType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		StepSizePolicyType && stepSizePolicy,
-		StepCount numSteps,
-		ObserverType && observer)
-{
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
+//   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
+// 				       std::forward<StepSizePolicyType>(stepSizePolicy),
+// 				       observer_t());
+// }
 
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
-				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       std::forward<ObserverType>(observer));
-}
+// //
+// // const dt and observer
+// //
+// template<
+//   class StepperType,
+//   class StateType,
+//   class ObserverType,
+//   class IndVarType
+//   >
+// std::enable_if_t<
+//   ExplicitStepper<StepperType>::value
+//   && StateObserver<ObserverType &&, IndVarType, StateType>::value
+// >
+// advance_n_steps(StepperType & stepper,
+// 		StateType & state,
+// 		const IndVarType & startVal,
+// 		const IndVarType & stepSize,
+// 		StepCount numSteps,
+// 		ObserverType && observer)
+// {
+
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
+// 				      stepSize, state,
+// 				      std::forward<ObserverType>(observer));
+// }
+
+// //
+// // dt policy provided and observer
+// //
+// template<
+//   class StepperType,
+//   class StateType,
+//   class ObserverType,
+//   class StepSizePolicyType,
+//   class IndVarType>
+// std::enable_if_t<
+//      ExplicitStepper<StepperType>::value
+//   && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
+//   && StateObserver<ObserverType &&, IndVarType, StateType>::value
+// >
+// advance_n_steps(StepperType & stepper,
+// 		StateType & state,
+// 		const IndVarType & startVal,
+// 		StepSizePolicyType && stepSizePolicy,
+// 		StepCount numSteps,
+// 		ObserverType && observer)
+// {
+
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
+// 				       std::forward<StepSizePolicyType>(stepSizePolicy),
+// 				       std::forward<ObserverType>(observer));
+// }
 
 }} //end namespace pressio::ode
 #endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
