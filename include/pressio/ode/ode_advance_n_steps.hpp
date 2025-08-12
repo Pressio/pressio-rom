@@ -173,15 +173,6 @@ constexpr auto split_solver_and_observers(Solver&, Rest&&... rest)
     }
   }();
 
-  constexpr bool last2_is_rhs = []() {
-    if constexpr (N >= 2) {
-      using L = typename std::tuple_element<N-2, Types>::type;
-      return is_rhs_obs_v<Time, State, L>;
-    } else {
-      return false;
-    }
-  }();
-
   static_assert(!(last_is_rhs && !(N >= 2 && last2_is_state)),
     "RhsObserver cannot appear without a preceding StateObserver.");
 
