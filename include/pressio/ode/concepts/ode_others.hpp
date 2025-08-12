@@ -72,7 +72,6 @@ struct ExplicitStepper<
 	)
        )
       >::value
-    //&& impl::stepper_accepting_lvalue_state<T>::value
     >
   > : std::true_type{};
 
@@ -97,7 +96,6 @@ struct ImplicitStepper<
 	)
        )
       >::value
-    //&& impl::variadic_stepper_accepting_lvalue_state<void, T, AuxT, Args...>::value
     >,
   T, AuxT, Args...
   > : std::true_type{};
@@ -123,6 +121,27 @@ struct StateObserver<
     >
   > : std::true_type{};
 
+template <class T, class IndVarType, class RhsType, class enable = void>
+struct RhsObserver : std::false_type{};
+
+template <class T, class IndVarType, class RhsType>
+struct RhsObserver<
+  T, IndVarType, RhsType,
+  std::enable_if_t<
+    std::is_void<
+      decltype(
+	       std::declval<T>().operator()
+	       (
+		std::declval<::pressio::ode::StepCount>(),
+		std::declval<::pressio::ode::IntermediateStepCount>(),
+		std::declval<IndVarType >(),
+		std::declval<RhsType const &>()
+		)
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
 template <class T, class IndVarType, class Enable = void>
 struct StepSizePolicy : std::false_type{};
 
@@ -141,7 +160,6 @@ struct StepSizePolicy<
 	)
        )
       >::value
-    //&& impl::step_size_policy_taking_dt_by_ref<T, IndVarType>::value
     >
   > : std::true_type{};
 
@@ -166,7 +184,6 @@ struct StepSizePolicyWithReductionScheme<
 	)
        )
       >::value
-    //&& impl::step_size_policy_with_reduc_taking_dt_by_ref<T, IndVarType>::value
     >
   > : std::true_type{};
 

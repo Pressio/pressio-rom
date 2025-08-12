@@ -180,8 +180,8 @@ struct RhsObserver
   StateObserver ob1;						\
   const double dt = 2.0;					\
   RhsObserver<METHOD_SWITCH> ob2(dt, rhs);			\
-  const auto nsteps = ::pressio::ode::StepCount(2);		\
-  ode::advance_n_steps(stepper, y, 0.0, dt, nsteps, ob1, ob2);  \
+  auto bp = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(2), dt); \
+  ode::advance(stepper, y, bp, ob1, ob2);  \
 
 TEST(ode_explicit_steppers, forward_euler){
   COMMON_TEST(forward_euler, 0);

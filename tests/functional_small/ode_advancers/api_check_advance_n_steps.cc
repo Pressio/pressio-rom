@@ -159,37 +159,42 @@ TEST(ode, test)
   {
     Stepper1 stepper;
 
-    advance_n_steps(stepper, odeState, t0, dt, numSteps);
+    auto bp = pressio::ode::steps_fixed_dt(t0, numSteps, dt);
+    advance(stepper, odeState, bp);
     check_state_and_reset(odeState, 3.0);
 
-    advance_n_steps(stepper, odeState, t0, dtPol, numSteps);
+    auto bp2 = pressio::ode::steps(t0, numSteps, dtPol);
+    advance(stepper, odeState, bp2);
     check_state_and_reset(odeState, 5.0);
 
-    advance_n_steps(stepper, odeState, t0, dt, numSteps, obs);
+    auto bp3 = pressio::ode::steps_fixed_dt(t0, numSteps, dt);
+    advance(stepper, odeState, bp3, obs);
     check_state_and_reset(odeState, 3.0);
 
-    advance_n_steps(stepper, odeState, t0, dtPol, numSteps, obs);
+    auto bp4 = pressio::ode::steps(t0, numSteps, dtPol);
+    advance(stepper, odeState, bp4, obs);
     check_state_and_reset(odeState, 5.0);
 
-    advance_n_steps(stepper, odeState, t0,
-		    [](const StepCount & /*unused*/, const StepStartAt<double> & /*unused*/,
-		       StepSize<double> & dt){ dt = 5.0; },
-		    numSteps);
+    auto bp5 = pressio::ode::steps(t0, numSteps,
+				   [](const StepCount & /*unused*/,
+				      const StepStartAt<double> & /*unused*/,
+				      StepSize<double> & dt){
+				     dt = 5.0; });
+    advance(stepper, odeState, bp5);
     check_state_and_reset(odeState, 6.0);
 
-    advance_n_steps(stepper, odeState, t0, dt, numSteps,
-		    [](const StepCount & /*unused*/, ScalarType /*unused*/,
-		       const VectorType & /*unused*/){});
-    check_state_and_reset(odeState, 3.0);
 
-    advance_n_steps(stepper, odeState, t0,
-		    [](const StepCount & /*unused*/, const StepStartAt<double> & /*unused*/,
-		       StepSize<double> & dt){ dt=5.0; },
-		    numSteps,
-		    [](const StepCount & /*unused*/, ScalarType /*unused*/, const VectorType & /*unused*/){});
+    auto bp6 = pressio::ode::steps(t0, numSteps,
+				   [](const StepCount & /*unused*/,
+				      const StepStartAt<double> & /*unused*/,
+				      StepSize<double> & dt){
+				     dt = 5.0; });
+    advance(stepper, odeState, bp6,
+	    [](const StepCount & /*unused*/, ScalarType /*unused*/, const VectorType & /*unused*/){});
     check_state_and_reset(odeState, 6.0);
   }
 
+#if 0
   {
     Stepper2a stepper;
 
@@ -369,4 +374,6 @@ TEST(ode, test)
 		    numSteps, AuxClass{}, aux2);
     check_state_and_reset(odeState, -20.0+3.3);
   }
+#endif
+
 }

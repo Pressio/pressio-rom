@@ -53,7 +53,430 @@
 #include "./impl/ode_advance_n_steps.hpp"
 #include "./impl/ode_advance_mandates.hpp"
 
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <functional>
+
 namespace pressio{ namespace ode{
+
+//========================= small helpers =========================
+
+struct state_noop_t { template<class... A> void operator()(A&&...) const noexcept {} };
+struct rhs_noop_t   { template<class... A> void operator()(A&&...) const noexcept {} };
+
+template<class T>
+using obs_holder_t =
+  std::conditional_t<std::is_lvalue_reference_v<T>,
+    std::reference_wrapper<std::remove_reference_t<T>>,
+    std::remove_reference_t<T>>;
+
+template<class T>
+constexpr auto hold(T&& v) {
+  if constexpr (std::is_lvalue_reference_v<T>) return std::ref(v);
+  else                                         return std::move(v);
+}
+
+//=================== observer traits + parsing ===================
+template<class Time, class State, class F>
+inline constexpr bool is_state_obs_v =
+  StateObserver<mpl::remove_cvref_t<F>, Time, State>::value;
+
+template<class Time, class Rhs, class F>
+inline constexpr bool is_rhs_obs_v =
+  RhsObserver<mpl::remove_cvref_t<F>, Time, Rhs>::value;
+
+template<class SO, class RO>
+struct parsed_obs_t { SO state; RO rhs; };
+
+template<class Time, class State>
+constexpr auto parse_observers() {
+  return parsed_obs_t<state_noop_t, rhs_noop_t>{ state_noop_t{}, rhs_noop_t{} };
+}
+
+template<class Time, class State, class A1>
+constexpr auto parse_observers(A1&& a1) {
+  static_assert(is_state_obs_v<Time, State, A1>,
+    "Single observer must be a StateObserver, placed last.");
+  using SOH = obs_holder_t<A1&&>;
+  return parsed_obs_t<SOH, rhs_noop_t>{ hold(std::forward<A1>(a1)), rhs_noop_t{} };
+}
+
+template<class Time, class State, class A1, class A2>
+constexpr auto parse_observers(A1&& a1, A2&& a2) {
+  static_assert(is_state_obs_v<Time, State, A1> && is_rhs_obs_v<Time, State, A2>,
+    "Two observers must be (StateObserver, RhsObserver), placed last.");
+  using SOH = obs_holder_t<A1&&>;
+  using ROH = obs_holder_t<A2&&>;
+  return parsed_obs_t<SOH, ROH>{ hold(std::forward<A1>(a1)), hold(std::forward<A2>(a2)) };
+}
+
+
+// ==================
+//
+// split solver args vs observers
+//
+//===============
+namespace detail {
+
+// types-only check: any observer among first K elements
+template<class Time, class State, class Types, std::size_t... I>
+constexpr bool any_observer_in_prefix_types(std::index_sequence<I...>) {
+  return ((is_state_obs_v<Time, State, typename std::tuple_element<I, Types>::type> ||
+           is_rhs_obs_v  <Time, State, typename std::tuple_element<I, Types>::type>) || ...);
+}
+
+template<std::size_t K, class Tup, std::size_t... I>
+constexpr auto tuple_take_impl(Tup&& tup, std::index_sequence<I...>) {
+  return std::forward_as_tuple(std::get<I>(std::forward<Tup>(tup))...);
+}
+template<std::size_t K, class Tup>
+constexpr auto tuple_take(Tup&& tup) {
+  if constexpr (K == 0) return std::tuple<>{};
+  else                  return tuple_take_impl<K>(std::forward<Tup>(tup),
+                                                  std::make_index_sequence<K>{});
+}
+
+} // namespace detail
+
+
+template<class Time, class State, class Solver, class... Rest>
+constexpr auto split_solver_and_observers(Solver&, Rest&&... rest)
+{
+  constexpr std::size_t N = sizeof...(Rest);
+  using Types = std::tuple<std::remove_reference_t<Rest>...>;
+
+  constexpr bool last_is_state = []() {
+    if constexpr (N >= 1) {
+      using L = typename std::tuple_element<N-1, Types>::type;
+      return is_state_obs_v<Time, State, L>;
+    } else {
+      return false;
+    }
+  }();
+
+  constexpr bool last_is_rhs = []() {
+    if constexpr (N >= 1) {
+      using L = typename std::tuple_element<N-1, Types>::type;
+      return is_rhs_obs_v<Time, State, L>;
+    } else {
+      return false;
+    }
+  }();
+
+  constexpr bool last2_is_state = []() {
+    if constexpr (N >= 2) {
+      using L = typename std::tuple_element<N-2, Types>::type;
+      return is_state_obs_v<Time, State, L>;
+    } else {
+      return false;
+    }
+  }();
+
+  constexpr bool last2_is_rhs = []() {
+    if constexpr (N >= 2) {
+      using L = typename std::tuple_element<N-2, Types>::type;
+      return is_rhs_obs_v<Time, State, L>;
+    } else {
+      return false;
+    }
+  }();
+
+  static_assert(!(last_is_rhs && !(N >= 2 && last2_is_state)),
+    "RhsObserver cannot appear without a preceding StateObserver.");
+
+  constexpr std::size_t obs_count =
+      (N >= 2 && last2_is_state && last_is_rhs) ? 2u
+    : (N >= 1 && last_is_state && !last_is_rhs) ? 1u
+    : 0u;
+
+  // ensure observers are trailing only
+  if constexpr (obs_count <= N) {
+    constexpr std::size_t K = N - obs_count;
+    static_assert(!pressio::ode::detail::any_observer_in_prefix_types<Time, State, Types>(
+                    std::make_index_sequence<K>{}),
+      "Observers must be the last arguments: none, (StateObserver), or (StateObserver,RhsObserver).");
+  }
+
+  // tuple of references to original args (no owning locals captured)
+  auto refs = std::forward_as_tuple(std::forward<Rest>(rest)...);
+
+  if constexpr (obs_count == 2) {
+    auto solver_args = pressio::ode::detail::tuple_take<N-2>(refs);
+    auto observers   = parse_observers<Time, State>(
+                         std::get<N-2>(refs), std::get<N-1>(refs));
+    return std::make_pair(std::move(solver_args), std::move(observers));
+  } else if constexpr (obs_count == 1) {
+    auto solver_args = pressio::ode::detail::tuple_take<N-1>(refs);
+    auto observers   = parse_observers<Time, State>(std::get<N-1>(refs));
+    return std::make_pair(std::move(solver_args), std::move(observers));
+  } else {
+    // all Rest... are solver args
+    auto solver_args = std::move(refs);
+    auto observers   = parse_observers<Time, State>();
+    return std::make_pair(std::move(solver_args), std::move(observers));
+  }
+}
+
+// =======================
+//
+// detection helpers
+//
+// =======================
+// 4-arg explicit step
+template<class S, class State, class Time, class Dt>
+using explicit_step_expr_t =
+  decltype(std::declval<S&>()(std::declval<State&>(),
+			      std::declval<StepStartAt<Time>>(),
+                              std::declval<StepCount>(),
+			      std::declval<StepSize<Dt>>()));
+
+template<class, class, class, class, class = void>
+struct has_explicit_step : std::false_type {};
+
+template<class S, class State, class Time, class Dt>
+struct has_explicit_step<S, State, Time, Dt,
+  std::void_t<explicit_step_expr_t<S, State, Time, Dt>>>
+  : std::is_same<explicit_step_expr_t<S, State, Time, Dt>, void> {};
+
+// 5-arg explicit step with RHS observer
+template<class S, class State, class Time, class Dt, class RO>
+using explicit_step_with_rhs_expr_t =
+  decltype(std::declval<S&>()(std::declval<State&>(),
+			      std::declval<StepStartAt<Time>>(),
+                              std::declval<StepCount>(),
+			      std::declval<StepSize<Dt>>(),
+                              std::declval<RO&>()));
+
+template<class, class, class, class, class, class = void>
+struct has_explicit_step_with_rhs : std::false_type {};
+
+template<class S, class State, class Time, class Dt, class RO>
+struct has_explicit_step_with_rhs<S, State, Time, Dt, RO,
+  std::void_t<explicit_step_with_rhs_expr_t<S, State, Time, Dt, RO>>>
+  : std::is_same<explicit_step_with_rhs_expr_t<S, State, Time, Dt, RO>, void> {};
+
+// last_rhs() presence
+template<class S, class = void>
+struct has_last_rhs : std::false_type {};
+
+template<class S>
+struct has_last_rhs<S, std::void_t<decltype(std::declval<S&>().last_rhs())>>
+  : std::true_type {};
+
+// check if impl::do_step_with_solver is invocable with given signature
+namespace detail {
+  struct do_with_solver_probe {
+    // with rhs_obs
+    template<class S, class X, class T, class Dt, class Solv, class... A, class RO>
+    static auto test(int) -> decltype(
+				      std::declval<S&>()(std::declval<X&>(),
+							 std::declval<StepStartAt<T>>(),
+							 std::declval<StepCount>(),
+							 std::declval<StepSize<Dt>>(),
+							 std::declval<Solv&>(),
+							 std::declval<A&>()...,
+							 std::declval<RO&>()),
+      std::true_type{}
+    );
+
+    // without rhs_obs
+    template<class S, class X, class T, class Dt, class Solv, class... A>
+    static auto test(long) -> decltype(
+				       std::declval<S&>()(std::declval<X&>(),
+							  std::declval<StepStartAt<T>>(),
+							  std::declval<StepCount>(),
+							  std::declval<StepSize<Dt>>(),
+							  std::declval<Solv&>(),
+							  std::declval<A&>()...),
+      std::false_type{}
+    );
+  };
+} // namespace detail
+
+
+//======================== step-size adapters =====================
+namespace policy {
+template<class Time>
+struct fixed_dt {
+  Time dt_;
+  void operator()(StepCount, StepStartAt<Time>, StepSize<Time> & dt) const { dt = dt_ ; }
+};
+} // namespace policy
+
+//=========================== bounds policies =====================
+template<class Time, class StepSizer = policy::fixed_dt<Time>>
+struct StepsFixed {
+  Time t0{};
+  StepCount n{};
+  StepSizer step{};
+
+  Time start_time() const { return t0; }
+  bool keep_going(Time, StepCount k) const { return k <= n; }
+
+  void next_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
+    static_assert(std::is_void_v<decltype(step(k,t,dt))>,
+                  "StepSizer must be callable with (k,t,dt) overwriting dt.");
+    step(k, t, dt);
+  }
+};
+
+template<class Time, class StepSizer>
+struct ToTime {
+  Time t0{}, tf{};
+  StepSizer step{};
+  bool clip_last{true};
+
+  Time start_time() const { return t0; }
+  bool keep_going(Time t, StepCount) const {
+    constexpr auto eps = std::numeric_limits<Time>::epsilon();
+    if ( std::abs(t - tf) <= eps ){ return false; }
+    if ( t > tf ) { return false; }
+    return true;
+  }
+
+  void next_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
+    step(k, t, dt);
+    // if (clip_last && dt.get() > Time{}) {
+    //   Time rem = tf - t;
+    //   if (rem < dt) dt = rem;
+    // }
+  }
+};
+
+// Convenience factories
+template<class Time>
+inline StepsFixed<Time, policy::fixed_dt<Time>>
+steps_fixed_dt(Time t0, StepCount n, Time dt){ return { t0, n, policy::fixed_dt<Time>{dt} }; }
+
+template<class Time, class StepSizer>
+inline StepsFixed<Time, StepSizer>
+steps(Time t0, StepCount n, StepSizer sizer){ return { t0, n, std::move(sizer) }; }
+
+template<class Time, class StepSizer>
+inline ToTime<Time, StepSizer>
+to_time(Time t0, Time tf, StepSizer sizer, bool clip_last=true){ return { t0, tf, std::move(sizer), clip_last }; }
+
+
+//======================== advance (no solver) ====================
+template<class State, class Stepper, class Policy, class... Obs>
+std::enable_if_t< ExplicitStepper<Stepper>::value >
+advance(Stepper& stepper,
+	State& state,
+	const Policy& bp,
+	Obs&&... obs_tail)
+{
+  using Time = decltype(bp.start_time());
+  static_assert(std::is_same_v<decltype(bp.keep_going(std::declval<Time>(), std::declval<StepCount>())), bool>,
+                "boundsPolicy must expose keep_going(Time,StepCount)->bool");
+  static_assert(std::is_void_v<decltype(bp.next_dt(std::declval<StepStartAt<Time>>(), std::declval<StepCount>(), std::declval<StepSize<Time>&>()))>,
+                "boundsPolicy must expose next_dt(t,k,dt)");
+
+  static_assert(sizeof...(Obs) <= 2,
+    "Only observers are allowed here: none, (StateObserver), or (StateObserver,RhsObserver).");
+
+  auto obs = parse_observers<Time, State>(std::forward<Obs>(obs_tail)...);
+  auto&& state_obs = obs.state;
+  auto&& rhs_obs   = obs.rhs;
+  constexpr bool have_rhs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
+
+  Time t = bp.start_time();
+  state_obs(StepCount{0}, t, state);
+
+  ::pressio::ode::StepSize<Time> dt;
+  StepCount k{first_step_value};
+  while (bp.keep_going(t, k)) {
+    auto stepStartVal = StepStartAt<Time>(t);
+    bp.next_dt(stepStartVal, k, dt);
+
+    // Prefer passing rhs_obs into the stepper if supported and provided
+    if constexpr (have_rhs &&
+		  has_explicit_step_with_rhs<Stepper, State, Time, Time, decltype(rhs_obs)>::value) {
+      stepper(state, stepStartVal, k, dt, rhs_obs);
+    }
+    else if constexpr (has_explicit_step<Stepper, State, Time, Time>::value) {
+      stepper(state, stepStartVal, k, dt);
+    }
+    else{
+      static_assert([]{return false;}(),
+		    "Stepper must provide operator(state,t,dt,k) or operator(state,t,dt,k,rhsObserver).");
+    }
+
+    t += dt.get();
+    state_obs(k, t, state);
+    ++k;
+  }
+}
+
+//====================== advance (with solver) ====================
+template<class State, class Stepper, class Policy, class Solver, class... Rest>
+std::enable_if_t< !ExplicitStepper<Stepper>::value >
+advance(Stepper& stepper,
+	State& state,
+	const Policy& bp,
+	Solver& solver,
+	Rest&&... rest)
+{
+  using Time = decltype(bp.start_time());
+  auto split = split_solver_and_observers<Time, State>(solver, std::forward<Rest>(rest)...);
+  auto& solver_args = split.first;
+  auto  obs         = std::move(split.second);
+
+  auto&& state_obs = obs.state;
+  auto&& rhs_obs   = obs.rhs;
+  constexpr bool have_rhs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
+
+  Time t = bp.start_time();
+  state_obs(StepCount{0}, t, state);
+
+  ::pressio::ode::StepSize<Time> dt;
+  StepCount k{first_step_value};
+  while (bp.keep_going(t, k)) {
+    bp.next_dt(StepStartAt<Time>(t), k, dt);
+
+    auto call = [&](auto&... args){
+      // Try stepper(..., rhs_obs) first if rhs is present
+      if constexpr (have_rhs) {
+        // probe "with rhs" vs "without rhs" overloads
+        // note: the 'test' returns true_type if the 'with rhs' form is viable
+        auto sel = detail::do_with_solver_probe::template test<
+	  Stepper, State, Time, Time, Solver, decltype(args)..., decltype(rhs_obs)>(0);
+        if constexpr (decltype(sel)::value) {
+          stepper(state, StepStartAt(t), k, dt, solver, args..., rhs_obs);
+          return;
+        }
+      }
+
+      // fallback: no-rhs overload
+      stepper(state, StepStartAt(t), k, StepSize(dt), solver, args...);
+    };
+    std::apply(call, solver_args);
+
+    t += dt.get();
+    state_obs(k, t, state);
+    ++k;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //
 // const dt

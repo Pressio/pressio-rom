@@ -110,7 +110,7 @@ public:
 
 private:
   std::ofstream myfile_;
-  const int sampleFreq_ = {};
+  int sampleFreq_ = {};
 };
 
 int main(int argc, char *argv[])
@@ -129,13 +129,13 @@ int main(int argc, char *argv[])
   const scalar_type startTime{0.0};
   const scalar_type finalTime{40.0};
   const int stateSampleFreq = 2;
-  pode::advance_to_target_point(stepperObj, y, startTime,
-				finalTime,
-				  [=](const pode::StepCount & /*unused*/,
-				     const pode::StepStartAt<scalar_type> & /*unused*/,
-				     pode::StepSize<scalar_type> & dt)
-				  { dt = 0.01; },
-				StateObserver<scalar_type>{stateSampleFreq});
+  auto policy = pode::to_time(startTime, finalTime,
+			      [=](const pode::StepCount & /*unused*/,
+				  const pode::StepStartAt<scalar_type> & /*unused*/,
+				  pode::StepSize<scalar_type> & dt)
+			      { dt = 0.01; });
+  StateObserver<scalar_type> obs(stateSampleFreq);
+  pode::advance(stepperObj, y, policy, obs);
 
   std::cout << "PASSED\n";
   PRESSIOLOG_FINALIZE();
