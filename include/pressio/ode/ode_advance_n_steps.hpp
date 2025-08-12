@@ -256,42 +256,31 @@ struct has_explicit_step_with_rhs<S, State, Time, Dt, RO,
   std::void_t<explicit_step_with_rhs_expr_t<S, State, Time, Dt, RO>>>
   : std::is_same<explicit_step_with_rhs_expr_t<S, State, Time, Dt, RO>, void> {};
 
-// last_rhs() presence
-template<class S, class = void>
-struct has_last_rhs : std::false_type {};
 
-template<class S>
-struct has_last_rhs<S, std::void_t<decltype(std::declval<S&>().last_rhs())>>
-  : std::true_type {};
-
-// check if impl::do_step_with_solver is invocable with given signature
 namespace detail {
-  struct do_with_solver_probe {
-    // with rhs_obs
-    template<class S, class X, class T, class Dt, class Solv, class... A, class RO>
-    static auto test(int) -> decltype(
-				      std::declval<S&>()(std::declval<X&>(),
-							 std::declval<StepStartAt<T>>(),
-							 std::declval<StepCount>(),
-							 std::declval<StepSize<Dt>>(),
-							 std::declval<Solv&>(),
-							 std::declval<A&>()...,
-							 std::declval<RO&>()),
-      std::true_type{}
-    );
 
-    // without rhs_obs
-    template<class S, class X, class T, class Dt, class Solv, class... A>
-    static auto test(long) -> decltype(
-				       std::declval<S&>()(std::declval<X&>(),
-							  std::declval<StepStartAt<T>>(),
-							  std::declval<StepCount>(),
-							  std::declval<StepSize<Dt>>(),
-							  std::declval<Solv&>(),
-							  std::declval<A&>()...),
-      std::false_type{}
-    );
-  };
+// C++17 detection idiom
+template<class...> using void_t = void;
+
+template<class, template<class...> class, class...>
+struct is_detected : std::false_type {};
+
+template<template<class...> class Op, class... Args>
+struct is_detected<void_t<Op<Args...>>, Op, Args...> : std::true_type {};
+
+// Expression alias for calling impl::do_step_with_solver(..., solver, full_args...)
+template<class Stepper, class State, class Time, class Dt, class Solver, class... FullArgs>
+using do_step_with_solver_expr = decltype(
+    std::declval<Stepper&>()(
+			     std::declval<State&>(),
+			     std::declval<Time>(),
+			     std::declval<Dt>(),
+			     std::declval<StepCount>(),
+			     std::declval<Solver&>(),
+			     std::declval<FullArgs&>()...
+  )
+);
+
 } // namespace detail
 
 
@@ -435,20 +424,17 @@ advance(Stepper& stepper,
     bp.next_dt(StepStartAt<Time>(t), k, dt);
 
     auto call = [&](auto&... args){
-      // Try stepper(..., rhs_obs) first if rhs is present
-      if constexpr (have_rhs) {
-        // probe "with rhs" vs "without rhs" overloads
-        // note: the 'test' returns true_type if the 'with rhs' form is viable
-        auto sel = detail::do_with_solver_probe::template test<
-	  Stepper, State, Time, Time, Solver, decltype(args)..., decltype(rhs_obs)>(0);
-        if constexpr (decltype(sel)::value) {
-          stepper(state, StepStartAt(t), k, dt, solver, args..., rhs_obs);
-          return;
-        }
-      }
+      // Can we call overload WITH rhs_obs as the last argument?
+      using with_rhs = pressio::ode::detail::is_detected<
+	void, // dummy to pick the specialization
+	pressio::ode::detail::do_step_with_solver_expr,
+	Stepper, State, Time, Time, Solver, decltype(args)..., decltype(rhs_obs)>;
 
-      // fallback: no-rhs overload
-      stepper(state, StepStartAt(t), k, StepSize(dt), solver, args...);
+      if constexpr (have_rhs && with_rhs::value) {
+	stepper(state, StepStartAt(t), k, dt, solver, args..., rhs_obs);
+      } else{
+	stepper(state, StepStartAt(t), k, dt, solver, args...);
+      }
     };
     std::apply(call, solver_args);
 

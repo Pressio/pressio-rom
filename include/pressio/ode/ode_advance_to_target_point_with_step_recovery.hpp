@@ -55,59 +55,59 @@
 
 namespace pressio{ namespace ode{
 
-template<
-  class StepperType,
-  class StateType,
-  class StepSizePolicyType,
-  class IndVarType
-  >
-std::enable_if_t<
-     ExplicitStepper<StepperType>::value
-  && StepSizePolicyWithReductionScheme<StepSizePolicyType &&, IndVarType>::value
-  >
-advance_to_target_point_with_step_recovery(StepperType & stepper,
-					  StateType & state,
-					  const IndVarType & startVal,
-					  const IndVarType & finalVal,
-					  StepSizePolicyType && stepSizePolicy)
-{
+// template<
+//   class StepperType,
+//   class StateType,
+//   class StepSizePolicyType,
+//   class IndVarType
+//   >
+// std::enable_if_t<
+//      ExplicitStepper<StepperType>::value
+//   && StepSizePolicyWithReductionScheme<StepSizePolicyType &&, IndVarType>::value
+//   >
+// advance_to_target_point_with_step_recovery(StepperType & stepper,
+// 					  StateType & state,
+// 					  const IndVarType & startVal,
+// 					  const IndVarType & finalVal,
+// 					  StepSizePolicyType && stepSizePolicy)
+// {
 
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  impl::to_target_time_with_step_size_policy
-    <false>(stepper, startVal,
-	    finalVal, state,
-	    std::forward<StepSizePolicyType>(stepSizePolicy),
-	    observer_t());
-}
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
+//   impl::to_target_time_with_step_size_policy
+//     <false>(stepper, startVal,
+// 	    finalVal, state,
+// 	    std::forward<StepSizePolicyType>(stepSizePolicy),
+// 	    observer_t());
+// }
 
-template<
-  class StepperType,
-  class StateType,
-  class StepSizePolicyType,
-  class ObserverType,
-  class IndVarType
-  >
-std::enable_if_t<
-     ExplicitStepper<StepperType>::value
-  && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
-  && StateObserver<ObserverType&&, IndVarType, StateType>::value
-  >
-advance_to_target_point_with_step_recovery(StepperType & stepper,
-					  StateType & state,
-					  const IndVarType & startVal,
-					  const IndVarType & finalVal,
-					  StepSizePolicyType && stepSizePolicy,
-					  ObserverType && observer)
-{
+// template<
+//   class StepperType,
+//   class StateType,
+//   class StepSizePolicyType,
+//   class ObserverType,
+//   class IndVarType
+//   >
+// std::enable_if_t<
+//      ExplicitStepper<StepperType>::value
+//   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
+//   && StateObserver<ObserverType&&, IndVarType, StateType>::value
+//   >
+// advance_to_target_point_with_step_recovery(StepperType & stepper,
+// 					  StateType & state,
+// 					  const IndVarType & startVal,
+// 					  const IndVarType & finalVal,
+// 					  StepSizePolicyType && stepSizePolicy,
+// 					  ObserverType && observer)
+// {
 
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::to_target_time_with_step_size_policy<
-    false>(stepper, startVal,
-	   finalVal, state,
-	   std::forward<StepSizePolicyType>(stepSizePolicy),
-	   std::forward<ObserverType>(observer));
-}
+//   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
+//   impl::to_target_time_with_step_size_policy<
+//     false>(stepper, startVal,
+// 	   finalVal, state,
+// 	   std::forward<StepSizePolicyType>(stepSizePolicy),
+// 	   std::forward<ObserverType>(observer));
+// }
 
 
 }}//end namespace pressio::ode

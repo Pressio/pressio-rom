@@ -198,7 +198,8 @@ struct LinearSolver
   RhsObserver<METHOD_SWITCH> ob2(dt, rhs);				\
   const auto nsteps = ::pressio::ode::StepCount(2);			\
   LinearSolver ls;							\
-  ode::advance_n_steps(stepper, y, 0.0, dt, nsteps, ob1, ls, ob2);	\
+  auto bp = pressio::ode::steps_fixed_dt(0.0, nsteps, dt); \
+  ode::advance(stepper, y, bp, ls, ob1, ob2); \
 
 TEST(ode_explicit_steppers, forward_euler){
   COMMON_TEST(forward_euler, 0);
