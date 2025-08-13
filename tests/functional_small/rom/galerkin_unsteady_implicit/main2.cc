@@ -235,8 +235,8 @@ TEST(rom_galerkin_implicit, hyperreduced_bdf1)
 
   const double dt = 2.;
   NonLinSolver solver;
-  pressio::ode::advance_n_steps(problem, romState, 0., dt,
-				::pressio::ode::StepCount(2), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0., pressio::ode::StepCount(2), dt);
+  pressio::ode::advance(problem, romState, policy, solver);
   std::cout << romState << std::endl;
   EXPECT_TRUE(romState[0] == 4.);
   EXPECT_TRUE(romState[1] == 5.);

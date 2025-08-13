@@ -114,9 +114,9 @@ TEST(rom_galerkin_explicit, default)
 
   using time_type = typename fom_t::time_type;
   const time_type dt = 1.;
-  Observer obs;
-  pressio::ode::advance_n_steps(problem, romState, time_type{0}, dt,
-				::pressio::ode::StepCount(2), obs);
+  Observer obs;  
+  auto policy = pressio::ode::steps_fixed_dt(time_type{0}, pressio::ode::StepCount(2), dt);  
+  pressio::ode::advance(problem, romState, policy, obs);
   std::cout << romState << std::endl;
   EXPECT_DOUBLE_EQ(romState[0], 0.);
   EXPECT_DOUBLE_EQ(romState[1], 2611.);

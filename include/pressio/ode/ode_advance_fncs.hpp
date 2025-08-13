@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_advance_n_steps.hpp
+// ode_advance_variadic.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,11 +46,10 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
-#define PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
+#ifndef PRESSIOROM_ODE_ODE_ADVANCE_FNCS_HPP_
+#define PRESSIOROM_ODE_ODE_ADVANCE_FNCS_HPP_
 
-#include "./impl/ode_advance_noop_observer.hpp"
-#include "./impl/ode_advance_n_steps.hpp"
+#include "./impl/ode_advance_to_target_time.hpp"
 #include "./impl/ode_advance_mandates.hpp"
 
 #include <tuple>
@@ -368,6 +367,7 @@ advance(Stepper& stepper,
   while (bp.keep_going(t, k)) {
     auto stepStartVal = StepStartAt<Time>(t);
     bp.next_dt(stepStartVal, k, dt);
+    impl::print_step_and_current_time(k.get(), t, dt.get());
 
     // Prefer passing rhs_obs into the stepper if supported and provided
     if constexpr (have_rhs &&
@@ -413,6 +413,7 @@ advance(Stepper& stepper,
   StepCount k{first_step_value};
   while (bp.keep_going(t, k)) {
     bp.next_dt(StepStartAt<Time>(t), k, dt);
+    impl::print_step_and_current_time(k.get(), t, dt.get());
 
     auto call = [&](auto&... args){
       // Can we call overload WITH rhs_obs as the last argument?
@@ -436,124 +437,71 @@ advance(Stepper& stepper,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-// const dt
-//
-template<class StepperType, class StateType, class IndVarType>
-std::enable_if_t< ExplicitStepper<StepperType>::value >
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		const IndVarType & stepSize,
-		StepCount numSteps)
-{
-
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state,
-				      observer_t());
-}
-
-//
-// dt policy provided
-//
 template<
   class StepperType,
   class StateType,
   class StepSizePolicyType,
-  class IndVarType
+  class IndVarType,
+  class SolverType,
+  class ...SolverArgs
   >
 std::enable_if_t<
-  ExplicitStepper<StepperType>::value
-  && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		StepSizePolicyType && stepSizePolicy,
-		StepCount numSteps)
+     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
+  && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
+  && !StateObserver<SolverType&&, IndVarType, StateType>::value
+  >
+advance_to_target_point_with_step_recovery(StepperType & stepper,
+					  StateType & state,
+					  const IndVarType & startVal,
+					  const IndVarType & finalVal,
+					  StepSizePolicyType && stepSizePolicy,
+					  SolverType && solver,
+					  SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  using observer_t = impl::NoOpStateObserver<IndVarType, StateType>;
-  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
-				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       observer_t());
+  using observer_t = state_noop_t;
+  impl::to_target_time_with_step_size_policy
+    <true>(stepper, startVal,
+	   finalVal, state,
+	   std::forward<StepSizePolicyType>(stepSizePolicy),
+	   observer_t(),
+	   std::forward<SolverType>(solver),
+	   std::forward<SolverArgs>(solverArgs)...);
 }
 
-//
-// const dt and observer
-//
 template<
   class StepperType,
   class StateType,
-  class ObserverType,
-  class IndVarType
-  >
-std::enable_if_t<
-  ExplicitStepper<StepperType>::value
-  && StateObserver<ObserverType &&, IndVarType, StateType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		const IndVarType & stepSize,
-		StepCount numSteps,
-		ObserverType && observer)
-{
-
-  impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::advance_n_steps_with_fixed_dt(stepper, numSteps, startVal,
-				      stepSize, state,
-				      std::forward<ObserverType>(observer));
-}
-
-//
-// dt policy provided and observer
-//
-template<
-  class StepperType,
-  class StateType,
-  class ObserverType,
   class StepSizePolicyType,
-  class IndVarType>
+  class ObserverType,
+  class IndVarType,
+  class SolverType,
+  class ...SolverArgs
+  >
 std::enable_if_t<
-     ExplicitStepper<StepperType>::value
-  && StepSizePolicy<StepSizePolicyType &&, IndVarType>::value
-  && StateObserver<ObserverType &&, IndVarType, StateType>::value
->
-advance_n_steps(StepperType & stepper,
-		StateType & state,
-		const IndVarType & startVal,
-		StepSizePolicyType && stepSizePolicy,
-		StepCount numSteps,
-		ObserverType && observer)
+     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
+  && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
+  && StateObserver<ObserverType&&, IndVarType, StateType>::value
+  >
+advance_to_target_point_with_step_recovery(StepperType & stepper,
+					  StateType & state,
+					  const IndVarType & startVal,
+					  const IndVarType & finalVal,
+					  StepSizePolicyType && stepSizePolicy,
+					  ObserverType && observer,
+					  SolverType && solver,
+					  SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
-  impl::advance_n_steps_with_dt_policy(stepper, numSteps, startVal, state,
-				       std::forward<StepSizePolicyType>(stepSizePolicy),
-				       std::forward<ObserverType>(observer));
+  impl::to_target_time_with_step_size_policy
+    <true>(stepper, startVal,
+	   finalVal, state,
+	   std::forward<StepSizePolicyType>(stepSizePolicy),
+	   std::forward<ObserverType>(observer),
+	   std::forward<SolverType>(solver),
+	   std::forward<SolverArgs>(solverArgs)...);
 }
 
 }} //end namespace pressio::ode
