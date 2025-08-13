@@ -51,11 +51,6 @@
 
 #include "./impl/ode_advance_impl.hpp"
 
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include <functional>
-
 namespace pressio{ namespace ode{
 
 // Convenience functions for policies
