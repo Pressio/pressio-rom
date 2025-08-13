@@ -52,10 +52,10 @@
 namespace pressio{ namespace ode{
 
 template <class T, class = void>
-struct ExplicitStepper : std::false_type{};
+struct StepperWithoutSolver : std::false_type{};
 
 template <class T>
-struct ExplicitStepper<
+struct StepperWithoutSolver<
   T,
   std::enable_if_t<
     ::pressio::has_independent_variable_typedef<T>::value
@@ -74,32 +74,6 @@ struct ExplicitStepper<
       >::value
     >
   > : std::true_type{};
-
-template <class T, class AuxT, class ...Args>
-struct ImplicitStepper : std::false_type{};
-
-template <class T, class AuxT, class ...Args>
-struct ImplicitStepper<
-  std::enable_if_t<
-    ::pressio::has_independent_variable_typedef<T>::value
-    && ::pressio::has_state_typedef<T>::value
-    && std::is_void<
-      decltype
-      (
-       std::declval<T>()
-       (
-	std::declval<typename T::state_type & >(),
-	std::declval<::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
-	std::declval<::pressio::ode::StepCount >(),
-	std::declval<::pressio::ode::StepSize<typename T::independent_variable_type> >(),
-	std::declval< AuxT >(), std::declval<Args>()...
-	)
-       )
-      >::value
-    >,
-  T, AuxT, Args...
-  > : std::true_type{};
-
 
 template <class T, class IndVarType, class StateType, class enable = void>
 struct StateObserver : std::false_type{};

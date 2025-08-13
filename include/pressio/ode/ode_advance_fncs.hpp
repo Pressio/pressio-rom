@@ -304,9 +304,9 @@ template<class Time, class StepSizer>
 struct ToTime {
   Time t0{}, tf{};
   StepSizer step{};
-  bool clip_last{true};
 
   Time start_time() const { return t0; }
+
   bool keep_going(Time t, StepCount) const {
     constexpr auto eps = std::numeric_limits<Time>::epsilon();
     if ( std::abs(t - tf) <= eps ){ return false; }
@@ -316,10 +316,6 @@ struct ToTime {
 
   void next_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
     step(k, t, dt);
-    // if (clip_last && dt.get() > Time{}) {
-    //   Time rem = tf - t;
-    //   if (rem < dt) dt = rem;
-    // }
   }
 };
 
@@ -334,12 +330,12 @@ steps(Time t0, StepCount n, StepSizer sizer){ return { t0, n, std::move(sizer) }
 
 template<class Time, class StepSizer>
 inline ToTime<Time, StepSizer>
-to_time(Time t0, Time tf, StepSizer sizer, bool clip_last=true){ return { t0, tf, std::move(sizer), clip_last }; }
+to_time(Time t0, Time tf, StepSizer sizer){ return { t0, tf, std::move(sizer)}; }
 
 
 //======================== advance (no solver) ====================
 template<class State, class Stepper, class Policy, class... Obs>
-std::enable_if_t< ExplicitStepper<Stepper>::value >
+std::enable_if_t< StepperWithoutSolver<Stepper>::value >
 advance(Stepper& stepper,
 	State& state,
 	const Policy& bp,
@@ -390,7 +386,7 @@ advance(Stepper& stepper,
 
 //====================== advance (with solver) ====================
 template<class State, class Stepper, class Policy, class Solver, class... Rest>
-std::enable_if_t< !ExplicitStepper<Stepper>::value >
+std::enable_if_t< !StepperWithoutSolver<Stepper>::value >
 advance(Stepper& stepper,
 	State& state,
 	const Policy& bp,
@@ -446,17 +442,17 @@ template<
   class ...SolverArgs
   >
 std::enable_if_t<
-     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
+     !StepperWithoutSolver<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && !StateObserver<SolverType&&, IndVarType, StateType>::value
   >
-advance_to_target_point_with_step_recovery(StepperType & stepper,
-					  StateType & state,
-					  const IndVarType & startVal,
-					  const IndVarType & finalVal,
-					  StepSizePolicyType && stepSizePolicy,
-					  SolverType && solver,
-					  SolverArgs && ... solverArgs)
+advance_with_step_recovery(StepperType & stepper,
+			   StateType & state,
+			   const IndVarType & startVal,
+			   const IndVarType & finalVal,
+			   StepSizePolicyType && stepSizePolicy,
+			   SolverType && solver,
+			   SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
@@ -480,18 +476,18 @@ template<
   class ...SolverArgs
   >
 std::enable_if_t<
-     ImplicitStepper<void, StepperType, SolverType&&, SolverArgs&&...>::value
+     !StepperWithoutSolver<StepperType>::value
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && StateObserver<ObserverType&&, IndVarType, StateType>::value
   >
-advance_to_target_point_with_step_recovery(StepperType & stepper,
-					  StateType & state,
-					  const IndVarType & startVal,
-					  const IndVarType & finalVal,
-					  StepSizePolicyType && stepSizePolicy,
-					  ObserverType && observer,
-					  SolverType && solver,
-					  SolverArgs && ... solverArgs)
+advance_with_step_recovery(StepperType & stepper,
+			   StateType & state,
+			   const IndVarType & startVal,
+			   const IndVarType & finalVal,
+			   StepSizePolicyType && stepSizePolicy,
+			   ObserverType && observer,
+			   SolverType && solver,
+			   SolverArgs && ... solverArgs)
 {
 
   impl::mandate_on_ind_var_and_state_types(stepper, state, startVal);
