@@ -92,9 +92,7 @@ Optionally, callers may pass up to two trailing "observer" callbacks:
   - RhsObserver     — optionally forwarded to the stepper iff the stepper supports it
 
 Accepted observer forms:
-  - none
-  - (StateObserver)
-  - (StateObserver, RhsObserver)
+  - none, (StateObserver), (StateObserver, RhsObserver)
 
 Notes
 ---------------------------
@@ -199,9 +197,53 @@ advance(Stepper& stepper,
   }
 }
 
-// ======================
-// advance (with solver)
-// ======================
+/* ============================================================================
+
+advance (with solver)
+
+High-level
+----------
+Advance an ODE state in time using a user-provided "Stepper" that needs a
+solver to perform one step.
+The time marching is driven by a "Policy" that decides:
+  - when to start (start_time()),
+  - when to stop (keep_going(time, step_count)),
+  - the step size at each iteration (set_dt(step_start_at, step_count, dt)).
+
+In addition, the call accepts:
+  - a Solver& object, forwarded to the Stepper at every step;
+  - zero or more extra solver arguments (packed and reused each step);
+  - up to two trailing observer callbacks parsed from the tail:
+      - StateObserver   — called at t0 and after each successful step
+      - RhsObserver     — optionally forwarded to the Stepper if supported
+
+Accepted observer forms in the tail:
+  - none, (StateObserver), (StateObserver, RhsObserver)
+
+Extra solver args
+-----------------
+- Any additional arguments intended for the solver/stepper are collected into a
+  tuple and reused each iteration.
+- They are *passed as lvalues* each time. If an rvalue is provided,
+  it will be stored in the tuple by value and then used as an lvalue
+  on every step; it is not "consumed" per step.
+
+Overload selection for rhs observer
+-----------------------------------
+- If a non-trivial RhsObserver is present *and* the Stepper overload that accepts
+  it is available, that overload is called. Otherwise, the simpler overload is used.
+- Compile-time detection uses a trait on the exact call signature built from the
+  current types (Stepper, State, Time, Solver, extra args..., rhs_obs).
+
+Ownership & lifetime
+--------------------
+- Observers passed as lvalues are stored as std::reference_wrapper (caller keeps alive).
+- Observers passed as rvalues are moved and stored by value (owned here).
+- Extra solver args are stored in a tuple and reused each iteration; if they
+  capture references, ensure those referents outlive the loop.
+
+============================================================================ */
+
 template<class State, class Stepper, class Policy, class Solver, class... Rest>
 std::enable_if_t< !StepperWithoutSolver<Stepper>::value >
 advance(Stepper& stepper,
@@ -211,6 +253,20 @@ advance(Stepper& stepper,
 	Rest&&... rest)
 {
   using Time = decltype(policy.start_time());
+
+  static_assert(std::is_same_v<
+		decltype(policy.keep_going(std::declval<Time>(),
+					   std::declval<StepCount>())),
+		bool>,
+                "policy must expose keep_going(Time,StepCount)->bool");
+
+  static_assert(std::is_void_v<
+		decltype(policy.set_dt(std::declval<StepStartAt<Time>>(),
+				       std::declval<StepCount>(),
+				       std::declval<StepSize<Time>&>()))
+		>,
+                "policy must expose set_dt(Time,StepCount,StepSize<>dt)");
+
   auto split = split_solver_and_observers<Time, State>(solver, std::forward<Rest>(rest)...);
   auto& solver_args = split.first;
   auto  obs         = std::move(split.second);
@@ -224,10 +280,13 @@ advance(Stepper& stepper,
 
   ::pressio::ode::StepSize<Time> dt = {};
   StepCount k{first_step_value};
+
   while (policy.keep_going(t, k)) {
     policy.set_dt(StepStartAt<Time>(t), k, dt);
     impl::print_step_and_current_time(k.get(), t, dt.get());
 
+    // Build a small dispatcher that calls the appropriate stepper overload.
+    // The dispatcher receives the unpacked solver_args as lvalues each time.
     auto call = [&](auto&... args){
       // Can we call overload WITH rhs_obs as the last argument?
       using with_rhs = pressio::ode::detail::is_detected<

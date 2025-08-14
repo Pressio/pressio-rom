@@ -311,8 +311,6 @@ constexpr auto parse_observers(A1&& a1, A2&& a2){
   return parsed_obs_t<SOH, ROH>{ hold(std::forward<A1>(a1)), hold(std::forward<A2>(a2)) };
 }
 
-
-
 // ==================
 //
 // split solver args vs observers
