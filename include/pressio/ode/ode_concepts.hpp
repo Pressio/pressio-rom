@@ -49,8 +49,7 @@
 #ifndef PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
 #define PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
 
-#include "ode_predicates_for_system.hpp"
-#include "ode_has_const_discrete_residual_jacobian_method.hpp"
+#include "./ode_predicates.hpp"
 
 namespace pressio{ namespace ode{
 
@@ -367,6 +366,117 @@ struct ImplicitResidualJacobianPolicy<
 	std::declval< ::pressio::ode::StepSize<typename T::independent_variable_type> >(),
 	std::declval<typename T::residual_type &>(),
 	std::declval< std::optional<typename T::jacobian_type*> >()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class = void>
+struct StepperWithoutSolver : std::false_type{};
+
+template <class T>
+struct StepperWithoutSolver<
+  T,
+  std::enable_if_t<
+    ::pressio::has_independent_variable_typedef<T>::value
+    && ::pressio::has_state_typedef<T>::value
+    && std::is_void<
+      decltype
+      (
+       std::declval<T>()
+       (
+	std::declval< typename T::state_type & >(),
+	std::declval< ::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
+	std::declval< ::pressio::ode::StepCount >(),
+	std::declval< ::pressio::ode::StepSize<typename T::independent_variable_type> >()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class IndVarType, class StateType, class enable = void>
+struct StateObserver : std::false_type{};
+
+template <class T, class IndVarType, class StateType>
+struct StateObserver<
+  T, IndVarType, StateType,
+  std::enable_if_t<
+    std::is_void<
+      decltype(
+	       std::declval<T>().operator()
+	       (
+		std::declval< ::pressio::ode::StepCount >(),
+		std::declval< IndVarType >(),
+		std::declval<StateType const &>()
+		)
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class IndVarType, class RhsType, class enable = void>
+struct RhsObserver : std::false_type{};
+
+template <class T, class IndVarType, class RhsType>
+struct RhsObserver<
+  T, IndVarType, RhsType,
+  std::enable_if_t<
+    std::is_void<
+      decltype(
+	       std::declval<T>().operator()
+	       (
+		std::declval<::pressio::ode::StepCount>(),
+		std::declval<::pressio::ode::IntermediateStepCount>(),
+		std::declval<IndVarType >(),
+		std::declval<RhsType const &>()
+		)
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
+template <class T, class IndVarType, class Enable = void>
+struct StepSizePolicy : std::false_type{};
+
+template <class T, class IndVarType>
+struct StepSizePolicy<
+  T, IndVarType,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T>()
+       (
+	std::declval< ::pressio::ode::StepCount >(),
+	std::declval< ::pressio::ode::StepStartAt<IndVarType> >(),
+	std::declval< ::pressio::ode::StepSize<IndVarType> & >()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class IndVarType, class Enable = void>
+struct StepSizePolicyWithReductionScheme : std::false_type{};
+
+template <class T, class IndVarType>
+struct StepSizePolicyWithReductionScheme<
+  T, IndVarType,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T>()
+       (
+	std::declval< ::pressio::ode::StepCount >(),
+	std::declval< ::pressio::ode::StepStartAt<IndVarType> >(),
+	std::declval< ::pressio::ode::StepSize<IndVarType> & >(),
+	std::declval< ::pressio::ode::StepSizeMinAllowedValue<IndVarType> & >(),
+	std::declval< ::pressio::ode::StepSizeScalingFactor<IndVarType> & >()
 	)
        )
       >::value
