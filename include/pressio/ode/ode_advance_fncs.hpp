@@ -56,96 +56,176 @@ namespace pressio{ namespace ode{
 // Convenience functions for policies
 template<class Time>
 inline StepsFixed<Time, policy::fixed_dt<Time>>
-steps_fixed_dt(Time t0, StepCount n, Time dt){ return { t0, n, policy::fixed_dt<Time>{dt} }; }
+steps_fixed_dt(Time t0, StepCount n, Time dt){
+  return { t0, n, policy::fixed_dt<Time>{dt} };
+}
 
 template<class Time, class StepSizer>
 inline StepsFixed<Time, StepSizer>
-steps(Time t0, StepCount n, StepSizer sizer){ return { t0, n, std::move(sizer) }; }
+steps(Time t0, StepCount n, StepSizer sizer){
+  return { t0, n, std::move(sizer) };
+}
 
 template<class Time, class StepSizer>
 inline ToTime<Time, StepSizer>
 to_time(Time t0, Time tf, StepSizer sizer){
-  static_assert(StepSizePolicy<StepSizer, Time>::value, "invalid step size policy");
+  static_assert(StepSizePolicy<StepSizer, Time>::value, "invalid step sizer policy");
   return { t0, tf, std::move(sizer)};
 }
 
 
-//======================== advance (no solver) ====================
-template<class State, class Stepper, class Policy, class... Obs>
+/* ============================================================================
+
+advance (no solver)
+
+High-level
+----------
+Advance an ODE state in time using a user-provided "Stepper" that does *not*
+require a solver to perform a step.
+The time marching is driven by a "Policy" object that decides:
+  - when to start (start_time()),
+  - when to stop (keep_going(time, step_count)),
+  - the step size at each iteration (set_dt(step_start_at, step_count, dt)).
+
+Optionally, callers may pass up to two trailing "observer" callbacks:
+  - StateObserver   — called at t0 (before stepping) and after each successful step
+  - RhsObserver     — optionally forwarded to the stepper iff the stepper supports it
+
+Accepted observer forms:
+  - none
+  - (StateObserver)
+  - (StateObserver, RhsObserver)
+
+Notes
+---------------------------
+1) Initialization:
+     Time t = policy.start_time();
+     state_obs(0, t, state);          // observe the initial condition
+
+2) Each iteration (for step count k):
+     policy.set_dt(t, k, dt);         // policy decides dt for the step starting at t
+     stepper(..., t, k, dt [, rhs]);  // perform one explicit step
+     t += dt;                          // advance time
+     state_obs(k, t, state);          // observe the state *at the end* of step k
+     ++k;
+
+- RhsObserver is only passed to the stepper when BOTH of these hold:
+    - a non-trivial rhs observer was provided, and
+    - the stepper has an overload that accepts it.
+- StateObserver position is intentional: it’s called once at t0 (k=0), and then
+  after each step using the step count k that was used for that step. This
+  makes the (k, t) pair consistent with the completed update.
+
+Ownership & lifetime
+--------------------
+- Observers passed as lvalues are stored as std::reference_wrapper (caller must keep them alive).
+- Observers passed as rvalues are moved and stored by value (owned here).
+
+============================================================================ */
+
+template<class State, class Stepper, class Policy, class... ObserversOrEmpty>
 std::enable_if_t< StepperWithoutSolver<Stepper>::value >
 advance(Stepper& stepper,
 	State& state,
-	const Policy& bp,
-	Obs&&... obs_tail)
+	const Policy& policy,
+	ObserversOrEmpty&&... obs_tail)
 {
-  using Time = decltype(bp.start_time());
-  static_assert(std::is_same_v<decltype(bp.keep_going(std::declval<Time>(), std::declval<StepCount>())), bool>,
-                "boundsPolicy must expose keep_going(Time,StepCount)->bool");
-  static_assert(std::is_void_v<decltype(bp.next_dt(std::declval<StepStartAt<Time>>(), std::declval<StepCount>(), std::declval<StepSize<Time>&>()))>,
-                "boundsPolicy must expose next_dt(t,k,dt)");
+  /* Deduce the time type from the policy. Validate the policy’s interface. */
+  using Time = decltype(policy.start_time());
 
-  static_assert(sizeof...(Obs) <= 2,
-    "Only observers are allowed here: none, (StateObserver), or (StateObserver,RhsObserver).");
+  static_assert(std::is_same_v<
+		decltype(policy.keep_going(std::declval<Time>(),
+					   std::declval<StepCount>())),
+		bool>,
+                "policy must expose keep_going(Time,StepCount)->bool");
 
-  auto obs = parse_observers<Time, State>(std::forward<Obs>(obs_tail)...);
+  static_assert(std::is_void_v<
+		decltype(policy.set_dt(std::declval<StepStartAt<Time>>(),
+				       std::declval<StepCount>(),
+				       std::declval<StepSize<Time>&>()))
+		>,
+                "policy must expose set_dt(Time,StepCount,StepSize<>dt)");
+
+  static_assert(sizeof...(ObserversOrEmpty) <= 2,
+    "Only nothing or observers are allowed here: none, (StateObserver), or (StateObserver,RhsObserver).");
+
+  // Parse and hold observers with the correct ownership semantics.
+  auto obs = parse_observers<Time, State>(std::forward<ObserversOrEmpty>(obs_tail)...);
   auto&& state_obs = obs.state;
   auto&& rhs_obs   = obs.rhs;
-  constexpr bool have_rhs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
+  // Detect whether a non-trivial rhs observer was provided (vs. the no-op).
+  constexpr bool has_non_trivial_rhs_obs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
 
-  Time t = bp.start_time();
+  // Initialize time and notify the state observer about the initial condition.
+  Time t = policy.start_time();
   state_obs(StepCount{0}, t, state);
 
-  ::pressio::ode::StepSize<Time> dt;
+  // Main advance loop. k is the step counter; its initial value is defined elsewhere
+  // (e.g., first_step_value) to match the project’s global step indexing convention.
+  ::pressio::ode::StepSize<Time> dt = {};
   StepCount k{first_step_value};
-  while (bp.keep_going(t, k)) {
-    auto stepStartVal = StepStartAt<Time>(t);
-    bp.next_dt(stepStartVal, k, dt);
+
+  while (policy.keep_going(t, k)) {
+    // Form the strongly-typed "step starts at t" tag and query the step size.
+    StepStartAt<Time> stepStartTime(t);
+    policy.set_dt(stepStartTime, k, dt);
     impl::print_step_and_current_time(k.get(), t, dt.get());
 
-    // Prefer passing rhs_obs into the stepper if supported and provided
-    if constexpr (have_rhs &&
+    /* Dispatch to the stepper. If an rhs observer was provided AND the stepper
+       supports an overload that takes it, call that. Otherwise call the simpler
+       overload. If neither is available, trigger a compile-time error with a
+       clear diagnostic. */
+    if constexpr (has_non_trivial_rhs_obs &&
 		  has_explicit_step_with_rhs<Stepper, State, Time, Time, decltype(rhs_obs)>::value) {
-      stepper(state, stepStartVal, k, dt, rhs_obs);
+      stepper(state, stepStartTime, k, dt, rhs_obs);
     }
     else if constexpr (has_explicit_step<Stepper, State, Time, Time>::value) {
-      stepper(state, stepStartVal, k, dt);
+      stepper(state, stepStartTime, k, dt);
     }
     else{
       static_assert([]{return false;}(),
 		    "Stepper must provide operator(state,t,dt,k) or operator(state,t,dt,k,rhsObserver).");
     }
 
+    // Advance physical time by the step size just used
     t += dt.get();
+
+    //Observe the state *after* completing step k. The placement here is
+    //intentional to make (k, t) correspond to the just-finished step.
     state_obs(k, t, state);
+
+    // move on to next step
     ++k;
   }
 }
 
-//====================== advance (with solver) ====================
+// ======================
+// advance (with solver)
+// ======================
 template<class State, class Stepper, class Policy, class Solver, class... Rest>
 std::enable_if_t< !StepperWithoutSolver<Stepper>::value >
 advance(Stepper& stepper,
 	State& state,
-	const Policy& bp,
+	const Policy& policy,
 	Solver& solver,
 	Rest&&... rest)
 {
-  using Time = decltype(bp.start_time());
+  using Time = decltype(policy.start_time());
   auto split = split_solver_and_observers<Time, State>(solver, std::forward<Rest>(rest)...);
   auto& solver_args = split.first;
   auto  obs         = std::move(split.second);
 
   auto&& state_obs = obs.state;
   auto&& rhs_obs   = obs.rhs;
-  constexpr bool have_rhs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
+  constexpr bool has_non_trivial_rhs_obs = !std::is_same< std::decay_t<decltype(rhs_obs)>, rhs_noop_t>::value;
 
-  Time t = bp.start_time();
+  Time t = policy.start_time();
   state_obs(StepCount{0}, t, state);
 
-  ::pressio::ode::StepSize<Time> dt;
+  ::pressio::ode::StepSize<Time> dt = {};
   StepCount k{first_step_value};
-  while (bp.keep_going(t, k)) {
-    bp.next_dt(StepStartAt<Time>(t), k, dt);
+  while (policy.keep_going(t, k)) {
+    policy.set_dt(StepStartAt<Time>(t), k, dt);
     impl::print_step_and_current_time(k.get(), t, dt.get());
 
     auto call = [&](auto&... args){
@@ -155,7 +235,7 @@ advance(Stepper& stepper,
 	pressio::ode::detail::do_step_with_solver_expr,
 	Stepper, State, Time, Time, Solver, decltype(args)..., decltype(rhs_obs)>;
 
-      if constexpr (have_rhs && with_rhs::value) {
+      if constexpr (has_non_trivial_rhs_obs && with_rhs::value) {
 	stepper(state, StepStartAt(t), k, dt, solver, args..., rhs_obs);
       } else{
 	stepper(state, StepStartAt(t), k, dt, solver, args...);

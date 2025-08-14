@@ -214,24 +214,49 @@ void to_target_time_with_step_size_policy(StepperType & stepper,
 }
 } //end namespace impl
 
-//========================= small helpers =========================
+/* -----------------------------------------------------------------------------
+   Observer parsing utilities
+ ----------------------------------------------------------------------------- */
 
+// These are default stand-ins used when the user does not supply observers.
+// They accept any call signature and do nothing.
 struct state_noop_t { template<class... A> void operator()(A&&...) const noexcept {} };
 struct rhs_noop_t   { template<class... A> void operator()(A&&...) const noexcept {} };
 
+/*
+Storage policy for observers (obs_holder_t)
+
+Given a deduced observer type T (which might be T&, const T&, or T&&),
+choose how to *store* it inside our parsed bundle:
+
+  • If T is an lvalue reference (T& or const T&), store std::reference_wrapper<T>.
+    - This avoids copying the observer and preserves the caller's lifetime.
+    - NOTE: reference_wrapper models a reference; it does *not* extend lifetime.
+  • Otherwise (rvalue / prvalue), store the observer by value (decayed).
+    - This takes ownership (via move) and is safe for temporaries.
+*/
 template<class T>
 using obs_holder_t =
-  std::conditional_t<std::is_lvalue_reference_v<T>,
-    std::reference_wrapper<std::remove_reference_t<T>>,
-    std::remove_reference_t<T>>;
+  std::conditional_t<
+  std::is_lvalue_reference_v<T>,
+  std::reference_wrapper<std::remove_reference_t<T>>,
+  std::remove_reference_t<T>
+  >;
 
+/*
+Helper that *constructs* an obs_holder_t from a forwarding reference.
+  • If called with an lvalue, returns std::ref(v) to build a reference_wrapper.
+  • If called with an rvalue, returns std::move(v) so we can store by value.
+
+This ensures the "holder" we create matches obs_holder_t's storage policy.
+*/
 template<class T>
 constexpr auto hold(T&& v) {
   if constexpr (std::is_lvalue_reference_v<T>) return std::ref(v);
   else                                         return std::move(v);
 }
 
-//=================== observer traits + parsing ===================
+// Convenience traits that strip cv/ref before checking observer concepts
 template<class Time, class State, class F>
 inline constexpr bool is_state_obs_v =
   StateObserver<mpl::remove_cvref_t<F>, Time, State>::value;
@@ -240,30 +265,52 @@ template<class Time, class Rhs, class F>
 inline constexpr bool is_rhs_obs_v =
   RhsObserver<mpl::remove_cvref_t<F>, Time, Rhs>::value;
 
+// A simple bundle to return from parse_observers(...)
+// parsed_obs_t holds the two observers (state and rhs) in their "holder" form.
+// The types SO and RO are typically either std::reference_wrapper<...> or
+// a decayed-by-value type, depending on how the user passed the observers.
 template<class SO, class RO>
 struct parsed_obs_t { SO state; RO rhs; };
 
+/*
+  parse_observers(...) overload set
+  These constexpr overloads accept 0/1/2 trailing arguments and:
+
+  - Validate their types at compile time via static_assert.
+  - Return a parsed_obs_t with the correctly held observers.
+  -For missing observers, we fill in the corresponding no-op.
+
+IMPORTANT: The "must be placed last" rule is a *convention* enforced by how
+           you integrate these helpers into your API. This overload set only
+           checks count and types; your higher-level function should ensure
+           it forwards the *trailing* args into parse_observers(...).
+*/
+
+// No observers provided -> use both no-ops.
 template<class Time, class State>
-constexpr auto parse_observers() {
+constexpr auto parse_observers(){
   return parsed_obs_t<state_noop_t, rhs_noop_t>{ state_noop_t{}, rhs_noop_t{} };
 }
 
+// Single observer -> must be a StateObserver.
 template<class Time, class State, class A1>
-constexpr auto parse_observers(A1&& a1) {
+constexpr auto parse_observers(A1&& a1){
   static_assert(is_state_obs_v<Time, State, A1>,
     "Single observer must be a StateObserver, placed last.");
   using SOH = obs_holder_t<A1&&>;
   return parsed_obs_t<SOH, rhs_noop_t>{ hold(std::forward<A1>(a1)), rhs_noop_t{} };
 }
 
+// Two observers -> must be (StateObserver, RhsObserver) in this order.
 template<class Time, class State, class A1, class A2>
-constexpr auto parse_observers(A1&& a1, A2&& a2) {
+constexpr auto parse_observers(A1&& a1, A2&& a2){
   static_assert(is_state_obs_v<Time, State, A1> && is_rhs_obs_v<Time, State, A2>,
     "Two observers must be (StateObserver, RhsObserver), placed last.");
   using SOH = obs_holder_t<A1&&>;
   using ROH = obs_holder_t<A2&&>;
   return parsed_obs_t<SOH, ROH>{ hold(std::forward<A1>(a1)), hold(std::forward<A2>(a2)) };
 }
+
 
 
 // ==================
@@ -292,7 +339,6 @@ constexpr auto tuple_take(Tup&& tup) {
 }
 
 } // namespace detail
-
 
 template<class Time, class State, class Solver, class... Rest>
 constexpr auto split_solver_and_observers(Solver&, Rest&&... rest)
@@ -428,7 +474,6 @@ using do_step_with_solver_expr = decltype(
 
 } // namespace detail
 
-
 //======================== step-size adapters =====================
 namespace policy {
 template<class Time>
@@ -448,7 +493,7 @@ struct StepsFixed {
   Time start_time() const { return t0; }
   bool keep_going(Time, StepCount k) const { return k <= n; }
 
-  void next_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
+  void set_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
     static_assert(std::is_void_v<decltype(step(k,t,dt))>,
                   "StepSizer must be callable with (k,t,dt) overwriting dt.");
     step(k, t, dt);
@@ -469,7 +514,7 @@ struct ToTime {
     return true;
   }
 
-  void next_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
+  void set_dt(StepStartAt<Time> t, StepCount k, StepSize<Time> & dt) const {
     step(k, t, dt);
   }
 };
