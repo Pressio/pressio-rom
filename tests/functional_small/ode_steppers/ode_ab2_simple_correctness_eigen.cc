@@ -32,7 +32,7 @@ struct Collector
 {
   void operator()(const ::pressio::ode::StepCount & stepIn,
 		  double /*unused*/,
-		  const Eigen::VectorXd & y)
+		  const Eigen::VectorXd & y) const
   {
     const auto step = stepIn.get();
     if (step==0){

@@ -100,7 +100,7 @@ public:
   template<typename TimeType>
   void operator()(pressio::ode::StepCount step,
 		  const TimeType /*timeIn*/,
-		  const Eigen::Matrix<ScalarType,-1,1> & state)
+		  const Eigen::Matrix<ScalarType,-1,1> & state) const
   {
     if (step.get() % sampleFreq_ == 0){
       const std::size_t ext = state.size()*sizeof(ScalarType);
@@ -109,7 +109,7 @@ public:
   }
 
 private:
-  std::ofstream myfile_;
+  mutable std::ofstream myfile_;
   int sampleFreq_ = {};
 };
 

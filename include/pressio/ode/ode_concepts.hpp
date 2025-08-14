@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_system.hpp
+// ode_concepts.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
-#define PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
 
 #include "./ode_predicates.hpp"
 
@@ -373,115 +373,294 @@ struct ImplicitResidualJacobianPolicy<
   > : std::true_type{};
 
 
+/*
+  This comment documents the pieces defined just below:
+
+    1) `stepper_call_t<T>` — an alias for the *deduced return type* of calling
+       `T::operator()` with the expected arguments.
+    2) `StepperWithoutSolver<T>` — a boolean type trait that evaluates to
+       `true` iff that call is well-formed and returns **exactly `void`**.
+
+  ---------------------------------------------------------------------------
+  What does the trait check?
+  ---------------------------------------------------------------------------
+  Given a `T` modeling a stepper, we expect:
+
+    - `T::independent_variable_type`   // e.g., double (the "time" type)
+    - `T::state_type`                  // the state container to be advanced
+    - A callable operator with the shape:
+
+        void operator()( state_type&,
+                         StepStartAt<independent_variable_type>,
+                         StepCount,
+                         StepSize<independent_variable_type> );
+
+  If such a call is viable and its deduced return type is **exactly `void`**,
+  then `StepperWithoutSolver<T>::value == true`; otherwise `false`.
+
+  ---------------------------------------------------------------------------
+  How does it work?
+  ---------------------------------------------------------------------------
+  1) `stepper_call_t<T>` forms the type of the expression
+
+        std::declval<T&>()(
+          std::declval<typename T::state_type&>(),
+          std::declval<StepStartAt<typename T::independent_variable_type>>(),
+          std::declval<StepCount>(),
+          std::declval<StepSize<typename T::independent_variable_type>>()
+        )
+
+     using `decltype(...)`.  `std::declval<X>()` fabricates a value of type `X`
+     in an unevaluated context, letting us ask “what would the call return?”
+     If the call is ill-formed (wrong/missing types), `stepper_call_t<T>` itself
+     fails to form and is SFINAE’d out.
+
+  2) The partial specialization of `StepperWithoutSolver<T, ...>` is gated by
+     `std::void_t<...>`:
+
+        std::void_t<
+          typename T::independent_variable_type,
+          typename T::state_type,
+          stepper_call_t<T>
+        >
+
+     This specialization only participates if the nested typedefs exist *and*
+     the call expression type could be formed.
+
+  3) Inside the participating specialization we inherit from
+     `std::is_same<void, stepper_call_t<T>>`, which makes the trait evaluate to
+     `std::true_type` only when the deduced return type is **exactly `void`**.
+
+  ---------------------------------------------------------------------------
+  Enforced:
+    - `T` provides `state_type` and `independent_variable_type`.
+    - The call with the shown argument types is viable.
+    - The return type is **exactly `void`**
+
+  ---------------------------------------------------------------------------
+  Usage examples
+  ---------------------------------------------------------------------------
+  struct Good {
+    using independent_variable_type = double;
+    using state_type = State;
+    void operator()(state_type&, StepStartAt<double>, StepCount, StepSize<double>) {}
+  };
+  static_assert(StepperWithoutSolver<Good>::value, "Good stepper");
+
+  struct BadReturn {
+    using independent_variable_type = double;
+    using state_type = State;
+    int operator()(state_type&, StepStartAt<double>, StepCount, StepSize<double>) { return 0; }
+  };
+  static_assert(!StepperWithoutSolver<BadReturn>::value, "must return void");
+*/
+
+template<class T>
+using stepper_call_t = decltype(
+  std::declval<T&>()(
+    std::declval<typename T::state_type &>(),
+    std::declval<StepStartAt<typename T::independent_variable_type>>(),
+    std::declval<StepCount>(),
+    std::declval<StepSize<typename T::independent_variable_type>>()
+  )
+);
+
 template <class T, class = void>
 struct StepperWithoutSolver : std::false_type{};
 
 template <class T>
 struct StepperWithoutSolver<
   T,
-  std::enable_if_t<
-    ::pressio::has_independent_variable_typedef<T>::value
-    && ::pressio::has_state_typedef<T>::value
-    && std::is_void<
-      decltype
-      (
-       std::declval<T>()
-       (
-	std::declval< typename T::state_type & >(),
-	std::declval< ::pressio::ode::StepStartAt<typename T::independent_variable_type> >(),
-	std::declval< ::pressio::ode::StepCount >(),
-	std::declval< ::pressio::ode::StepSize<typename T::independent_variable_type> >()
-	)
-       )
-      >::value
+  std::void_t<
+    typename T::independent_variable_type,
+    typename T::state_type,
+    stepper_call_t<T>
     >
-  > : std::true_type{};
+>
+: std::is_same<void, stepper_call_t<T>> {};
 
-template <class T, class IndVarType, class StateType, class enable = void>
-struct StateObserver : std::false_type{};
+// -------------------------------------------------------------
+// -------------------------------------------------------------
 
-template <class T, class IndVarType, class StateType>
+/*
+  Trait to detect a **const** state observer callable.
+
+  Succeeds iff a type `T` has a **const** call operator with the shape:
+
+    void operator()( ::pressio::ode::StepCount,
+                     IndVarType,
+                     StateType const& ) const;
+
+  More precisely:
+   - We form the type of the expression
+       std::declval<T const&>()(StepCount{}, IndVarType{}, StateType const&{})
+     via `decltype(...)`. If that call is ill-formed, the specialization
+     is discarded (SFINAE) and the trait is `false`.
+   - If the call is well-formed, we additionally require the deduced
+     return type to be **exactly `void`** (not just convertible to void).
+
+  Usage:
+    static_assert(StateObserver<MyObs, double, MyState>::value, "Must be a const observer");
+*/
+
+template<class T, class IndVarType, class StateType>
+using state_observer_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<IndVarType>(),
+    std::declval<StateType const&>()
+  )
+);
+
+template<class T, class IndVarType, class StateType, class = void>
+struct StateObserver : std::false_type {};
+
+template<class T, class IndVarType, class StateType>
 struct StateObserver<
   T, IndVarType, StateType,
-  std::enable_if_t<
-    std::is_void<
-      decltype(
-	       std::declval<T>().operator()
-	       (
-		std::declval< ::pressio::ode::StepCount >(),
-		std::declval< IndVarType >(),
-		std::declval<StateType const &>()
-		)
-	       )
-      >::value
-    >
-  > : std::true_type{};
+  std::void_t< state_observer_call_c_t<T, IndVarType, StateType> >
+>
+: std::is_same<void, state_observer_call_c_t<T, IndVarType, StateType>> {};
 
-template <class T, class IndVarType, class RhsType, class enable = void>
-struct RhsObserver : std::false_type{};
 
-template <class T, class IndVarType, class RhsType>
+
+
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+
+// Detect a **const** RHS observer with exact-void return:
+//   void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
+
+template<class T, class IndVarType, class RhsType>
+using rhs_observer_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<IntermediateStepCount>(),
+    std::declval<IndVarType>(),
+    std::declval<RhsType const&>()
+  )
+);
+
+// Primary: default to false
+template<class T, class IndVarType, class RhsType, class = void>
+struct RhsObserver : std::false_type {};
+
+// Specialization: only if the const-call is well-formed; require return type == void
+template<class T, class IndVarType, class RhsType>
 struct RhsObserver<
   T, IndVarType, RhsType,
-  std::enable_if_t<
-    std::is_void<
-      decltype(
-	       std::declval<T>().operator()
-	       (
-		std::declval<::pressio::ode::StepCount>(),
-		std::declval<::pressio::ode::IntermediateStepCount>(),
-		std::declval<IndVarType >(),
-		std::declval<RhsType const &>()
-		)
-	       )
-      >::value
-    >
-  > : std::true_type{};
+  std::void_t< rhs_observer_call_c_t<T, IndVarType, RhsType> >
+>
+: std::is_same<void, rhs_observer_call_c_t<T, IndVarType, RhsType>> {};
+
+
+
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+
+/*
+  Trait: StepSizePolicy<T, IndVarType>
+
+  Goal
+  ----
+  Detect at compile time whether a type `T` can act as a *step size policy*,
+  i.e., it is a callable object with a **const** call operator of the form:
+
+      void operator()( ::pressio::ode::StepCount,
+                       ::pressio::ode::StepStartAt<IndVarType>,
+                       ::pressio::ode::StepSize<IndVarType>& ) const;
+
+  Semantics
+  ---------
+  - The third argument is a non-const reference to StepSize<IndVarType>, so the
+    policy can write/adjust the step size.
+  - The trait requires the return type to be **exactly `void`**.
+  - If the call expression is ill-formed (wrong/missing arguments), the trait
+    evaluates to false (no hard compile error by itself).
+
+  How it works (brief)
+  --------------------
+  1) `step_size_policy_call_c_t<...>` forms the type of the expression
+         std::declval<T const&>()(StepCount, StepStartAt<IndVarType>, StepSize<IndVarType>&)
+     using `decltype(...)`. If this fails, SFINAE removes the specialization.
+  2) The partial specialization of `StepSizePolicy` only participates if that
+     call type exists. It then inherits from `std::is_same<void, ...>` to
+     enforce an exact `void` return.
+
+  Notes
+  -----
+  - This version expects a **const** call operator.
+*/
+
+template<class T, class IndVarType>
+using step_size_policy_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<StepStartAt<IndVarType>>(),
+    std::declval<StepSize<IndVarType>&>()
+  )
+);
 
 template <class T, class IndVarType, class Enable = void>
-struct StepSizePolicy : std::false_type{};
+struct StepSizePolicy : std::false_type {};
 
 template <class T, class IndVarType>
 struct StepSizePolicy<
   T, IndVarType,
-  std::enable_if_t<
-    std::is_void<
-      decltype
-      (
-       std::declval<T>()
-       (
-	std::declval< ::pressio::ode::StepCount >(),
-	std::declval< ::pressio::ode::StepStartAt<IndVarType> >(),
-	std::declval< ::pressio::ode::StepSize<IndVarType> & >()
-	)
-       )
-      >::value
-    >
-  > : std::true_type{};
+  std::void_t< step_size_policy_call_c_t<T, IndVarType> >
+>
+: std::is_same<void, step_size_policy_call_c_t<T, IndVarType>> {};
 
+
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+
+/*
+  Trait: StepSizePolicyWithReductionScheme<T, IndVarType>
+
+  Detect at compile time whether a type `T` can act as a *step size policy with
+  reduction scheme*, i.e., it has a **const** call operator with the shape:
+
+      void operator()( ::pressio::ode::StepCount,
+                       ::pressio::ode::StepStartAt<IndVarType>,
+                       ::pressio::ode::StepSize<IndVarType>&,
+                       ::pressio::ode::StepSizeMinAllowedValue<IndVarType>&,
+                       ::pressio::ode::StepSizeScalingFactor<IndVarType>& ) const;
+
+  Semantics
+  ---------
+  - The last three parameters are non-const references the policy can modify:
+      * StepSize<IndVarType>&                — current step size
+      * StepSizeMinAllowedValue<IndVarType>& — minimum allowed step size
+      * StepSizeScalingFactor<IndVarType>&   — multiplicative scaling factor
+  - The trait requires the return type to be **exactly `void`**.
+
+  Notes
+  -----
+  - This detects a **const** call operator. If you also want to accept non-const,
+    add a parallel detection with `T&` and OR the results.
+*/
+
+template<class T, class IndVarType>
+using step_size_policy_with_reduction_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<StepStartAt<IndVarType>>(),
+    std::declval<StepSize<IndVarType>&>(),
+    std::declval<StepSizeMinAllowedValue<IndVarType>&>(),
+    std::declval<StepSizeScalingFactor<IndVarType>&>()
+  )
+);
 
 template <class T, class IndVarType, class Enable = void>
-struct StepSizePolicyWithReductionScheme : std::false_type{};
+struct StepSizePolicyWithReductionScheme : std::false_type {};
 
 template <class T, class IndVarType>
 struct StepSizePolicyWithReductionScheme<
   T, IndVarType,
-  std::enable_if_t<
-    std::is_void<
-      decltype
-      (
-       std::declval<T>()
-       (
-	std::declval< ::pressio::ode::StepCount >(),
-	std::declval< ::pressio::ode::StepStartAt<IndVarType> >(),
-	std::declval< ::pressio::ode::StepSize<IndVarType> & >(),
-	std::declval< ::pressio::ode::StepSizeMinAllowedValue<IndVarType> & >(),
-	std::declval< ::pressio::ode::StepSizeScalingFactor<IndVarType> & >()
-	)
-       )
-      >::value
-    >
-  > : std::true_type{};
+  std::void_t< step_size_policy_with_reduction_call_c_t<T, IndVarType> >
+>
+: std::is_same<void, step_size_policy_with_reduction_call_c_t<T, IndVarType>> {};
 
 }}
 #endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_

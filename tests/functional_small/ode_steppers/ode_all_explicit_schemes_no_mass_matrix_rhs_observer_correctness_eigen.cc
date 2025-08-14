@@ -55,7 +55,7 @@ struct RhsObserver
   operator()(pressio::ode::StepCount stepIn,
 	     pressio::ode::IntermediateStepCount imStepIn,
 	     IndepVarType timeIn,
-	     const Eigen::VectorXd & rhsIn)
+	     const Eigen::VectorXd & rhsIn) const
   {
     //
     // euler
@@ -76,7 +76,7 @@ struct RhsObserver
   operator()(pressio::ode::StepCount stepIn,
 	     pressio::ode::IntermediateStepCount imStepIn,
 	     IndepVarType timeIn,
-	     const Eigen::VectorXd & rhsIn)
+	     const Eigen::VectorXd & rhsIn) const
   {
     //
     // rk4
