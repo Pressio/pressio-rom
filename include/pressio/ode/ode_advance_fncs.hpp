@@ -64,7 +64,10 @@ steps(Time t0, StepCount n, StepSizer sizer){ return { t0, n, std::move(sizer) }
 
 template<class Time, class StepSizer>
 inline ToTime<Time, StepSizer>
-to_time(Time t0, Time tf, StepSizer sizer){ return { t0, tf, std::move(sizer)}; }
+to_time(Time t0, Time tf, StepSizer sizer){
+  static_assert(StepSizePolicy<StepSizer, Time>::value, "invalid step size policy");
+  return { t0, tf, std::move(sizer)};
+}
 
 
 //======================== advance (no solver) ====================
