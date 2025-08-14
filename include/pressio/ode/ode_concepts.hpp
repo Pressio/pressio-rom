@@ -479,10 +479,10 @@ struct StepperWithoutSolver<
 >
 : std::is_same<void, stepper_call_t<T>> {};
 
-// -------------------------------------------------------------
-// -------------------------------------------------------------
 
-/*
+/* -------------------------------------------------------------
+  StateObserver
+
   Trait to detect a **const** state observer callable.
 
   Succeeds iff a type `T` has a **const** call operator with the shape:
@@ -525,11 +525,12 @@ struct StateObserver<
 
 
 
-// -------------------------------------------------------------
-// -------------------------------------------------------------
+/* -------------------------------------------------------------
+   RhsObserver
 
-// Detect a **const** RHS observer with exact-void return:
-//   void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
+   Detect a **const** RHS observer with exact-void return:
+   void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
+*/
 
 template<class T, class IndVarType, class RhsType>
 using rhs_observer_call_c_t = decltype(
@@ -554,12 +555,8 @@ struct RhsObserver<
 : std::is_same<void, rhs_observer_call_c_t<T, IndVarType, RhsType>> {};
 
 
-
-// -------------------------------------------------------------
-// -------------------------------------------------------------
-
-/*
-  Trait: StepSizePolicy<T, IndVarType>
+/* -------------------------------------------------------------
+  StepSizePolicy<T, IndVarType>
 
   Goal
   ----
@@ -612,11 +609,8 @@ struct StepSizePolicy<
 : std::is_same<void, step_size_policy_call_c_t<T, IndVarType>> {};
 
 
-// -------------------------------------------------------------
-// -------------------------------------------------------------
-
-/*
-  Trait: StepSizePolicyWithReductionScheme<T, IndVarType>
+/* -------------------------------------------------------------
+  StepSizePolicyWithReductionScheme
 
   Detect at compile time whether a type `T` can act as a *step size policy with
   reduction scheme*, i.e., it has a **const** call operator with the shape:
