@@ -128,8 +128,8 @@ TEST(rom_galerkin_explicit, test5)
 
   using time_type = typename fom_t::time_type;
   const time_type dt = 2.;
-  pressio::ode::advance_n_steps(problem, romState, time_type{0}, dt,
-				::pressio::ode::StepCount(1), linSolver);
+  auto policy = pressio::ode::steps_fixed_dt(time_type{0}, pressio::ode::StepCount(1), dt);
+  pressio::ode::advance(problem, romState, policy, linSolver);
   std::cout << romState << std::endl;
   EXPECT_DOUBLE_EQ(romState[0], 784001.);
   EXPECT_DOUBLE_EQ(romState[1], 1568002.);

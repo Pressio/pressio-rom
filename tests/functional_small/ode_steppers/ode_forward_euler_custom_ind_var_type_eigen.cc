@@ -43,8 +43,8 @@ TEST(ode_explicit_steppers, euler_custom_ind_var_type)
   y(0) = 1.; y(1) = 2.; y(2) = 3.;
   MyCustomTime t0{0.0};
   MyCustomTime dt{0.1};
-  ode::advance_n_steps(stepperObj, y, t0,
-		       dt, pressio::ode::StepCount(1));
+  auto bp = pressio::ode::steps_fixed_dt(t0, pressio::ode::StepCount(1), dt);
+  ode::advance(stepperObj, y, bp);
   EXPECT_NEAR( y[0], 0., 1e-14);
   EXPECT_NEAR( y[1], 0., 1e-14);
   EXPECT_NEAR( y[2], 0., 1e-14);

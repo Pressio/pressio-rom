@@ -40,5 +40,6 @@ TEST(ode, advance_n_steps_check_step_and_time)
   Stepper stepper;
   ScalarType dt = 2.;
   ScalarType t0 = 0.;
-  pressio::ode::advance_n_steps(stepper, odeState, t0, dt, pressio::ode::StepCount(5));
+  auto bp = pressio::ode::steps_fixed_dt(t0, pressio::ode::StepCount(5), dt);
+  pressio::ode::advance(stepper, odeState, bp);
 }

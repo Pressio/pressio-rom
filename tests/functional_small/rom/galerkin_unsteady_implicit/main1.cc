@@ -150,8 +150,8 @@ TEST(rom_galerkin_implicit, default_bdf1)
   const time_type dt = 2.;
   NonLinearSolver solver;
 
-  pressio::ode::advance_n_steps(problem, romState, time_type{0}, dt,
-				::pressio::ode::StepCount(1), solver);
+  auto policy = pressio::ode::steps_fixed_dt(time_type{0}, pressio::ode::StepCount(1), dt);
+  pressio::ode::advance(problem, romState, policy, solver);
   std::cout << romState << std::endl;
   EXPECT_TRUE(romState[0] == 2.);
   EXPECT_TRUE(romState[1] == 3.);

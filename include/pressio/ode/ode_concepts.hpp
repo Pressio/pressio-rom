@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_system.hpp
+// ode_concepts.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,11 +46,10 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
-#define PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
 
-#include "ode_predicates_for_system.hpp"
-#include "ode_has_const_discrete_residual_jacobian_method.hpp"
+#include "./ode_predicates.hpp"
 
 namespace pressio{ namespace ode{
 
@@ -372,6 +371,341 @@ struct ImplicitResidualJacobianPolicy<
       >::value
     >
   > : std::true_type{};
+
+
+/*
+  This comment documents the pieces defined just below:
+
+    1) `stepper_call_t<T>` — an alias for the *deduced return type* of calling
+       `T::operator()` with the expected arguments.
+    2) `StepperWithoutSolver<T>` — a boolean type trait that evaluates to
+       `true` iff that call is well-formed and returns **exactly `void`**.
+
+  ---------------------------------------------------------------------------
+  How does it work?
+  ---------------------------------------------------------------------------
+  1) `stepper_call_t<T>` forms the type of the expression
+
+       std::declval<T&>()(
+         std::declval<typename T::state_type&>(),
+         std::declval<StepStartAt<typename T::independent_variable_type>>(),
+         std::declval<StepCount>(),
+         std::declval<StepSize<typename T::independent_variable_type>>()
+       )
+
+     using `decltype(...)`. `std::declval<X>()` fabricates a value of type X in an
+     unevaluated context, letting us ask “what would this call return?”. If the call
+     is ill-formed (wrong/missing types, or requires non-const lvalue refs for the
+     last three arguments), `stepper_call_t<T>` itself fails to form and the trait
+     is SFINAE’d out.
+
+  2) The partial specialization of `StepperWithoutSolver<T, ...>` is gated by
+     `std::void_t<...>`:
+
+       std::void_t<
+         typename T::independent_variable_type,
+         typename T::state_type,
+         stepper_call_t<T>
+       >
+
+     This specialization only participates if the nested typedefs exist *and*
+     the call expression type could be formed.
+
+  3) Inside the participating specialization we apply additional semantic checks
+     with a `std::conjunction`:
+
+     - `std::is_same<void, stepper_call_t<T>>` requires the deduced return type
+       to be **exactly `void`**.
+
+     - A positive invocability check:
+         std::is_invocable_r<
+           void, T&,
+           state_type&,
+           const StepStartAt<IV>&, const StepCount&, const StepSize<IV>&>
+       This enforces that:
+         * `state` is accepted as a **non-const lvalue reference** (so it can be
+           modified).
+         * The other three parameters are accepted as **non-modifiable** inputs.
+           Requiring `const&` here also permits implementations that take them
+           **by value** (since prvalues bind to `const&`).
+
+     - Two negative invocability checks:
+         * Not invocable with `const state_type&` (rejects implementations that
+           cannot modify `state`).
+         * Not invocable with `state_type&&` (rejects by-value / forwarding-ref
+           signatures for `state`, which could allow moving/copying instead of
+           in-place modification).
+*/
+
+template<class T>
+using stepper_call_t = decltype(
+  std::declval<T&>()(
+    std::declval<typename T::state_type &>(),
+    std::declval<StepStartAt<typename T::independent_variable_type>>(),
+    std::declval<StepCount>(),
+    std::declval<StepSize<typename T::independent_variable_type>>()
+  )
+);
+
+template <class T, class = void>
+struct StepperWithoutSolver : std::false_type{};
+
+template <class T>
+struct StepperWithoutSolver<
+  T,
+  std::void_t<
+    typename T::independent_variable_type,
+    typename T::state_type,
+    stepper_call_t<T>
+    >
+> : std::conjunction<
+    // must return void for the canonical call
+    std::is_same<void, stepper_call_t<T>>,
+
+    // state MUST be a non-const lvalue reference (callable with state&)
+    std::is_invocable_r<
+      void, T&,
+      typename T::state_type&,
+      // other params must be const-ref OR by-value: requiring const& works for both
+      const StepStartAt<typename T::independent_variable_type>&,
+      const StepCount&,
+      const StepSize<typename T::independent_variable_type>&
+    >,
+
+    // forbid accepting a const state& (would not allow modification)
+    std::negation<std::is_invocable<
+      T&,
+      const typename T::state_type&,
+      const StepStartAt<typename T::independent_variable_type>&,
+      const StepCount&,
+      const StepSize<typename T::independent_variable_type>&
+    >>,
+
+    // forbid accepting state&& (would allow by-value / move-only patterns)
+    std::negation<std::is_invocable<
+      T&,
+      typename T::state_type&&,
+      const StepStartAt<typename T::independent_variable_type>&,
+      const StepCount&,
+      const StepSize<typename T::independent_variable_type>&
+    >>
+  > {};
+
+
+/* -------------------------------------------------------------
+  StateObserver
+
+  Trait to detect a **const** state observer callable.
+
+  Succeeds iff a type `T` has a **const** call operator with the shape:
+
+    void operator()( ::pressio::ode::StepCount,
+                     IndVarType,
+                     StateType const& ) const;
+
+  More precisely:
+   - We form the type of the expression
+       std::declval<T const&>()(StepCount{}, IndVarType{}, StateType const&{})
+     via `decltype(...)`. If that call is ill-formed, the specialization
+     is discarded (SFINAE) and the trait is `false`.
+   - If the call is well-formed, we additionally require the deduced
+     return type to be **exactly `void`** (not just convertible to void).
+
+  Usage:
+    static_assert(StateObserver<MyObs, double, MyState>::value, "Must be a const observer");
+*/
+
+template<class T, class IndVarType, class StateType>
+using state_observer_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<IndVarType>(),
+    std::declval<StateType const&>()
+  )
+);
+
+template<class T, class IndVarType, class StateType, class = void>
+struct StateObserver : std::false_type {};
+
+template<class T, class IndVarType, class StateType>
+struct StateObserver<
+  T, IndVarType, StateType,
+  std::void_t< state_observer_call_c_t<T, IndVarType, StateType> >
+>
+: std::is_same<void, state_observer_call_c_t<T, IndVarType, StateType>> {};
+
+
+
+
+/* -------------------------------------------------------------
+   RhsObserver
+
+   Detect a **const** RHS observer with exact-void return:
+   void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
+*/
+
+template<class T, class IndVarType, class RhsType>
+using rhs_observer_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<IntermediateStepCount>(),
+    std::declval<IndVarType>(),
+    std::declval<RhsType const&>()
+  )
+);
+
+// Primary: default to false
+template<class T, class IndVarType, class RhsType, class = void>
+struct RhsObserver : std::false_type {};
+
+// Specialization: only if the const-call is well-formed; require return type == void
+template<class T, class IndVarType, class RhsType>
+struct RhsObserver<
+  T, IndVarType, RhsType,
+  std::void_t< rhs_observer_call_c_t<T, IndVarType, RhsType> >
+>
+: std::is_same<void, rhs_observer_call_c_t<T, IndVarType, RhsType>> {};
+
+
+/* -------------------------------------------------------------
+  StepSizePolicy<T, IndVarType>
+
+  Goal
+  ----
+  Detect at compile time whether a type `T` can act as a *step size policy*,
+  i.e., it is a callable object with a **const** call operator of the form:
+
+      void operator()( ::pressio::ode::StepCount,
+                       ::pressio::ode::StepStartAt<IndVarType>,
+                       ::pressio::ode::StepSize<IndVarType>& ) const;
+
+  Semantics
+  ---------
+  - The third argument is a non-const reference to StepSize<IndVarType>, so the
+    policy can write/adjust the step size.
+  - The trait requires the return type to be **exactly `void`**.
+*/
+
+template<class T, class IndVarType>
+using step_size_policy_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<StepStartAt<IndVarType>>(),
+    std::declval<StepSize<IndVarType>&>()
+  )
+);
+
+template <class T, class IndVarType, class Enable = void>
+struct StepSizePolicy : std::false_type {};
+
+template <class T, class IndVarType>
+struct StepSizePolicy<
+  T, IndVarType,
+  std::void_t< step_size_policy_call_c_t<T, IndVarType> >
+>
+: std::conjunction<
+    // must be callable and return void with non-const lvalue ref
+    std::is_same<void, step_size_policy_call_c_t<T, IndVarType>>,
+    std::is_invocable_r<
+      void, const T&, StepCount, StepStartAt<IndVarType>, StepSize<IndVarType>&>,
+    // must NOT be callable with const lvalue ref
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>, const StepSize<IndVarType>&>>,
+    // must NOT be callable with rvalue
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>, StepSize<IndVarType>&&>>
+  > {};
+
+
+/* -------------------------------------------------------------
+  StepSizePolicyWithReductionScheme
+
+  Detect at compile time whether a type `T` can act as a *step size policy with
+  reduction scheme*, i.e., it has a **const** call operator with the shape:
+
+      void operator()( ::pressio::ode::StepCount,
+                       ::pressio::ode::StepStartAt<IndVarType>,
+                       ::pressio::ode::StepSize<IndVarType>&,
+                       ::pressio::ode::StepSizeMinAllowedValue<IndVarType>&,
+                       ::pressio::ode::StepSizeScalingFactor<IndVarType>& ) const;
+
+  Semantics
+  ---------
+  - The last three parameters are non-const references the policy can modify:
+      * StepSize<IndVarType>&                — current step size
+      * StepSizeMinAllowedValue<IndVarType>& — minimum allowed step size
+      * StepSizeScalingFactor<IndVarType>&   — multiplicative scaling factor
+  - The trait requires the return type to be **exactly `void`**.
+*/
+
+template<class T, class IndVarType>
+using step_size_policy_with_reduction_call_c_t = decltype(
+  std::declval<T const&>()(
+    std::declval<StepCount>(),
+    std::declval<StepStartAt<IndVarType>>(),
+    std::declval<StepSize<IndVarType>&>(),
+    std::declval<StepSizeMinAllowedValue<IndVarType>&>(),
+    std::declval<StepSizeScalingFactor<IndVarType>&>()
+  )
+);
+
+template <class T, class IndVarType, class Enable = void>
+struct StepSizePolicyWithReductionScheme : std::false_type {};
+
+template <class T, class IndVarType>
+struct StepSizePolicyWithReductionScheme<
+  T, IndVarType,
+  std::void_t< step_size_policy_with_reduction_call_c_t<T, IndVarType> >
+>
+: std::conjunction<
+    // must return void and be callable with non-const lvalue refs
+    std::is_same<void, step_size_policy_with_reduction_call_c_t<T, IndVarType>>,
+    std::is_invocable_r<
+      void, const T&,
+      StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&,
+      StepSizeMinAllowedValue<IndVarType>&,
+      StepSizeScalingFactor<IndVarType>&
+    >,
+    // must NOT be callable with any of the three by const&
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      const StepSize<IndVarType>&,
+      StepSizeMinAllowedValue<IndVarType>&,
+      StepSizeScalingFactor<IndVarType>&
+    >>,
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&,
+      const StepSizeMinAllowedValue<IndVarType>&,
+      StepSizeScalingFactor<IndVarType>&
+    >>,
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&,
+      StepSizeMinAllowedValue<IndVarType>&,
+      const StepSizeScalingFactor<IndVarType>&
+    >>,
+    // must NOT be callable with any of the three by rvalue (would allow by-value)
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&&,
+      StepSizeMinAllowedValue<IndVarType>&,
+      StepSizeScalingFactor<IndVarType>&
+    >>,
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&,
+      StepSizeMinAllowedValue<IndVarType>&&,
+      StepSizeScalingFactor<IndVarType>&
+    >>,
+    std::negation<std::is_invocable<
+      const T&, StepCount, StepStartAt<IndVarType>,
+      StepSize<IndVarType>&,
+      StepSizeMinAllowedValue<IndVarType>&,
+      StepSizeScalingFactor<IndVarType>&&
+    >>
+  > {};
 
 }}
 #endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_

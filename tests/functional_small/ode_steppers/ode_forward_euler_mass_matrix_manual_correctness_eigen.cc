@@ -73,8 +73,8 @@ TEST(ode_explicit_steppers, forward_euler_with_mass_matrix)
     state_t y(3);
     y(0) = 1.; y(1) = 2.; y(2) = 3.;
     double dt = 2.;
-    ode::advance_n_steps(stepperObj, y, 0.0, dt,
-                         ::pressio::ode::StepCount(1), solver);
+    auto bp = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(1), dt);
+    ode::advance(stepperObj, y, bp, solver);
     EXPECT_DOUBLE_EQ( y(0), 1.);
     EXPECT_DOUBLE_EQ( y(1), 14.);
     EXPECT_DOUBLE_EQ( y(2), 27.);
@@ -84,8 +84,8 @@ TEST(ode_explicit_steppers, forward_euler_with_mass_matrix)
     state_t y(3);
     y(0) = 1.; y(1) = 2.; y(2) = 3.;
     double dt = 2.;
-    ode::advance_n_steps(stepperObj, y, 0.0, dt,
-                         ::pressio::ode::StepCount(2), solver);
+    auto bp = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(2), dt);
+    ode::advance(stepperObj, y, bp, solver);
     EXPECT_DOUBLE_EQ( y(0), 193.);
     EXPECT_DOUBLE_EQ( y(1), 302.);
     EXPECT_DOUBLE_EQ( y(2), 411.);
@@ -95,8 +95,8 @@ TEST(ode_explicit_steppers, forward_euler_with_mass_matrix)
     state_t y(3);
     y(0) = 1.; y(1) = 2.; y(2) = 3.;
     double dt = 2.;
-    ode::advance_n_steps(stepperObj, y, 0.0, dt,
-                         ::pressio::ode::StepCount(3), solver);
+    auto bp = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(3), dt);    
+    ode::advance(stepperObj, y, bp, solver);
     EXPECT_DOUBLE_EQ( y(0), 7344.+ 193.);
     EXPECT_DOUBLE_EQ( y(1), 9180.+ 302.);
     EXPECT_DOUBLE_EQ( y(2), 11016.+411.);

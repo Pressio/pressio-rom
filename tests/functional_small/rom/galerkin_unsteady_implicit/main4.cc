@@ -267,9 +267,8 @@ TEST(rom_galerkin_implicit, default_fullydiscrete_n2)
 
   FakeNonLinSolver<phi_t> nonLinSolver(N, phi, dt);
   Observer obs;
-  pressio::ode::advance_n_steps(problem, romState, 0.,
-				dt, pressio::ode::StepCount(2),
-				obs, nonLinSolver);
+  auto policy = pressio::ode::steps_fixed_dt(0., pressio::ode::StepCount(2), dt);
+  pressio::ode::advance(problem, romState, policy, nonLinSolver, obs);
   std::cout << romState << std::endl;
   EXPECT_DOUBLE_EQ(romState[0], 4.);
   EXPECT_DOUBLE_EQ(romState[1], 5.);

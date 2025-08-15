@@ -21,7 +21,8 @@ TEST(ode, implicit_bdf1_policy_default_created)
 
   ode::StepCount nSteps(2);
   double dt = 0.01;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, nSteps, NonLinSolver);
+  auto policy = ode::steps_fixed_dt(0.0, nSteps, dt);
+  ode::advance(stepperObj, y, policy, NonLinSolver);
   std::cout << std::setprecision(14) << y << "\n";
 
   problemObj.analyticAdvanceBackEulerNSteps(dt, nSteps.get());
@@ -55,7 +56,8 @@ TEST(ode, implicit_bdf1_custom_policy)
 
   ode::StepCount nSteps(2);
   double dt = 0.01;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, nSteps, NonLinSolver);
+  auto policy = ode::steps_fixed_dt(0.0, nSteps, dt);
+  ode::advance(stepperObj, y, policy, NonLinSolver);
   std::cout << std::setprecision(14) << y << "\n";
 
   problemObj.analyticAdvanceBackEulerNSteps(dt, nSteps.get());

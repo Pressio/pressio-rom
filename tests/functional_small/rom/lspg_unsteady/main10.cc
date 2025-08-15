@@ -126,8 +126,8 @@ TEST(rom_lspg_unsteady, test10)
 
   const double dt = 2.;
   FakeNonLinSolver<phi_t> nonLinSolver(N, phi, dt);
-  ode::advance_n_steps(problem, romState, 0., dt,
-		       ode::StepCount(3), nonLinSolver);
+  auto policy = pressio::ode::steps_fixed_dt(0., pressio::ode::StepCount(3), dt);
+  ode::advance(problem, romState, policy, nonLinSolver);
   std::cout << romState << std::endl;
   // EXPECT_DOUBLE_EQ(romState[0], 4.);
   // EXPECT_DOUBLE_EQ(romState[1], 5.);

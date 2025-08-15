@@ -146,18 +146,37 @@ struct StepSizeScalingFactor{
   }
 };
 
-/**
- * StepCount
- *
- * Represents the total number of steps to perform during time integration.
- * Holds an integer value.
- */
+/*
+  StepCount – strongly typed step index for time integration.
+
+  - 1-based: the first executed step is 1.
+  - Intended usage: for (StepCount k{1}; k <= n; ++k) { ... }
+  - Stored as 32-bit
+*/
 struct StepCount{
   using value_type = int32_t;
   value_type value_{};
   StepCount() = default;
   constexpr explicit StepCount(value_type valueIn) : value_(valueIn){}
   constexpr value_type get() const { return value_; }
+
+  // ++prefix
+  constexpr StepCount& operator++() noexcept {
+    ++value_;
+    return *this;
+  }
+
+  // StepCount <= StepCount
+  friend constexpr bool operator<=(const StepCount& a, const StepCount& b) noexcept {
+    return a.value_ <= b.value_;
+  }
+
+  friend constexpr bool operator<=(const StepCount& a, value_type b) noexcept {
+    return a.value_ <= b;
+  }
+  friend constexpr bool operator<=(value_type a, const StepCount& b) noexcept {
+    return a <= b.value_;
+  }
 };
 
 /**
