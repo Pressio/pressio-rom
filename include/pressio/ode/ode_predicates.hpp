@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_predicates_for_system.hpp
+// ode_predicates.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
-#define PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_HPP_
 
 #include <optional>
 

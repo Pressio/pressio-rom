@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_advance_mandates.hpp
+// ode_advance_impl.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_IMPL_ODE_ADVANCE_MANDATES_HPP_
-#define PRESSIOROM_ODE_IMPL_ODE_ADVANCE_MANDATES_HPP_
+#ifndef PRESSIOROM_ODE_IMPL_ODE_ADVANCE_IMPL_HPP_
+#define PRESSIOROM_ODE_IMPL_ODE_ADVANCE_IMPL_HPP_
 
 #include <tuple>
 #include <type_traits>
@@ -519,4 +519,4 @@ struct ToTime {
 
 
 }} //end namespace pressio::ode
-#endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_MANDATES_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_ADVANCE_IMPL_HPP_
