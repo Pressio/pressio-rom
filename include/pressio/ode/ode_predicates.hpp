@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_has_const_discrete_residual_jacobian_method.hpp
+// ode_predicates.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,12 +46,156 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
-#define PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
+#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_HPP_
+#define PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_HPP_
 
 #include <optional>
 
 namespace pressio{ namespace ode{
+
+template <class T, class StateType, class = void>
+struct has_const_create_state_method_return_result : std::false_type{};
+
+template <class T, class StateType>
+struct has_const_create_state_method_return_result<
+  T, StateType,
+  std::enable_if_t<
+    std::is_same<
+      StateType,
+      decltype(std::declval<T const>().createState())
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class RhsType, class = void>
+struct has_const_create_rhs_method_return_result
+  : std::false_type{};
+
+template <class T, class RhsType>
+struct has_const_create_rhs_method_return_result<
+  T, RhsType,
+  std::enable_if_t<
+    !std::is_void<RhsType>::value and
+    std::is_same<
+      RhsType,
+      decltype(
+	       std::declval<T const>().createRhs()
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class MMType, class = void>
+struct has_const_create_mass_matrix_method_return_result
+  : std::false_type{};
+
+template <class T, class MMType>
+struct has_const_create_mass_matrix_method_return_result<
+  T, MMType,
+  std::enable_if_t<
+    !std::is_void<MMType>::value and
+    std::is_same<
+      MMType,
+      decltype(
+	       std::declval<T const>().createMassMatrix()
+	       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class JacobianType, class = void>
+struct has_const_create_jacobian_method_return_result
+  : std::false_type{};
+
+template <class T, class JacobianType>
+struct has_const_create_jacobian_method_return_result<
+  T, JacobianType,
+  std::enable_if_t<
+    !std::is_void<JacobianType>::value and
+    std::is_same<
+      JacobianType,
+      decltype(
+         std::declval<T const>().createJacobian()
+         )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class ResultType, class = void>
+struct has_const_create_discrete_residual_method_return_result
+  : std::false_type{};
+
+template <class T, class ResultType>
+struct has_const_create_discrete_residual_method_return_result<
+  T, ResultType,
+  std::enable_if_t<
+    !std::is_void<ResultType>::value and
+    std::is_same<
+      ResultType,
+      decltype
+      (
+       std::declval<T const>().createDiscreteResidual()
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <class T, class JacobianType, class = void>
+struct has_const_create_discrete_jacobian_method_return_result
+  : std::false_type{};
+
+template <class T, class JacobianType>
+struct has_const_create_discrete_jacobian_method_return_result<
+  T, JacobianType,
+  std::enable_if_t<
+    !std::is_void<JacobianType>::value and
+    std::is_same<
+      JacobianType,
+      decltype(
+         std::declval<T const>().createDiscreteJacobian()
+         )
+      >::value
+    >
+  > : std::true_type{};
+
+
+template <
+  class T, int numStates, class StepType, class IndVarType, class StateType,
+  class = void
+  >
+struct has_const_pre_step_hook_method
+  : std::false_type{};
+
+template <class T, class StepType, class IndVarType, class StateType>
+struct has_const_pre_step_hook_method<
+  T, 2, StepType, IndVarType, StateType,
+  std::enable_if_t<
+    std::is_void<
+      decltype
+      (
+       std::declval<T const>().preStepHook
+       (
+	std::declval<StepType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<IndVarType const &>(),
+	std::declval<StateType const&>(),
+	std::declval<StateType const&>()
+	)
+       )
+      >::value
+    >
+  > : std::true_type{};
+
+
+
+//
+// has_const_discrete_residual_jacobian_method
+//
 
 template <
   class T, int n,
@@ -163,5 +307,6 @@ struct has_const_discrete_residual_jacobian_method<
     >
   > : std::true_type{};
 
+
 }}
-#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_HAS_CONST_DISCRETE_RESIDUAL_JACOBIAN_METHOD_HPP_
+#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_PREDICATES_FOR_SYSTEM_HPP_

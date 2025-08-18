@@ -221,8 +221,7 @@ TEST(rom_lspg_unsteady, fully_discrete_with_recovery_n2)
   };
 
   MyFakeSolver solver;
-  pressio::ode::advance_to_target_point_with_step_recovery
-    (problem, romState, 0., 2., dtManager, solver);
+  pressio::ode::advance_with_step_recovery(problem, romState, 0., 2., dtManager, solver);
 
   PRESSIOLOG_FINALIZE();
 }

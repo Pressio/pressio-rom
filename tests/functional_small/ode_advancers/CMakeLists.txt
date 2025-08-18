@@ -2,30 +2,16 @@
 set(ROOTNAME ${TESTING_LEVEL}_ode_advancers)
 
 add_serial_utest(
-  ${ROOTNAME}_concepts_steppable
-  ${CMAKE_CURRENT_SOURCE_DIR}/concepts_steppable.cc)
+  ${ROOTNAME}_concepts
+  ${CMAKE_CURRENT_SOURCE_DIR}/concepts.cc)
 
-add_serial_utest(
-  ${ROOTNAME}_concepts_step_policy
-  ${CMAKE_CURRENT_SOURCE_DIR}/concepts_step_policy.cc)
-
-add_serial_utest(
-  ${ROOTNAME}_concepts_state_observer
-  ${CMAKE_CURRENT_SOURCE_DIR}/concepts_state_observer.cc)
-
-#
 add_serial_utest(
   ${ROOTNAME}_api_check_advance_n_steps
   ${CMAKE_CURRENT_SOURCE_DIR}/api_check_advance_n_steps.cc)
 
-#
 add_serial_utest(
   ${ROOTNAME}_advance_n_steps_const_dt
   ${CMAKE_CURRENT_SOURCE_DIR}/advance_n_steps_const_dt.cc)
-
-add_serial_utest(
-  ${ROOTNAME}_advance_n_steps_const_dt_with_observer
-  ${CMAKE_CURRENT_SOURCE_DIR}/advance_n_steps_const_dt_with_observer.cc)
 
 add_serial_utest(
   ${ROOTNAME}_advance_n_steps_varying_dt

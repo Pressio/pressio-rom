@@ -162,23 +162,23 @@ int main(int argc, char *argv[])
   y(0) = 0.5; y(1) = 1.0; y(2) = 1.;
   const scalar_type startTime{0.0};
   const scalar_type finalTime{40.0};
+  auto policy = pode::to_time(startTime, finalTime,
+			      [=](const pode::StepCount & /*unused*/,
+				  const pode::StepStartAt<scalar_type> & /*unused*/,
+				  pode::StepSize<scalar_type> & dt)
+			      { dt = 0.01; });
+
   std::ofstream myfile("state_snapshots.bin",  std::ios::out | std::ios::binary);
-  pode::advance_to_target_point(stepper, y, startTime, finalTime,
-				// lambda to set the time step
-				[](const pode::StepCount & /*unused*/,
-				   const pode::StepStartAt<scalar_type> & /*unused*/,
-				   pode::StepSize<scalar_type> & dt)
-				{ dt = 0.01; },
-				// lambda to observe and write to file the state
-				[&](pressio::ode::StepCount step,
-				    const scalar_type /*timeIn*/,
-				    const typename problem_type::state_type & state)
-				{
-				  std::cout << "saving state at = " << step.get() << "\n";
-				  const std::size_t ext = state.size()*sizeof(scalar_type);
-				  myfile.write(reinterpret_cast<const char*>(&state(0)), ext);
-				},
-				nonLinearSolver);
+  pode::advance(stepper, y, policy, nonLinearSolver,
+		// lambda to observe and write to file the state
+		[&](pressio::ode::StepCount step,
+		    const scalar_type /*timeIn*/,
+		    const typename problem_type::state_type & state)
+		{
+		  std::cout << "saving state at = " << step.get() << "\n";
+		  const std::size_t ext = state.size()*sizeof(scalar_type);
+		  myfile.write(reinterpret_cast<const char*>(&state(0)), ext);
+		});
   myfile.close();
 
   std::cout << "PASSED\n";

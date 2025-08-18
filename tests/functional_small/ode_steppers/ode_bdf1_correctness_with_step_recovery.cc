@@ -156,8 +156,7 @@ int main()
   pressio::ops::fill(y, 1);
 
   auto stepperObj = pressio::ode::create_bdf1_stepper(appObj);
-  pressio::ode::advance_to_target_point_with_step_recovery
-    (stepperObj, y, 0., 0.4, dtManager, solver);
+  pressio::ode::advance_with_step_recovery(stepperObj, y, 0., 0.4, dtManager, solver);
 
   std::cout << checkStr << std::endl;
 

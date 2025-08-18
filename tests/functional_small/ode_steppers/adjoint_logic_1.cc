@@ -155,8 +155,8 @@ TEST(ode, adjoint_test_1)
     PrimalApp app(A_mats_);
     MyFakeSolver solver;
     auto stepperObj = pressio::ode::create_implicit_stepper<2>(app);
-    pressio::ode::advance_n_steps(stepperObj, x, 0., dtSetter,
-				  ::pressio::ode::StepCount(_num_steps), solver);
+    auto policy = pressio::ode::steps(0., pressio::ode::StepCount(_num_steps), dtSetter);
+    pressio::ode::advance(stepperObj, x, policy, solver);
   }
 
   //
@@ -170,8 +170,8 @@ TEST(ode, adjoint_test_1)
     AdjointApp app(A_mats_);
     MyFakeSolver solver;
     auto stepperObj = pressio::ode::create_implicit_stepper<2>(app);
-    pressio::ode::advance_n_steps(stepperObj, w, 0., dtSetter,
-				  ::pressio::ode::StepCount(_num_steps), solver);
+    auto policy = pressio::ode::steps(0., pressio::ode::StepCount(_num_steps), dtSetter);
+    pressio::ode::advance(stepperObj, w, policy, solver);
   }
 
   const auto lhs = pressio::ops::dot(w, x_0);
