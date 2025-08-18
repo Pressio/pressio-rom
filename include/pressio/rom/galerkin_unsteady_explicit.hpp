@@ -127,13 +127,13 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
       ind_var_type, reduced_state_type, reduced_rhs_type,
       reduced_mm_type, TrialSubspaceType, FomSystemType>;
     auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
-    return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
+    return ::pressio::ode::create_explicit_stepper(schemeName, std::move(gs));
   }
   else{
     using galerkin_system = impl::GalerkinDefaultOdeSystemOnlyRhs<
       ind_var_type, reduced_state_type, reduced_rhs_type, TrialSubspaceType, FomSystemType>;
     auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
-    return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
+    return ::pressio::ode::create_explicit_stepper(schemeName, std::move(gs));
   }
 
 }
@@ -174,7 +174,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
     TrialSubspaceType, FomSystemType, HyperReducerType>;
 
   auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, hyperReducer);
-  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
+  return ::pressio::ode::create_explicit_stepper(schemeName, std::move(gs));
 }
 
 // -------------------------------------------------------------
@@ -213,7 +213,7 @@ auto create_unsteady_explicit_problem(::pressio::ode::StepScheme schemeName,  /*
     TrialSubspaceType, FomSystemType, MaskerType, HyperReducerType>;
 
   auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem, masker, hyperReducer);
-  return ::pressio::ode::create_explicit_stepper<galerkin_system>(schemeName, std::move(gs));
+  return ::pressio::ode::create_explicit_stepper(schemeName, std::move(gs));
 }
 
 }}} // end pressio::rom::galerkin
