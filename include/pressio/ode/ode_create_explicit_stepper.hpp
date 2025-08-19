@@ -100,7 +100,7 @@ namespace impl_detail {
  *   MySystem sys;
  *   auto step1 = create_explicit_stepper(StepScheme::RK4, sys);   // non-owning
  *
- *   auto p = std::make_unique<MySystem>(/* ctor args * /);
+ *   auto p = std::make_unique<MySystem>(ctor args);
  *   auto step2 = create_explicit_stepper(StepScheme::RK4, std::move(p)); // owning
  *
  * Requirements (compile-time enforced)
