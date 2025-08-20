@@ -75,16 +75,11 @@ namespace impl_detail {
  *   (a) by reference (non-owning): `T&` / `const T&`
  *   (b) by transferring ownership: `std::unique_ptr<T>&&` (must be moved)
  *
- * Template Parameters
- * -------------------
- * SystemLike
- *   A forwarding type that is either `T`, `T&`, `const T&`, `std::unique_ptr<T>`, or
- *   `std::unique_ptr<T>&&`. CV-qualifiers and references are removed for trait checks.
- *
  * Parameters
  * ----------
  * schemeName
- *   The explicit time-integration scheme to use (e.g., Forward Euler, RK3, RK4).
+ *   The explicit time-integration scheme to use.
+ *   See ode_enum_and_tags.hpp for valid options to use.
  *
  * system_like
  *   The system instance or a `std::unique_ptr` to it.
@@ -95,7 +90,7 @@ namespace impl_detail {
  * Return
  * ------
  * An explicit stepper object.
- * Use `auto` at the call site:
+ * Use `auto` at the call site since the type of stepper class is an impl detail.
  *
  *   MySystem sys;
  *   auto step1 = create_explicit_stepper(StepScheme::RK4, sys);   // non-owning
