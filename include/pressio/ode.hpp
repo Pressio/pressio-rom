@@ -51,8 +51,7 @@
 
 // local includes
 #include "./ode_concepts.hpp"
-#include "./ode_steppers_explicit.hpp"
-#include "./ode_steppers_implicit.hpp"
+#include "./ode_steppers.hpp"
 #include "./ode_advancers.hpp"
 
 #endif

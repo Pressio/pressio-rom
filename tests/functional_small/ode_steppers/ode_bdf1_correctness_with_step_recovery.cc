@@ -1,5 +1,5 @@
 
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 struct MyApp
