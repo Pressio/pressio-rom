@@ -53,15 +53,13 @@
 
 #include "./impl/ode_explicit_stepper_without_mass_matrix.hpp"
 #include "./impl/ode_explicit_stepper_with_mass_matrix.hpp"
-#include "./impl/ode_explicit_create_impl.hpp"
-
 #include "./impl/ode_implicit_discrete_residual.hpp"
 #include "./impl/ode_implicit_discrete_jacobian.hpp"
 #include "./impl/ode_implicit_policy_residual_jacobian_without_mass_matrix.hpp"
 #include "./impl/ode_implicit_policy_residual_jacobian_with_mass_matrix.hpp"
 #include "./impl/ode_implicit_stepper_standard.hpp"
 #include "./impl/ode_implicit_stepper_arbitrary.hpp"
-#include "./impl/ode_implicit_create_impl.hpp"
+#include "./impl/ode_create_impl.hpp"
 
 namespace pressio{ namespace ode{
 
