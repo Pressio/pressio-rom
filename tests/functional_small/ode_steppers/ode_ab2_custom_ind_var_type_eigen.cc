@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "testing_apps.hpp"
 #include "custom_independent_variable.hpp"

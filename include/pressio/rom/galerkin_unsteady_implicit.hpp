@@ -140,7 +140,7 @@ auto create_unsteady_implicit_problem(::pressio::ode::StepScheme schemeName,   /
       ind_var_type, reduced_state_type, reduced_residual_type,
       reduced_jacobian_type, TrialSubspaceType, FomSystemType>;
     auto gs = std::make_unique<galerkin_system>(trialSpace, fomSystem);
-    return ::pressio::ode::create_implicit_stepper<galerkin_system>(schemeName, std::move(gs));
+    return ::pressio::ode::create_implicit_stepper(schemeName, std::move(gs));
   }
 }
 

@@ -46,7 +46,7 @@
 //@HEADER
 */
 #include "pressio/ode_advancers.hpp"
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include <Eigen/Core>
 
 template<class ScalarType>
