@@ -208,7 +208,7 @@ struct RealValuedOdeSystemFusingRhsAndJacobian<
       typename T::independent_variable_type,
       scalar_trait_t<typename T::state_type> >::value
   > > : std::true_type{};
-o
+
 #endif
 
 #ifdef PRESSIO_ENABLE_CXX20
