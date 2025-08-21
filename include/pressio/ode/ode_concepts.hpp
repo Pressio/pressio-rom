@@ -390,7 +390,6 @@ struct RealValuedCompleteOdeSystem<
 
 
 #ifdef PRESSIO_ENABLE_CXX20
-
 template<class T>
 concept FDJ_Common =
   requires { typename T::independent_variable_type; } &&

@@ -159,9 +159,9 @@ TEST(ode, concepts)
   static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System6>), "");
   static_assert( PRESSIO_VALUE_OF(CompleteOdeSystem<System7>), "");
 
-  static_assert( PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 1>)), "");
-  static_assert( PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 2>)), "");
-  static_assert(!PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 3>)), "");
+  static_assert( PRESSIO_VALUE_OF(FullyDiscreteSystemWithJacobian<System9, 1>), "");
+  static_assert( PRESSIO_VALUE_OF(FullyDiscreteSystemWithJacobian<System9, 2>), "");
+  static_assert(!PRESSIO_VALUE_OF(FullyDiscreteSystemWithJacobian<System9, 3>), "");
   static_assert(!PRESSIO_VALUE_OF(OdeSystem<System9>), "");
   static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System9>), "");
 }

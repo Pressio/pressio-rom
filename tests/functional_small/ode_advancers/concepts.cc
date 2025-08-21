@@ -434,13 +434,13 @@ struct B_NoCall {
 // =============================== TEST ===============================
 
 #define EXPECT_STEPPER_TRUE(T_)  do { \
-  static_assert(StepperWithoutSolver<T_>::value, #T_ " should be valid"); \
-  EXPECT_TRUE((StepperWithoutSolver<T_>::value)) << #T_; \
+  static_assert(PRESSIO_VALUE_OF(StepperWithoutSolver<T_>), #T_ " should be valid"); \
+  EXPECT_TRUE((PRESSIO_VALUE_OF(StepperWithoutSolver<T_>))) << #T_; \
 } while(0)
 
 #define EXPECT_STEPPER_FALSE(T_) do { \
-  static_assert(!StepperWithoutSolver<T_>::value, #T_ " should be invalid"); \
-  EXPECT_FALSE((StepperWithoutSolver<T_>::value)) << #T_; \
+  static_assert(!PRESSIO_VALUE_OF(StepperWithoutSolver<T_>), #T_ " should be invalid"); \
+  EXPECT_FALSE((PRESSIO_VALUE_OF(StepperWithoutSolver<T_>))) << #T_; \
 } while(0)
 
 TEST(StepperWithoutSolverTrait, AllCases) {
