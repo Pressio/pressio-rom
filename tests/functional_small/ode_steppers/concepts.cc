@@ -139,28 +139,29 @@ struct System9{
 				   const state_type &        /*unused*/) const{}
 };
 
+#include <gtest/gtest.h>
+
 TEST(ode, concepts)
 {
   using namespace pressio::ode;
 
-  static_assert(OdeSystem<System1>::value, "");
-  static_assert(!CompleteOdeSystem<System1>::value, "");
+  static_assert( PRESSIO_VALUE_OF(OdeSystem<System1>), "");
+  static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System1>), "");
 
-  static_assert(!OdeSystem<System2>::value, "");
-  static_assert(!CompleteOdeSystem<System2>::value, "");
+  static_assert(!PRESSIO_VALUE_OF(OdeSystem<System2>), "");
+  static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System2>), "");
 
-  static_assert(!OdeSystem<System3>::value, "");
-  static_assert(!CompleteOdeSystem<System3>::value, "");
+  static_assert(!PRESSIO_VALUE_OF(OdeSystem<System3>), "");
+  static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System3>), "");
 
-  static_assert(OdeSystemFusingMassMatrixAndRhs<System4>::value, "");
+  static_assert( PRESSIO_VALUE_OF(OdeSystemFusingMassMatrixAndRhs<System4>), "");
 
-  static_assert( !CompleteOdeSystem<System6>::value, "");
-  static_assert( CompleteOdeSystem<System7>::value, "");
+  static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System6>), "");
+  static_assert( PRESSIO_VALUE_OF(CompleteOdeSystem<System7>), "");
 
-  static_assert(FullyDiscreteSystemWithJacobian<System9,  1>::value, "");
-  static_assert(FullyDiscreteSystemWithJacobian<System9,  2>::value, "");
-  static_assert(!FullyDiscreteSystemWithJacobian<System9, 3>::value, "");
-  static_assert(!OdeSystem<System9>::value, "");
-  static_assert(!CompleteOdeSystem<System9>::value, "");
-
+  static_assert( PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 1>)), "");
+  static_assert( PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 2>)), "");
+  static_assert(!PRESSIO_VALUE_OF((FullyDiscreteSystemWithJacobian<System9, 3>)), "");
+  static_assert(!PRESSIO_VALUE_OF(OdeSystem<System9>), "");
+  static_assert(!PRESSIO_VALUE_OF(CompleteOdeSystem<System9>), "");
 }
