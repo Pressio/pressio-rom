@@ -421,7 +421,7 @@ auto create_implicit_stepper_with_custom_policy(StepScheme schemeName,
 						ResidualJacobianPolicyType && policy)
 {
   using policy_type = mpl::remove_cvref_t<ResidualJacobianPolicyType>;
-  static_assert(ImplicitResidualJacobianPolicy<policy_type>::value,
+  static_assert(PRESSIO_VALUE_OF(ImplicitResidualJacobianPolicy<policy_type>),
   "the custom policy provided to create an implicit stepper does not meet the required concepts");
 
   assert(schemeName == StepScheme::BDF1 ||

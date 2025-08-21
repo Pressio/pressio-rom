@@ -59,10 +59,6 @@
 #include "./ode/ode_strong_types.hpp"
 #include "./ode/ode_enum_and_tags.hpp"
 #include "./ode/ode_stencil_containers.hpp"
-#ifdef PRESSIO_ENABLE_CXX20
-#include "./ode/ode_concepts_cxx20.hpp"
-#else
 #include "./ode/ode_concepts.hpp"
-#endif
 
 #endif

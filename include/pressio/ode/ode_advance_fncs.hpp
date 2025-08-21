@@ -122,7 +122,7 @@ Ownership & lifetime
 ============================================================================ */
 
 template<class State, class Stepper, class Policy, class... ObserversOrEmpty>
-std::enable_if_t< StepperWithoutSolver<Stepper>::value >
+std::enable_if_t< PRESSIO_VALUE_OF(StepperWithoutSolver<Stepper>) >
 advance(Stepper& stepper,
 	State& state,
 	const Policy& policy,
@@ -245,7 +245,7 @@ Ownership & lifetime
 ============================================================================ */
 
 template<class State, class Stepper, class Policy, class Solver, class... Rest>
-std::enable_if_t< !StepperWithoutSolver<Stepper>::value >
+std::enable_if_t< !PRESSIO_VALUE_OF(StepperWithoutSolver<Stepper>) >
 advance(Stepper& stepper,
 	State& state,
 	const Policy& policy,
@@ -318,7 +318,7 @@ template<
   class ...SolverArgs
   >
 std::enable_if_t<
-     !StepperWithoutSolver<StepperType>::value
+     !PRESSIO_VALUE_OF(StepperWithoutSolver<StepperType>)
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && !StateObserver<SolverType&&, IndVarType, StateType>::value
   >
@@ -352,7 +352,7 @@ template<
   class ...SolverArgs
   >
 std::enable_if_t<
-     !StepperWithoutSolver<StepperType>::value
+     !PRESSIO_VALUE_OF(StepperWithoutSolver<StepperType>)
   && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
   && StateObserver<ObserverType&&, IndVarType, StateType>::value
   >
