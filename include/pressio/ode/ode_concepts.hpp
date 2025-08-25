@@ -830,6 +830,16 @@ struct StepperWithoutSolver<
 #endif
 
 
+#ifdef PRESSIO_ENABLE_CXX20
+
+template<class T, class StepCountT, class IndVarType, class StateType>
+concept StateObserver =
+  requires (const T& obs, StepCountT k, IndVarType t, const StateType& x)
+  {
+    { obs(k, t, x) } -> std::same_as<void>;
+  };
+
+#else
 
 /* -------------------------------------------------------------
   StateObserver
@@ -873,12 +883,27 @@ struct StateObserver<
 >
 : std::is_same<void, state_observer_call_c_t<T, IndVarType, StateType>> {};
 
+#endif
 
 
+#ifdef PRESSIO_ENABLE_CXX20
+
+template<class T, class IndVarType, class RhsType>
+concept RhsObserver =
+  requires (const T& obs,
+            StepCount k,
+            IntermediateStepCount subk,
+            IndVarType t,
+            const RhsType& r)
+  {
+    { obs(k, subk, t, r) } -> std::same_as<void>;
+  };
+
+#else
 
 /* -------------------------------------------------------------
    RhsObserver
-
+/*
    Detect a **const** RHS observer with exact-void return:
    void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
 */
@@ -905,10 +930,41 @@ struct RhsObserver<
 >
 : std::is_same<void, rhs_observer_call_c_t<T, IndVarType, RhsType>> {};
 
+#endif
+
 
 /* -------------------------------------------------------------
-  StepSizePolicy<T, IndVarType>
+  StepSizePolicy
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
+template<class T, class IndVarType>
+concept StepSizePolicy =
+  // must be callable with non-const lvalue ref and return void
+  requires (const T& policy,
+            StepCount k,
+            StepStartAt<IndVarType> start,
+            StepSize<IndVarType>& dt) {
+    { policy(k, start, dt) } -> std::same_as<void>;
+  }
+  // must NOT be callable with const lvalue ref
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start) {
+        policy(k, start,
+               std::declval<const StepSize<IndVarType>&>());
+     })
+  // must NOT be callable with rvalue
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start) {
+        policy(k, start,
+               std::declval<StepSize<IndVarType>&&>());
+     });
+
+#else
+
+/*
   Goal
   ----
   Detect at compile time whether a type `T` can act as a *step size policy*,
@@ -955,10 +1011,80 @@ struct StepSizePolicy<
       const T&, StepCount, StepStartAt<IndVarType>, StepSize<IndVarType>&&>>
   > {};
 
+#endif
+
+
 
 /* -------------------------------------------------------------
   StepSizePolicyWithReductionScheme
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
+template<class T, class IndVarType>
+concept StepSizePolicyWithReductionScheme =
+  // must be callable and return void with non-const lvalue refs
+  requires (const T& policy,
+            StepCount k,
+            StepStartAt<IndVarType> start,
+            StepSize<IndVarType>& dt,
+            StepSizeMinAllowedValue<IndVarType>& dt_min,
+            StepSizeScalingFactor<IndVarType>& scale) {
+    { policy(k, start, dt, dt_min, scale) } -> std::same_as<void>;
+  }
+  // must NOT accept any of the three by const&
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 const StepSize<IndVarType>& dtc,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dtc, dt_min, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 const StepSizeMinAllowedValue<IndVarType>& dt_min_c,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dt, dt_min_c, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 const StepSizeScalingFactor<IndVarType>& scale_c) {
+        policy(k, start, dt, dt_min, scale_c);
+     })
+  // must NOT accept any of the three by rvalue (disallow by-value)
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>&& dtr,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, std::move(dtr), dt_min, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>&& dt_min_r,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dt, std::move(dt_min_r), scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>&& scale_r) {
+        policy(k, start, dt, dt_min, std::move(scale_r));
+     });
+
+#else
+
+/*
   Detect at compile time whether a type `T` can act as a *step size policy with
   reduction scheme*, i.e., it has a **const** call operator with the shape:
 
@@ -1045,6 +1171,8 @@ struct StepSizePolicyWithReductionScheme<
       StepSizeScalingFactor<IndVarType>&&
     >>
   > {};
+
+#endif
 
 }}
 #endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
