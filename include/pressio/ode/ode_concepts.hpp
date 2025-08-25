@@ -830,6 +830,9 @@ struct StepperWithoutSolver<
 #endif
 
 
+/* -------------------------------------------------------------
+  StateObserver
+*/
 #ifdef PRESSIO_ENABLE_CXX20
 
 template<class T, class StepCountT, class IndVarType, class StateType>
@@ -841,9 +844,7 @@ concept StateObserver =
 
 #else
 
-/* -------------------------------------------------------------
-  StateObserver
-
+/*
   Trait to detect a **const** state observer callable.
 
   Succeeds iff a type `T` has a **const** call operator with the shape:
@@ -886,6 +887,9 @@ struct StateObserver<
 #endif
 
 
+/* -------------------------------------------------------------
+   RhsObserver
+*/
 #ifdef PRESSIO_ENABLE_CXX20
 
 template<class T, class IndVarType, class RhsType>
@@ -901,8 +905,6 @@ concept RhsObserver =
 
 #else
 
-/* -------------------------------------------------------------
-   RhsObserver
 /*
    Detect a **const** RHS observer with exact-void return:
    void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
