@@ -140,8 +140,8 @@ auto create_explicit_stepper(StepScheme schemeName, SystemLike&& system_like)
 
   // ensure the provided system exposes the expected ODE API
   static_assert(
-    RealValuedOdeSystem<sys_type>::value ||
-    RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value,
+    PRESSIO_VALUE_OF(RealValuedOdeSystem<sys_type>) ||
+    PRESSIO_VALUE_OF(RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>),
     "To create an explicit stepper you must provide an ODE system that meets either "
     "RealValuedOdeSystem or RealValuedOdeSystemFusingMassMatrixAndRhs."
   );
@@ -156,7 +156,7 @@ auto create_explicit_stepper(StepScheme schemeName, SystemLike&& system_like)
   auto build = [&](auto&& sw){
     using W = mpl::remove_cvref_t<decltype(sw)>;
 
-    if constexpr (RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>::value){
+    if constexpr (PRESSIO_VALUE_OF(RealValuedOdeSystemFusingMassMatrixAndRhs<sys_type>)){
       // sys_type exposes a mass matrix type
       using mass_matrix_type = typename sys_type::mass_matrix_type;
       using impl_type = impl::ExplicitStepperWithMassMatrixImpl<
@@ -296,14 +296,13 @@ auto create_implicit_stepper(StepScheme schemeName, SystemLike&& system_like)
   using system_type = impl_detail::unwrap_unique_ptr_t<base_t>;
 
   // ensure the provided system exposes the expected ODE API
+  constexpr bool complete_system = PRESSIO_VALUE_OF(RealValuedCompleteOdeSystem<system_type>);
   static_assert(
-    RealValuedOdeSystemFusingRhsAndJacobian<system_type>::value ||
-    RealValuedCompleteOdeSystem<system_type>::value,
+    PRESSIO_VALUE_OF(RealValuedOdeSystemFusingRhsAndJacobian<system_type>) ||
+    complete_system,
     "To create an implicit stepper you must provide an ODE system that meets either "
     "RealValuedOdeSystemFusingRhsAndJacobian or RealValuedCompleteOdeSystem."
   );
-
-  constexpr bool complete_system = RealValuedCompleteOdeSystem<system_type>::value;
 
   // Validate scheme
   assert(
@@ -422,7 +421,7 @@ auto create_implicit_stepper_with_custom_policy(StepScheme schemeName,
 						ResidualJacobianPolicyType && policy)
 {
   using policy_type = mpl::remove_cvref_t<ResidualJacobianPolicyType>;
-  static_assert(ImplicitResidualJacobianPolicy<policy_type>::value,
+  static_assert(PRESSIO_VALUE_OF(ImplicitResidualJacobianPolicy<policy_type>),
   "the custom policy provided to create an implicit stepper does not meet the required concepts");
 
   assert(schemeName == StepScheme::BDF1 ||
@@ -532,8 +531,8 @@ auto create_implicit_stepper(SystemLike&& system_like)
 
   using system_type = impl_detail::unwrap_unique_ptr_t<base_t>;
   static_assert(
-    RealValuedFullyDiscreteSystemWithJacobian<system_type,
-                                              TotalNumberOfDesiredStates>::value,
+	PRESSIO_VALUE_OF(RealValuedFullyDiscreteSystemWithJacobian<system_type,
+			 TotalNumberOfDesiredStates>),
     "The ode system passed does not meet the FullyDiscrete API");
 
   using ind_var_type  = typename system_type::independent_variable_type;
