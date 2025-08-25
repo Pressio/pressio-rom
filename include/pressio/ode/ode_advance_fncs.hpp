@@ -69,7 +69,7 @@ steps(Time t0, StepCount n, StepSizer sizer){
 template<class Time, class StepSizer>
 inline ToTime<Time, StepSizer>
 to_time(Time t0, Time tf, StepSizer sizer){
-  static_assert(StepSizePolicy<StepSizer, Time>::value, "invalid step sizer policy");
+  static_assert(PRESSIO_VALUE_OF(StepSizePolicy<StepSizer, Time>), "invalid step sizer policy");
   return { t0, tf, std::move(sizer)};
 }
 
@@ -319,8 +319,8 @@ template<
   >
 std::enable_if_t<
      !PRESSIO_VALUE_OF(StepperWithoutSolver<StepperType>)
-  && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
-  && !StateObserver<SolverType&&, IndVarType, StateType>::value
+  && PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>)
+  && !PRESSIO_VALUE_OF(StateObserver<SolverType&&, IndVarType, StateType>)
   >
 advance_with_step_recovery(StepperType & stepper,
 			   StateType & state,
@@ -353,8 +353,8 @@ template<
   >
 std::enable_if_t<
      !PRESSIO_VALUE_OF(StepperWithoutSolver<StepperType>)
-  && StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>::value
-  && StateObserver<ObserverType&&, IndVarType, StateType>::value
+  && PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<StepSizePolicyType&&, IndVarType>)
+  && PRESSIO_VALUE_OF(StateObserver<ObserverType&&, IndVarType, StateType>)
   >
 advance_with_step_recovery(StepperType & stepper,
 			   StateType & state,

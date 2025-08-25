@@ -835,9 +835,9 @@ struct StepperWithoutSolver<
 */
 #ifdef PRESSIO_ENABLE_CXX20
 
-template<class T, class StepCountT, class IndVarType, class StateType>
+template<class T, class IndVarType, class StateType>
 concept StateObserver =
-  requires (const T& obs, StepCountT k, IndVarType t, const StateType& x)
+  requires (const T& obs, StepCount k, IndVarType t, const StateType& x)
   {
     { obs(k, t, x) } -> std::same_as<void>;
   };

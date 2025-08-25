@@ -259,11 +259,11 @@ constexpr auto hold(T&& v) {
 // Convenience traits that strip cv/ref before checking observer concepts
 template<class Time, class State, class F>
 inline constexpr bool is_state_obs_v =
-  StateObserver<mpl::remove_cvref_t<F>, Time, State>::value;
+  PRESSIO_VALUE_OF(StateObserver<mpl::remove_cvref_t<F>, Time, State>);
 
 template<class Time, class Rhs, class F>
 inline constexpr bool is_rhs_obs_v =
-  RhsObserver<mpl::remove_cvref_t<F>, Time, Rhs>::value;
+  PRESSIO_VALUE_OF(RhsObserver<mpl::remove_cvref_t<F>, Time, Rhs>);
 
 // A simple bundle to return from parse_observers(...)
 // parsed_obs_t holds the two observers (state and rhs) in their "holder" form.

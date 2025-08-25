@@ -33,31 +33,31 @@ TEST(ode, concepts_state_observer)
 {
   using namespace pressio::ode;
 
-  static_assert( StateObserver<Obs1, double, MyState>::value, "");
-  static_assert( !StateObserver<Obs2, double, MyState>::value, "");
-  static_assert( !StateObserver<Obs3, double, MyState>::value, "");
+  static_assert( PRESSIO_VALUE_OF(StateObserver<Obs1, double, MyState>), "");
+  static_assert( !PRESSIO_VALUE_OF(StateObserver<Obs2, double, MyState>), "");
+  static_assert( !PRESSIO_VALUE_OF(StateObserver<Obs3, double, MyState>), "");
 }
 
 // --------------------------------------------
 
 #define CHECK_TRAIT1_TRUE(T_)  do { \
-  static_assert(StepSizePolicy<T_, IV>::value, #T_ " should be valid (StepSizePolicy)"); \
-  EXPECT_TRUE((StepSizePolicy<T_, IV>::value)) << #T_; \
+  static_assert(PRESSIO_VALUE_OF(StepSizePolicy<T_, IV>), #T_ " should be valid (StepSizePolicy)"); \
+  EXPECT_TRUE((PRESSIO_VALUE_OF(StepSizePolicy<T_, IV>))) << #T_; \
 } while(0)
 
 #define CHECK_TRAIT1_FALSE(T_) do { \
-  static_assert(!StepSizePolicy<T_, IV>::value, #T_ " should be invalid (StepSizePolicy)"); \
-  EXPECT_FALSE((StepSizePolicy<T_, IV>::value)) << #T_; \
+  static_assert(!PRESSIO_VALUE_OF(StepSizePolicy<T_, IV>), #T_ " should be invalid (StepSizePolicy)"); \
+  EXPECT_FALSE((PRESSIO_VALUE_OF(StepSizePolicy<T_, IV>))) << #T_; \
 } while(0)
 
 #define CHECK_TRAIT2_TRUE(T_)  do { \
-  static_assert(StepSizePolicyWithReductionScheme<T_, IV>::value, #T_ " should be valid (WithReduction)"); \
-  EXPECT_TRUE((StepSizePolicyWithReductionScheme<T_, IV>::value)) << #T_; \
+  static_assert(PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<T_, IV>), #T_ " should be valid (WithReduction)"); \
+  EXPECT_TRUE((PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<T_, IV>))) << #T_; \
 } while(0)
 
 #define CHECK_TRAIT2_FALSE(T_) do { \
-  static_assert(!StepSizePolicyWithReductionScheme<T_, IV>::value, #T_ " should be invalid (WithReduction)"); \
-  EXPECT_FALSE((StepSizePolicyWithReductionScheme<T_, IV>::value)) << #T_; \
+  static_assert(!PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<T_, IV>), #T_ " should be invalid (WithReduction)"); \
+  EXPECT_FALSE((PRESSIO_VALUE_OF(StepSizePolicyWithReductionScheme<T_, IV>))) << #T_; \
 } while(0)
 
 // ====================== StepSizePolicy ======================
