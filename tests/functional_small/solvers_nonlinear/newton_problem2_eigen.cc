@@ -9,7 +9,7 @@ TEST(solvers_nonlinear, problem1A)
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
 
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   using problem_t  = solvers::test::Problem2;
   using state_t    = problem_t::state_type;

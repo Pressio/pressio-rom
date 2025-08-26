@@ -51,7 +51,7 @@
 
 #include <optional>
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 template <class T, class StateType, class = void>
 struct has_const_create_state_method_return_result

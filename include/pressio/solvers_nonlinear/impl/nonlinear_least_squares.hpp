@@ -52,7 +52,7 @@
 #include <utility>
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 template<

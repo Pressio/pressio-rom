@@ -79,9 +79,9 @@ template<typename T>
 void steady_lspg_static_check_api_return_type(){
   static constexpr bool val =
 #ifdef PRESSIO_ENABLE_CXX20
-    nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>;
+    nlsol::NonlinearSystemFusingResidualAndJacobian<T>;
 #else
-  nonlinearsolvers::NonlinearSystemFusingResidualAndJacobian<T>::value;
+  nlsol::NonlinearSystemFusingResidualAndJacobian<T>::value;
 #endif
   static_assert(val,
 		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");

@@ -53,7 +53,7 @@
 #include <iomanip>
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 enum class InternalDiagnostic{

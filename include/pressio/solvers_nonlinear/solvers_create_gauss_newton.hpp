@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/nonlinear_least_squares.hpp"
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 /*
   Gauss-newton minimizes the sum of squares: S(x) = (1/2) * \sum r_i(x)*r_i(x)
@@ -264,5 +264,5 @@ auto create_gauss_newton_qr_solver(const SystemType & system,
 }
 }//end experimental
 
-}} // end namespace pressio::nonlinearsolvers
+}} // end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_

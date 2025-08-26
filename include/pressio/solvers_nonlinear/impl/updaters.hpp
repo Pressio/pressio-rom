@@ -50,7 +50,7 @@
 #define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_UPDATERS_HPP_
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 class DefaultUpdater{

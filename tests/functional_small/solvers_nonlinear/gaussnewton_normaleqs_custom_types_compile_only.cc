@@ -52,14 +52,13 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
   {
     using namespace pressio;
-    namespace pnonls = pressio::nonlinearsolvers;
 
     using problem_t  = MyProblem;
     using state_t    = typename problem_t::state_type;
     problem_t sys;
     state_t y;
     MyLinSolver ls{};
-    auto nonLinSolver = pnonls::create_gauss_newton_solver(sys, ls);
+    auto nonLinSolver = nlsol::create_gauss_newton_solver(sys, ls);
     nonLinSolver.solve(y);
     (void)y;
     std::cout << "PASSED" << std::endl;

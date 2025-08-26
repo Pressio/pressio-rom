@@ -49,7 +49,7 @@
 #ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
 #define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_SOLVERS_TAGBASED_REGISTRY_HPP_
 
-namespace pressio{ namespace nonlinearsolvers{ namespace impl{
+namespace pressio{ namespace nlsol{ namespace impl{
 
 template<class, class> class TagBasedStaticRegistry;
 
