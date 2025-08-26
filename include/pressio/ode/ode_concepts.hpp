@@ -53,6 +53,34 @@
 
 namespace pressio{ namespace ode{
 
+#ifdef PRESSIO_ENABLE_CXX20
+template <class T>
+concept OdeSystem =
+  requires(){
+  typename T::independent_variable_type; }
+  && std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::rhs_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      const typename T::independent_variable_type & evalValue,
+	      typename T::rhs_type & f)
+  {
+    { A.createState() } -> std::same_as<typename T::state_type>;
+    { A.createRhs()   } -> std::same_as<typename T::rhs_type>;
+    { A.rhs(state, evalValue, f) } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedOdeSystem =
+     OdeSystem<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::rhs_type> >
+  && std::convertible_to<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >;
+
+#else
+
 template<class T, class enable = void>
 struct OdeSystem : std::false_type{};
 
@@ -81,6 +109,55 @@ struct OdeSystem<
       >::value
    >
   > : std::true_type{};
+
+template<class T, class enable = void>
+struct RealValuedOdeSystem : std::false_type{};
+
+template<class T>
+struct RealValuedOdeSystem<
+  T, std::enable_if_t<
+       OdeSystem<T>::value
+       && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
+       && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
+       && std::is_convertible<
+	 typename T::independent_variable_type,
+	 scalar_trait_t<typename T::state_type> >::value
+  >
+  > : std::true_type{};
+
+#endif
+
+
+#ifdef PRESSIO_ENABLE_CXX20
+template <class T>
+concept OdeSystemFusingRhsAndJacobian =
+  requires(){ typename T::independent_variable_type; }
+  && std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::rhs_type>
+  && std::copy_constructible<typename T::jacobian_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      const typename T::independent_variable_type & evalValue,
+	      typename T::rhs_type & f,
+	      std::optional<typename T::jacobian_type*> J)
+  {
+    { A.createState()    } -> std::same_as<typename T::state_type>;
+    { A.createRhs()      } -> std::same_as<typename T::rhs_type>;
+    { A.createJacobian() } -> std::same_as<typename T::jacobian_type>;
+    { A.rhsAndJacobian(state, evalValue, f, J) } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedOdeSystemFusingRhsAndJacobian =
+     OdeSystemFusingRhsAndJacobian<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::rhs_type> >
+  && std::floating_point< scalar_trait_t<typename T::jacobian_type> >
+  && std::convertible_to<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >;
+
+#else
 
 template<class T, class enable = void>
 struct OdeSystemFusingRhsAndJacobian : std::false_type{};
@@ -116,6 +193,54 @@ struct OdeSystemFusingRhsAndJacobian<
    >
   > : std::true_type{};
 
+template<class T, class enable = void>
+struct RealValuedOdeSystemFusingRhsAndJacobian : std::false_type{};
+
+template<class T>
+struct RealValuedOdeSystemFusingRhsAndJacobian<
+  T,
+  std::enable_if_t<
+    OdeSystemFusingRhsAndJacobian<T>::value
+  && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
+  && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
+  && std::is_floating_point< scalar_trait_t<typename T::jacobian_type> >::value
+  && std::is_convertible<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >::value
+  > > : std::true_type{};
+
+#endif
+
+#ifdef PRESSIO_ENABLE_CXX20
+template <class T>
+concept OdeSystemFusingMassMatrixAndRhs =
+  requires(){ typename T::independent_variable_type; }
+  && std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::rhs_type>
+  && std::copy_constructible<typename T::mass_matrix_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      const typename T::independent_variable_type & evalValue,
+	      typename T::mass_matrix_type & M,
+	      typename T::rhs_type & f)
+  {
+    { A.createState()      } -> std::same_as<typename T::state_type>;
+    { A.createRhs()        } -> std::same_as<typename T::rhs_type>;
+    { A.createMassMatrix() } -> std::same_as<typename T::mass_matrix_type>;
+    { A.massMatrixAndRhs(state, evalValue, M, f) } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedOdeSystemFusingMassMatrixAndRhs =
+  OdeSystemFusingMassMatrixAndRhs<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::rhs_type> >
+  && std::floating_point< scalar_trait_t<typename T::mass_matrix_type> >
+  && std::convertible_to<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >;
+
+#else
 
 template<class T, class enable = void>
 struct OdeSystemFusingMassMatrixAndRhs : std::false_type{};
@@ -137,7 +262,6 @@ struct OdeSystemFusingMassMatrixAndRhs<
       T, typename T::rhs_type >::value
     && ::pressio::ode::has_const_create_mass_matrix_method_return_result<
       T, typename T::mass_matrix_type >::value
-    //
     && std::is_void<
       decltype(
 	       std::declval<T const>().massMatrixAndRhs
@@ -152,6 +276,58 @@ struct OdeSystemFusingMassMatrixAndRhs<
    >
   > : std::true_type{};
 
+template<class T, class enable = void>
+struct RealValuedOdeSystemFusingMassMatrixAndRhs : std::false_type{};
+
+template<class T>
+struct RealValuedOdeSystemFusingMassMatrixAndRhs<
+  T, std::enable_if_t<
+    OdeSystemFusingMassMatrixAndRhs<T>::value
+  && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
+  && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
+  && std::is_floating_point< scalar_trait_t<typename T::mass_matrix_type> >::value
+  && std::is_convertible<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >::value
+  >
+  > : std::true_type{};
+
+#endif
+
+
+#ifdef PRESSIO_ENABLE_CXX20
+template <class T>
+concept CompleteOdeSystem =
+  requires(){ typename T::independent_variable_type; }
+  && std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::rhs_type>
+  && std::copy_constructible<typename T::mass_matrix_type>
+  && std::copy_constructible<typename T::jacobian_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      const typename T::independent_variable_type & evalValue,
+	      typename T::mass_matrix_type & M,
+	      typename T::rhs_type & f,
+	      std::optional<typename T::jacobian_type*> J)
+  {
+    { A.createState()      } -> std::same_as<typename T::state_type>;
+    { A.createRhs()        } -> std::same_as<typename T::rhs_type>;
+    { A.createMassMatrix() } -> std::same_as<typename T::mass_matrix_type>;
+    { A.massMatrixAndRhsAndJacobian(state, evalValue, M, f, J) } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedCompleteOdeSystem =
+     CompleteOdeSystem<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::rhs_type> >
+  && std::floating_point< scalar_trait_t<typename T::mass_matrix_type> >
+  && std::floating_point< scalar_trait_t<typename T::jacobian_type> >
+  && std::convertible_to<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >;
+
+#else
 
 template<class T, class enable = void>
 struct CompleteOdeSystem : std::false_type{};
@@ -193,6 +369,138 @@ struct CompleteOdeSystem<
    >
   > : std::true_type{};
 
+template<class T, class enable = void>
+struct RealValuedCompleteOdeSystem : std::false_type{};
+
+template<class T>
+struct RealValuedCompleteOdeSystem<
+  T, std::enable_if_t<
+       CompleteOdeSystem<T>::value
+       && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
+       && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
+       && std::is_floating_point< scalar_trait_t<typename T::mass_matrix_type> >::value
+       && std::is_floating_point< scalar_trait_t<typename T::jacobian_type> >::value
+       && std::is_convertible<
+	 typename T::independent_variable_type,
+	 scalar_trait_t<typename T::state_type> >::value
+  >
+  > : std::true_type{};
+
+#endif
+
+
+#ifdef PRESSIO_ENABLE_CXX20
+template<class T>
+concept FDJ_Common =
+  requires { typename T::independent_variable_type; } &&
+  requires { typename T::state_type; } &&
+  requires { typename T::discrete_residual_type; } &&
+  requires { typename T::discrete_jacobian_type; } &&
+  std::copy_constructible<typename T::state_type> &&
+  std::copy_constructible<typename T::discrete_residual_type> &&
+  std::copy_constructible<typename T::discrete_jacobian_type> &&
+  requires (const T& A) {
+    { A.createState()            } -> std::same_as<typename T::state_type>;
+    { A.createDiscreteResidual() } -> std::same_as<typename T::discrete_residual_type>;
+    { A.createDiscreteJacobian() } -> std::same_as<typename T::discrete_jacobian_type>;
+  };
+
+// ---- Short aliases to keep requires-expressions readable ---------------------
+template<class T> using step_t = typename ::pressio::ode::StepCount::value_type; // adjust if you have a different step type
+template<class T> using time_t = typename T::independent_variable_type;
+template<class T> using state_t = typename T::state_type;
+template<class T> using res_t   = typename T::discrete_residual_type;
+template<class T> using jac_t   = typename T::discrete_jacobian_type;
+template<class T> using opt_jac_ptr_t = std::optional<jac_t<T>*>;
+
+// ---- Method presence checks for NumStates = 1,2,3,4 --------------------------
+template<class T>
+concept HasDRJ_1 =
+  requires (const T& a) {
+    { a.discreteResidualAndJacobian(
+        std::declval<step_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<res_t<T>&>(),
+        std::declval<opt_jac_ptr_t<T>>(),
+        std::declval<state_t<T> const&>()
+      )
+    } -> std::same_as<void>;
+  };
+
+template<class T>
+concept HasDRJ_2 =
+  requires (const T& a) {
+    { a.discreteResidualAndJacobian(
+        std::declval<step_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<res_t<T>&>(),
+        std::declval<opt_jac_ptr_t<T>>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>()
+      )
+    } -> std::same_as<void>;
+  };
+
+template<class T>
+concept HasDRJ_3 =
+  requires (const T& a) {
+    { a.discreteResidualAndJacobian(
+        std::declval<step_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<res_t<T>&>(),
+        std::declval<opt_jac_ptr_t<T>>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>()
+      )
+    } -> std::same_as<void>;
+  };
+
+template<class T>
+concept HasDRJ_4 =
+  requires (const T& a) {
+    { a.discreteResidualAndJacobian(
+        std::declval<step_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<time_t<T> const&>(),
+        std::declval<res_t<T>&>(),
+        std::declval<opt_jac_ptr_t<T>>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>(),
+        std::declval<state_t<T> const&>()
+      )
+    } -> std::same_as<void>;
+  };
+
+// select the right arity by NumStates
+template<class T, int NumStates>
+concept HasDRJ_N =
+  (NumStates == 1 && HasDRJ_1<T>) ||
+  (NumStates == 2 && HasDRJ_2<T>) ||
+  (NumStates == 3 && HasDRJ_3<T>) ||
+  (NumStates == 4 && HasDRJ_4<T>);
+
+// Actual concepts
+template <class T, int NumStates>
+concept FullyDiscreteSystemWithJacobian =
+  FDJ_Common<T> && HasDRJ_N<T, NumStates>;
+
+template <class T, int NumStates>
+concept RealValuedFullyDiscreteSystemWithJacobian =
+     FullyDiscreteSystemWithJacobian<T, NumStates>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::discrete_residual_type> >
+  && std::floating_point< scalar_trait_t<typename T::discrete_jacobian_type> >
+  && std::convertible_to<
+      typename T::independent_variable_type,
+      scalar_trait_t<typename T::state_type> >;
+
+#else
+
 template<class T, int NumStates,class enable = void>
 struct FullyDiscreteSystemWithJacobian : std::false_type{};
 
@@ -225,76 +533,6 @@ struct FullyDiscreteSystemWithJacobian<
     >
   > : std::true_type{};
 
-
-//
-// refine for real-valued case
-//
-template<class T, class enable = void>
-struct RealValuedOdeSystem : std::false_type{};
-
-template<class T>
-struct RealValuedOdeSystem<
-  T, std::enable_if_t<
-       OdeSystem<T>::value
-       && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
-       && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
-       && std::is_convertible<
-	 typename T::independent_variable_type,
-	 scalar_trait_t<typename T::state_type> >::value
-  >
-  > : std::true_type{};
-
-template<class T, class enable = void>
-struct RealValuedOdeSystemFusingRhsAndJacobian : std::false_type{};
-
-template<class T>
-struct RealValuedOdeSystemFusingRhsAndJacobian<
-  T,
-  std::enable_if_t<
-    OdeSystemFusingRhsAndJacobian<T>::value
-  && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
-  && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
-  && std::is_floating_point< scalar_trait_t<typename T::jacobian_type> >::value
-  && std::is_convertible<
-      typename T::independent_variable_type,
-      scalar_trait_t<typename T::state_type> >::value
-  > > : std::true_type{};
-
-
-template<class T, class enable = void>
-struct RealValuedOdeSystemFusingMassMatrixAndRhs : std::false_type{};
-
-template<class T>
-struct RealValuedOdeSystemFusingMassMatrixAndRhs<
-  T, std::enable_if_t<
-    OdeSystemFusingMassMatrixAndRhs<T>::value
-  && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
-  && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
-  && std::is_floating_point< scalar_trait_t<typename T::mass_matrix_type> >::value
-  && std::is_convertible<
-      typename T::independent_variable_type,
-      scalar_trait_t<typename T::state_type> >::value
-  >
-  > : std::true_type{};
-
-
-template<class T, class enable = void>
-struct RealValuedCompleteOdeSystem : std::false_type{};
-
-template<class T>
-struct RealValuedCompleteOdeSystem<
-  T, std::enable_if_t<
-       CompleteOdeSystem<T>::value
-       && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
-       && std::is_floating_point< scalar_trait_t<typename T::rhs_type> >::value
-       && std::is_floating_point< scalar_trait_t<typename T::mass_matrix_type> >::value
-       && std::is_floating_point< scalar_trait_t<typename T::jacobian_type> >::value
-       && std::is_convertible<
-	 typename T::independent_variable_type,
-	 scalar_trait_t<typename T::state_type> >::value
-  >
-  > : std::true_type{};
-
 template <class T, int NumStates, class = void>
 struct RealValuedFullyDiscreteSystemWithJacobian : std::false_type{};
 
@@ -312,10 +550,63 @@ struct RealValuedFullyDiscreteSystemWithJacobian<
   >
   > : std::true_type{};
 
+#endif
+
+
+
+
+
 
 //
-// policy
+// ImplicitResidualJacobianPolicy
 //
+#ifdef PRESSIO_ENABLE_CXX20
+
+template<class T>
+concept ImplicitResidualJacobianPolicy =
+  // --- required nested types
+  requires {
+    typename T::independent_variable_type;
+    typename T::state_type;
+    typename T::residual_type;
+    typename T::jacobian_type;
+  }
+  // --- known pressio-ops data types & scalar compatibility
+  && ::pressio::ops::is_known_data_type<typename T::state_type>::value
+  && ::pressio::ops::is_known_data_type<typename T::residual_type>::value
+  && ::pressio::ops::is_known_data_type<typename T::jacobian_type>::value
+  && ::pressio::all_have_traits_and_same_scalar<
+       typename T::state_type,
+       typename T::residual_type,
+       typename T::jacobian_type
+     >::value
+  && std::convertible_to<
+       typename T::independent_variable_type,
+       scalar_trait_t<typename T::state_type>
+     >
+  // --- factories on a const object
+  && requires (T const& a) {
+       { a.createState()    } -> std::same_as<typename T::state_type>;
+       { a.createResidual() } -> std::same_as<typename T::residual_type>;
+       { a.createJacobian() } -> std::same_as<typename T::jacobian_type>;
+     }
+  // --- call operator with exact signature; must return void and be const
+  && requires (T const& a) {
+       { a(
+           std::declval<StepScheme const&>(),
+           std::declval<typename T::state_type const&>(),
+           std::declval<ImplicitStencilStatesDynamicContainer<typename T::state_type> const&>(),
+           std::declval<ImplicitStencilRightHandSideDynamicContainer<typename T::residual_type>&>(),
+           std::declval<::pressio::ode::StepEndAt<typename T::independent_variable_type>>(),
+           std::declval<::pressio::ode::StepCount>(),
+           std::declval<::pressio::ode::StepSize<typename T::independent_variable_type>>(),
+           std::declval<typename T::residual_type &>(),
+           std::declval<std::optional<typename T::jacobian_type*> >()
+         ) } -> std::same_as<void>;
+     };
+
+#else
+
 template<class T, class = void>
 struct ImplicitResidualJacobianPolicy : std::false_type{};
 
@@ -372,6 +663,51 @@ struct ImplicitResidualJacobianPolicy<
     >
   > : std::true_type{};
 
+#endif // end ifdef CXX20
+
+
+
+#ifdef PRESSIO_ENABLE_CXX20
+
+template<class T>
+concept StepperWithoutSolver =
+  // required nested types
+  requires {
+    typename T::independent_variable_type;
+    typename T::state_type;
+  }
+  // canonical call must exist and return void
+  && requires(
+       T& stepper,
+       typename T::state_type& y,
+       const ::pressio::ode::StepStartAt<typename T::independent_variable_type>& t0,
+       const ::pressio::ode::StepCount& k,
+       const ::pressio::ode::StepSize<typename T::independent_variable_type>& dt
+     ) {
+       { stepper(y, t0, k, dt) } -> std::same_as<void>;
+     }
+  // forbid accepting const state&
+  && (!requires(
+        T& stepper,
+        const typename T::state_type& y,
+        const ::pressio::ode::StepStartAt<typename T::independent_variable_type>& t0,
+        const ::pressio::ode::StepCount& k,
+        const ::pressio::ode::StepSize<typename T::independent_variable_type>& dt
+      ) {
+        stepper(y, t0, k, dt);
+      })
+  // forbid accepting state&&
+  && (!requires(
+        T& stepper,
+        typename T::state_type&& y,
+        const ::pressio::ode::StepStartAt<typename T::independent_variable_type>& t0,
+        const ::pressio::ode::StepCount& k,
+        const ::pressio::ode::StepSize<typename T::independent_variable_type>& dt
+      ) {
+        stepper(std::move(y), t0, k, dt);
+      });
+
+#else
 
 /*
   This comment documents the pieces defined just below:
@@ -491,10 +827,24 @@ struct StepperWithoutSolver<
     >>
   > {};
 
+#endif
+
 
 /* -------------------------------------------------------------
   StateObserver
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
+template<class T, class IndVarType, class StateType>
+concept StateObserver =
+  requires (const T& obs, StepCount k, IndVarType t, const StateType& x)
+  {
+    { obs(k, t, x) } -> std::same_as<void>;
+  };
+
+#else
+
+/*
   Trait to detect a **const** state observer callable.
 
   Succeeds iff a type `T` has a **const** call operator with the shape:
@@ -534,12 +884,28 @@ struct StateObserver<
 >
 : std::is_same<void, state_observer_call_c_t<T, IndVarType, StateType>> {};
 
-
+#endif
 
 
 /* -------------------------------------------------------------
    RhsObserver
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
+template<class T, class IndVarType, class RhsType>
+concept RhsObserver =
+  requires (const T& obs,
+            StepCount k,
+            IntermediateStepCount subk,
+            IndVarType t,
+            const RhsType& r)
+  {
+    { obs(k, subk, t, r) } -> std::same_as<void>;
+  };
+
+#else
+
+/*
    Detect a **const** RHS observer with exact-void return:
    void operator()(StepCount, IntermediateStepCount, IndVarType, RhsType const&) const;
 */
@@ -566,12 +932,41 @@ struct RhsObserver<
 >
 : std::is_same<void, rhs_observer_call_c_t<T, IndVarType, RhsType>> {};
 
+#endif
+
 
 /* -------------------------------------------------------------
-  StepSizePolicy<T, IndVarType>
+  StepSizePolicy
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
-  Goal
-  ----
+template<class T, class IndVarType>
+concept StepSizePolicy =
+  // must be callable with non-const lvalue ref and return void
+  requires (const T& policy,
+            StepCount k,
+            StepStartAt<IndVarType> start,
+            StepSize<IndVarType>& dt) {
+    { policy(k, start, dt) } -> std::same_as<void>;
+  }
+  // must NOT be callable with const lvalue ref
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start) {
+        policy(k, start,
+               std::declval<const StepSize<IndVarType>&>());
+     })
+  // must NOT be callable with rvalue
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start) {
+        policy(k, start,
+               std::declval<StepSize<IndVarType>&&>());
+     });
+
+#else
+
+/*
   Detect at compile time whether a type `T` can act as a *step size policy*,
   i.e., it is a callable object with a **const** call operator of the form:
 
@@ -616,10 +1011,80 @@ struct StepSizePolicy<
       const T&, StepCount, StepStartAt<IndVarType>, StepSize<IndVarType>&&>>
   > {};
 
+#endif
+
+
 
 /* -------------------------------------------------------------
   StepSizePolicyWithReductionScheme
+*/
+#ifdef PRESSIO_ENABLE_CXX20
 
+template<class T, class IndVarType>
+concept StepSizePolicyWithReductionScheme =
+  // must be callable and return void with non-const lvalue refs
+  requires (const T& policy,
+            StepCount k,
+            StepStartAt<IndVarType> start,
+            StepSize<IndVarType>& dt,
+            StepSizeMinAllowedValue<IndVarType>& dt_min,
+            StepSizeScalingFactor<IndVarType>& scale) {
+    { policy(k, start, dt, dt_min, scale) } -> std::same_as<void>;
+  }
+  // must NOT accept any of the three by const&
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 const StepSize<IndVarType>& dtc,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dtc, dt_min, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 const StepSizeMinAllowedValue<IndVarType>& dt_min_c,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dt, dt_min_c, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 const StepSizeScalingFactor<IndVarType>& scale_c) {
+        policy(k, start, dt, dt_min, scale_c);
+     })
+  // must NOT accept any of the three by rvalue (disallow by-value)
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>&& dtr,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, std::move(dtr), dt_min, scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>&& dt_min_r,
+                 StepSizeScalingFactor<IndVarType>& scale) {
+        policy(k, start, dt, std::move(dt_min_r), scale);
+     })
+  && (!requires (const T& policy,
+                 StepCount k,
+                 StepStartAt<IndVarType> start,
+                 StepSize<IndVarType>& dt,
+                 StepSizeMinAllowedValue<IndVarType>& dt_min,
+                 StepSizeScalingFactor<IndVarType>&& scale_r) {
+        policy(k, start, dt, dt_min, std::move(scale_r));
+     });
+
+#else
+
+/*
   Detect at compile time whether a type `T` can act as a *step size policy with
   reduction scheme*, i.e., it has a **const** call operator with the shape:
 
@@ -706,6 +1171,8 @@ struct StepSizePolicyWithReductionScheme<
       StepSizeScalingFactor<IndVarType>&&
     >>
   > {};
+
+#endif
 
 }}
 #endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_

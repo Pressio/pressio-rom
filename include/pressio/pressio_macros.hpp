@@ -66,4 +66,17 @@
     #define PRESSIOLOG_ERROR(...)   do {} while (0)
 #endif
 
+// Turn a concept (C++20) or a trait with ::value (pre-C++20) into a bool.
+// Variadic allows to write:
+//      PRESSIO_VALUE_OF(FullyDiscreteSystemWithJacobian<T, 2>)
+// without extra parentheses.
+
+#ifndef PRESSIO_VALUE_OF
+  #ifdef PRESSIO_ENABLE_CXX20
+    #define PRESSIO_VALUE_OF(...) (__VA_ARGS__)
+  #else
+    #define PRESSIO_VALUE_OF(...) (__VA_ARGS__::value)
+  #endif
+#endif
+
 #endif
