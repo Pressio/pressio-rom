@@ -33,8 +33,8 @@ TEST(solvers_linear_kokkos, dense_getrs)
   k1d_d b_d("bd", Nr);
   Kokkos::deep_copy(b_d, b_h);
 
-  using solver_tag   = pressio::linearsolvers::direct::PartialPivLU;
-  using linear_solver_t = pressio::linearsolvers::Solver<solver_tag, k2d_d>;
+  using solver_tag   = pressio::linsol::direct::PartialPivLU;
+  using linear_solver_t = pressio::linsol::Solver<solver_tag, k2d_d>;
   linear_solver_t lsObj;
   k1d_d x_d("xd", Nr);
   lsObj.solve(A_d, b_d, x_d);

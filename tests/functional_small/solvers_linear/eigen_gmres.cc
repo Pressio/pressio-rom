@@ -161,8 +161,8 @@ TEST(solvers_linear_eigen, gmres2)
   x.setZero();
 
   using operator_t = MyOperator;
-  using tag = pressio::linearsolvers::iterative::GMRES;
-  using solver_t = pressio::linearsolvers::Solver<tag, operator_t>;
+  using tag = pressio::linsol::iterative::GMRES;
+  using solver_t = pressio::linsol::Solver<tag, operator_t>;
   solver_t solver;
   solver.setMaxIterations(8);
   solver.solve(A, b, x);

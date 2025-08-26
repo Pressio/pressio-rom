@@ -52,14 +52,14 @@
 #include <Teuchos_LAPACK.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>
 
-namespace pressio { namespace linearsolvers{ namespace impl{
+namespace pressio { namespace linsol{ namespace impl{
 
 template<typename MatrixType>
 class KokkosDirectGETRS
 {
-  using solver_tag = ::pressio::linearsolvers::direct::PartialPivLU;
+  using solver_tag = ::pressio::linsol::direct::PartialPivLU;
   using exe_space = typename MatrixType::traits::execution_space;
-  using solver_traits = ::pressio::linearsolvers::Traits<solver_tag>;
+  using solver_traits = ::pressio::linsol::Traits<solver_tag>;
 
   static_assert( solver_traits::kokkos_enabled == true,
   		 "the native solver must suppport kokkos to use in KokkosDirect");
@@ -152,5 +152,5 @@ private:
   MatrixType auxMat_ = {};
 };
 
-}}} // end namespace pressio::linearsolvers::impl
+}}} // end namespace pressio::linsol::impl
 #endif  // PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_KOKKOS_DIRECT_GETRS_IMPL_HPP_

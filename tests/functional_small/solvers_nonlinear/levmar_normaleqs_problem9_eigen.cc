@@ -73,8 +73,8 @@ int main()
 
   problem_t problem;
 
-  using lin_tag      = linearsolvers::direct::HouseholderQR;
-  using lin_solver_t = linearsolvers::Solver<lin_tag, hessian_t>;
+  using lin_tag      = linsol::direct::HouseholderQR;
+  using lin_solver_t = linsol::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
   std::string sentinel = "PASSED";
   auto solver = pnonls::create_levenberg_marquardt_solver(problem, linSolver);

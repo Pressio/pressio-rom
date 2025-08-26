@@ -60,7 +60,7 @@ TEST(solvers_nonlinear, problem1MatrixFree)
 
   problem_t P;
   state_t y(2);
-  using tag = pressio::linearsolvers::iterative::GMRES;
+  using tag = pressio::linsol::iterative::GMRES;
   auto nonLinSolver = pnonls::experimental::create_matrixfree_newtonkrylov_solver<tag>(P);
 
   y(0) = 0.001;

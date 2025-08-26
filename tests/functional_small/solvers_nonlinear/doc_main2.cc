@@ -108,7 +108,7 @@ int main()
 {
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::sparse);
 
-  namespace pls    = pressio::linearsolvers;
+  namespace pls    = pressio::linsol;
   namespace pnonls = pressio::nonlinearsolvers;
 
   MyRosenbrockSystem problem;

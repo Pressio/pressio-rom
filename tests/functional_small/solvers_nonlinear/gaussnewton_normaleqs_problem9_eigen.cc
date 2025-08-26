@@ -29,8 +29,8 @@ int main()
   x(9) = 4.5;
   x(10) = 5.5;
 
-  using lin_tag      = linearsolvers::direct::HouseholderQR;
-  using lin_solver_t = linearsolvers::Solver<lin_tag, hessian_t>;
+  using lin_tag      = linsol::direct::HouseholderQR;
+  using lin_solver_t = linsol::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
 
   auto GNSolver = pnonls::create_gauss_newton_solver(problem, linSolver);

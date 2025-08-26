@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
   problem_type problem;
 
   namespace pode = pressio::ode;
-  namespace plins  = pressio::linearsolvers;
+  namespace plins  = pressio::linsol;
   namespace pnonls = pressio::nonlinearsolvers;
 
   // create stepper

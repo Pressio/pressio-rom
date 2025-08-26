@@ -17,7 +17,7 @@ TEST(ode, implicit_bdf1_policy_default_created)
   auto stepperObj = ode::create_implicit_stepper(ode::StepScheme::BDF1, problemObj);
 
   using jac_t = typename problem_t::jacobian_type;
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
   auto NonLinSolver = pnonls::create_newton_solver(stepperObj,linSolverObj);
 
@@ -54,7 +54,7 @@ TEST(ode, implicit_bdf1_custom_policy)
   auto stepperObj = ode::create_implicit_stepper_with_custom_policy(ode::StepScheme::BDF1,
 						 rj_pol_t(wrap_type(problemObj)));
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
   auto NonLinSolver = pnonls::create_newton_solver(stepperObj,linSolverObj);
 

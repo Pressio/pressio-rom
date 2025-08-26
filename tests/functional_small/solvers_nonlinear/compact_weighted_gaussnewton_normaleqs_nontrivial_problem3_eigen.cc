@@ -111,8 +111,8 @@ int main()
 
   // linear solver type
   using tag_t = pnonls::impl::CompactWeightedGaussNewtonNormalEqTag;
-  using solver_tag	= linearsolvers::iterative::LSCG;
-  using linear_solver_t = linearsolvers::Solver<solver_tag, hessian_t>;
+  using solver_tag	= linsol::iterative::LSCG;
+  using linear_solver_t = linsol::Solver<solver_tag, hessian_t>;
   linear_solver_t linSolver;
   RangeWeigher<double> W{};
   auto GNSolver = pnonls::create_gauss_newton_solver(problem, linSolver, W, tag_t{});
