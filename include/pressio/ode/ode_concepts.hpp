@@ -967,8 +967,6 @@ concept StepSizePolicy =
 #else
 
 /*
-  Goal
-  ----
   Detect at compile time whether a type `T` can act as a *step size policy*,
   i.e., it is a callable object with a **const** call operator of the form:
 
