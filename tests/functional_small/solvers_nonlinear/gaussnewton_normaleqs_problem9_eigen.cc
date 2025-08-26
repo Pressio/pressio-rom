@@ -10,6 +10,7 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
 
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
 
   using problem_t = solvers::test::Problem9<double>;
   using hessian_t = Eigen::MatrixXd;
@@ -32,7 +33,7 @@ int main()
   using lin_solver_t = linearsolvers::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
 
-  auto GNSolver = pressio::create_gauss_newton_solver(problem, linSolver);
+  auto GNSolver = pnonls::create_gauss_newton_solver(problem, linSolver);
   GNSolver.setUpdateCriterion(nonlinearsolvers::Update::BacktrackStrictlyDecreasingObjective);
   GNSolver.setStopTolerance(1e-6);
   GNSolver.solve(problem, x);

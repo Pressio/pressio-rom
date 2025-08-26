@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/nonlinear_least_squares.hpp"
 
-namespace pressio{
+namespace pressio{ namespace nonlinearsolvers{
 
 /*
   Gauss-newton minimizes the sum of squares: S(x) = (1/2) * \sum r_i(x)*r_i(x)
@@ -71,8 +71,8 @@ namespace pressio{
 
 template<class SystemType, class LinearSolverType>
 #ifdef PRESSIO_ENABLE_CXX20
-  requires nonlinearsolvers::RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
-  && nonlinearsolvers::valid_state_for_least_squares<typename SystemType::state_type>::value
+  requires RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
+  && valid_state_for_least_squares<typename SystemType::state_type>::value
   && (Traits<typename SystemType::state_type>::rank    == 1)
   && (Traits<typename SystemType::residual_type>::rank == 1)
   && (Traits<typename SystemType::jacobian_type>::rank == 2)
@@ -80,11 +80,11 @@ template<class SystemType, class LinearSolverType>
 	    typename SystemType::state_type    & x,
       const typename SystemType::jacobian_type & J,
       const typename SystemType::residual_type & r,
-      nonlinearsolvers::normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
-      nonlinearsolvers::normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
+      normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
+      normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
       LinearSolverType & linSolver)
   {
-    { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
+    { ::pressio::ops::norm2(r) } -> std::same_as< system_scalar_t<SystemType> >;
     { ::pressio::ops::product(transpose(), nontranspose(), 1, J, 0, H) };
     { ::pressio::ops::product(transpose(), 1, J, r, 0, g) };
     { linSolver.solve(std::as_const(H), std::as_const(g), x) };
@@ -94,7 +94,6 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(1)*/
 				LinearSolverType & linSolver)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> defaultDiagnostics =
     {Diagnostic::objectiveAbsolute,
      Diagnostic::objectiveRelative,
@@ -105,11 +104,11 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(1)*/
      Diagnostic::gradientAbsolutel2Norm,
      Diagnostic::gradientRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::GaussNewtonNormalEqTag;
+  using tag      = impl::GaussNewtonNormalEqTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryGaussNewtonNormalEqs<SystemType, LinearSolverType>;
-  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
-  return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
+  using reg_t    = impl::RegistryGaussNewtonNormalEqs<SystemType, LinearSolverType>;
+  using scalar_t = system_scalar_t<SystemType>;
+  return impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
     (tag{}, defaultDiagnostics, system, linSolver);
 }
 
@@ -123,8 +122,8 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(1)*/
 
 template<class SystemType, class LinearSolverType, class WeightingOpType>
 #ifdef PRESSIO_ENABLE_CXX20
-  requires nonlinearsolvers::RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
-  && nonlinearsolvers::valid_state_for_least_squares<typename SystemType::state_type>::value
+  requires RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
+  && valid_state_for_least_squares<typename SystemType::state_type>::value
   && (Traits<typename SystemType::state_type>::rank    == 1)
   && (Traits<typename SystemType::residual_type>::rank == 1)
   && (Traits<typename SystemType::jacobian_type>::rank == 2)
@@ -134,15 +133,15 @@ template<class SystemType, class LinearSolverType, class WeightingOpType>
        const typename SystemType::jacobian_type & J,
        typename SystemType::residual_type & Wr,
        typename SystemType::jacobian_type & WJ,
-       nonlinearsolvers::normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
-       nonlinearsolvers::normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
+       normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
+       normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
        const WeightingOpType & W,
        LinearSolverType & linSolver)
   {
     { ::pressio::ops::norm2(std::as_const(r)) }
-      -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
+      -> std::same_as< system_scalar_t<SystemType> >;
     { ::pressio::ops::dot(std::as_const(r), std::as_const(Wr)) }
-      -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
+      -> std::same_as< system_scalar_t<SystemType> >;
 
     { W(r, Wr) };
     { W(J, WJ) };
@@ -157,7 +156,6 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(2)*/
 				const WeightingOpType & weigher)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> defaultDiagnostics =
     {Diagnostic::objectiveAbsolute,
      Diagnostic::objectiveRelative,
@@ -168,13 +166,13 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(2)*/
      Diagnostic::gradientAbsolutel2Norm,
      Diagnostic::gradientRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::WeightedGaussNewtonNormalEqTag;
+  using tag      = impl::WeightedGaussNewtonNormalEqTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryWeightedGaussNewtonNormalEqs<
+  using reg_t    = impl::RegistryWeightedGaussNewtonNormalEqs<
     SystemType, LinearSolverType, WeightingOpType>;
-  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
+  using scalar_t = system_scalar_t<SystemType>;
 
-  return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
+  return impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
     (tag{}, defaultDiagnostics, system, linSolver, weigher);
 }
 
@@ -187,10 +185,9 @@ template<class SystemType, class LinearSolverType, class WeightingOpType>
 auto create_gauss_newton_solver(const SystemType & system,           /*(3)*/
 				LinearSolverType & linSolver,
 				const WeightingOpType & weigher,
-				nonlinearsolvers::impl::CompactWeightedGaussNewtonNormalEqTag /*tag*/)
+				impl::CompactWeightedGaussNewtonNormalEqTag /*tag*/)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> defaultDiagnostics =
     {Diagnostic::objectiveAbsolute,
      Diagnostic::objectiveRelative,
@@ -201,13 +198,13 @@ auto create_gauss_newton_solver(const SystemType & system,           /*(3)*/
      Diagnostic::gradientAbsolutel2Norm,
      Diagnostic::gradientRelativel2Norm};
 
-  using tag_t    = nonlinearsolvers::impl::CompactWeightedGaussNewtonNormalEqTag;
+  using tag_t    = impl::CompactWeightedGaussNewtonNormalEqTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryCompactWeightedGaussNewtonNormalEqs<
+  using reg_t    = impl::RegistryCompactWeightedGaussNewtonNormalEqs<
     SystemType, LinearSolverType, WeightingOpType>;
-  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
+  using scalar_t = system_scalar_t<SystemType>;
 
-  return nonlinearsolvers::impl::NonLinLeastSquares<tag_t, state_t, reg_t, scalar_t>
+  return impl::NonLinLeastSquares<tag_t, state_t, reg_t, scalar_t>
     (tag_t{}, defaultDiagnostics, system, linSolver, weigher);
 }
 
@@ -226,8 +223,8 @@ namespace experimental{
 
 template<class SystemType, class QRSolverType>
 #ifdef PRESSIO_ENABLE_CXX20
-  requires nonlinearsolvers::RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
-  && nonlinearsolvers::valid_state_for_least_squares< typename SystemType::state_type >::value
+  requires RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
+  && valid_state_for_least_squares< typename SystemType::state_type >::value
   && (Traits<typename SystemType::state_type>::rank    == 1)
   && (Traits<typename SystemType::residual_type>::rank == 1)
   && (Traits<typename SystemType::jacobian_type>::rank == 2)
@@ -237,7 +234,7 @@ template<class SystemType, class QRSolverType>
 	      typename SystemType::state_type & QTr,
 	      QRSolverType & qrSolver)
   {
-    { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
+    { ::pressio::ops::norm2(r) } -> std::same_as< system_scalar_t<SystemType> >;
     { qrSolver.computeThin(J)               } -> std::same_as<void>;
     { qrSolver.applyQTranspose(r, QTr)      } -> std::same_as<void>;
     { qrSolver.solve(std::as_const(QTr), x) } -> std::same_as<void>;
@@ -248,7 +245,6 @@ auto create_gauss_newton_qr_solver(const SystemType & system,
 				   QRSolverType & qrSolver)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> defaultDiagnostics =
     {Diagnostic::objectiveAbsolute,
      Diagnostic::objectiveRelative,
@@ -259,14 +255,14 @@ auto create_gauss_newton_qr_solver(const SystemType & system,
      Diagnostic::gradientAbsolutel2Norm,
      Diagnostic::gradientRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::GaussNewtonQrTag;
+  using tag      = impl::GaussNewtonQrTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryGaussNewtonQr<SystemType, QRSolverType>;
-  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
-  return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
+  using reg_t    = impl::RegistryGaussNewtonQr<SystemType, QRSolverType>;
+  using scalar_t = system_scalar_t<SystemType>;
+  return impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
     (tag{}, defaultDiagnostics, system, qrSolver);
 }
 }//end experimental
 
-} // end namespace pressio
+}} // end namespace pressio::nonlinearsolvers
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_GAUSS_NEWTON_HPP_

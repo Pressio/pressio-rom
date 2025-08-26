@@ -49,6 +49,7 @@ TEST(rom_galerkin_steady, default_matrix_free)
   */
 
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
+  namespace pnonls = pressio::nonlinearsolvers;
 
   constexpr int N = 8;
   using fom_t = MyFom;
@@ -64,7 +65,7 @@ TEST(rom_galerkin_steady, default_matrix_free)
   auto problem = rom::galerkin::create_steady_problem(space, fomSystem);
 
   using tag = linearsolvers::iterative::GMRES;
-  auto nonLinSolver = experimental::create_matrixfree_newtonkrylov_solver<tag>(problem);
+  auto nonLinSolver = pnonls::experimental::create_matrixfree_newtonkrylov_solver<tag>(problem);
 
   auto romState = space.createReducedState();
   nonLinSolver.solve(romState);

@@ -88,6 +88,8 @@ template <FailType failType>
 void run_impl()
 {
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
+
   using problem_t  = AdaptedProblem1<failType>;
   using state_t    = typename problem_t::state_type;
   using jacobian_t = typename problem_t::jacobian_type;
@@ -97,7 +99,7 @@ void run_impl()
 
   problem_t sys;
   state_t y(2);
-  auto nonLinSolver = create_newton_solver(sys, linearSolverObj);
+  auto nonLinSolver = pnonls::create_newton_solver(sys, linearSolverObj);
 
   if constexpr (failType == FailType::MaximumIterations) {
     // The max iteration will be hit immediately.
