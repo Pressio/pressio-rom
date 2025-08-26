@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
 
   namespace pode = pressio::ode;
   namespace plins  = pressio::linearsolvers;
+  namespace pnonls = pressio::nonlinearsolvers;
 
   // create stepper
   constexpr auto scheme = pode::StepScheme::BDF2;
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
   using linear_solver_t = plins::Solver<plins::iterative::Bicgstab, fom_jacobian_t>;
   linear_solver_t linearSolver;
 
-  auto nonLinearSolver = pressio::create_newton_solver(stepper, linearSolver);
+  auto nonLinearSolver = pnonls::create_newton_solver(stepper, linearSolver);
   nonLinearSolver.setStopTolerance(1e-13);
 
   auto y = problem.createState();

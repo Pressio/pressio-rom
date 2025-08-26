@@ -39,6 +39,8 @@ int main()
 
   std::string sentinel = "PASSED";
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
+  
   using problem_t   = solvers::test::Problem3<double>;
   using state_t	    = typename problem_t::state_type;
 
@@ -49,7 +51,7 @@ int main()
   using qr_solver_type = qr::QRSolver<mat_type, qr::Householder>;
   qr_solver_type qrSolver;
 
-  auto GNSolver = experimental::create_gauss_newton_qr_solver(problem, qrSolver);
+  auto GNSolver = pnonls::experimental::create_gauss_newton_qr_solver(problem, qrSolver);
 
   x(0) = 2.0; x(1) = 0.25;
   testC1(sentinel, x, GNSolver);

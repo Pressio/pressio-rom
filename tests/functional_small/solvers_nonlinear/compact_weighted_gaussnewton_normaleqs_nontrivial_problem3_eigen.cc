@@ -99,6 +99,8 @@ int main()
 
   std::string sentinel = "PASSED";
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
+
   using problem_t   = solvers::test::Problem3<double>;
   using state_t	    = typename problem_t::state_type;
   using mat_t   = typename problem_t::jacobian_type;
@@ -108,12 +110,12 @@ int main()
   state_t x(2); x(0) = 2.0; x(1) = 0.25;
 
   // linear solver type
-  using tag_t = nonlinearsolvers::impl::CompactWeightedGaussNewtonNormalEqTag;
+  using tag_t = pnonls::impl::CompactWeightedGaussNewtonNormalEqTag;
   using solver_tag	= linearsolvers::iterative::LSCG;
   using linear_solver_t = linearsolvers::Solver<solver_tag, hessian_t>;
   linear_solver_t linSolver;
   RangeWeigher<double> W{};
-  auto GNSolver = create_gauss_newton_solver(problem, linSolver, W, tag_t{});
+  auto GNSolver = pnonls::create_gauss_newton_solver(problem, linSolver, W, tag_t{});
 
   x(0) = 2.0; x(1) = 0.25;
   testC1(sentinel, problem, x, GNSolver);

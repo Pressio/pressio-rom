@@ -53,13 +53,15 @@ TEST(solvers_nonlinear, problem1MatrixFree)
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
 
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
+
   using problem_t  = Problem1MatrixFree;
   using state_t    = typename problem_t::state_type;
 
   problem_t P;
   state_t y(2);
   using tag = pressio::linearsolvers::iterative::GMRES;
-  auto nonLinSolver = experimental::create_matrixfree_newtonkrylov_solver<tag>(P);
+  auto nonLinSolver = pnonls::experimental::create_matrixfree_newtonkrylov_solver<tag>(P);
 
   y(0) = 0.001;
   y(1) = 0.0001;

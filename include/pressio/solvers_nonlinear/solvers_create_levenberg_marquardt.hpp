@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/nonlinear_least_squares.hpp"
 
-namespace pressio{
+namespace pressio{ namespace nonlinearsolvers{
 
 /*
   LM minimizes the sum of squares: S(x) = (1/2) * \sum r_i(x)*r_i(x)
@@ -74,19 +74,19 @@ namespace pressio{
 
 template<class SystemType, class LinearSolverType>
 #ifdef PRESSIO_ENABLE_CXX20
-  requires nonlinearsolvers::RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
-  && nonlinearsolvers::valid_state_for_least_squares< typename SystemType::state_type >::value
+  requires RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
+  && valid_state_for_least_squares< typename SystemType::state_type >::value
   && (Traits<typename SystemType::state_type>::rank    == 1)
   && (Traits<typename SystemType::residual_type>::rank == 1)
   && (Traits<typename SystemType::jacobian_type>::rank == 2)
   && requires(typename SystemType::state_type & x,
 	      const typename SystemType::jacobian_type & J,
 	      const typename SystemType::residual_type & r,
-	      nonlinearsolvers::normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
-	      nonlinearsolvers::normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
+	      normal_eqs_default_hessian_t<typename SystemType::state_type>  & H,
+	      normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
 	      LinearSolverType & linSolver)
   {
-    { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
+    { ::pressio::ops::norm2(r) } -> std::same_as< system_scalar_t<SystemType> >;
     { ::pressio::ops::product(transpose(), nontranspose(), 1, J, 0, H) };
     { ::pressio::ops::product(transpose(), 1, J, r, 0, g) };
     { linSolver.solve(std::as_const(H), std::as_const(g), x) };
@@ -96,7 +96,6 @@ auto create_levenberg_marquardt_solver(const SystemType & system,
 				       LinearSolverType & linSolver)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> defaultDiagnostics =
     {Diagnostic::objectiveAbsolute,
      Diagnostic::objectiveRelative,
@@ -107,13 +106,13 @@ auto create_levenberg_marquardt_solver(const SystemType & system,
      Diagnostic::gradientAbsolutel2Norm,
      Diagnostic::gradientRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::LevenbergMarquardtNormalEqTag;
+  using tag      = impl::LevenbergMarquardtNormalEqTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryLevMarNormalEqs<SystemType, LinearSolverType>;
-  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
-  return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
+  using reg_t    = impl::RegistryLevMarNormalEqs<SystemType, LinearSolverType>;
+  using scalar_t = system_scalar_t<SystemType>;
+  return impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
     (tag{}, defaultDiagnostics, system, linSolver);
 }
 
-} // end namespace pressio
+}} // end namespace pressio::nonlinearsolvers
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_LEVENBERG_MARQUARDT_HPP_

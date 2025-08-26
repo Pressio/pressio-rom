@@ -66,6 +66,7 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::info);
 
   using namespace pressio;
+  namespace pnonls = pressio::nonlinearsolvers;
 
   using problem_t = solvers::test::Problem9<double>;
   using hessian_t = Eigen::MatrixXd;
@@ -76,7 +77,7 @@ int main()
   using lin_solver_t = linearsolvers::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
   std::string sentinel = "PASSED";
-  auto solver = pressio::create_levenberg_marquardt_solver(problem, linSolver);
+  auto solver = pnonls::create_levenberg_marquardt_solver(problem, linSolver);
   testC1(sentinel, problem, solver);
   std::cout << "\n" << std::endl;
 

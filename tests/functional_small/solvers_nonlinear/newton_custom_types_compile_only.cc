@@ -60,13 +60,15 @@ TEST(solvers_nonlinear, newton_compile_only)
   {
 
     using namespace pressio;
+    namespace pnonls = pressio::nonlinearsolvers;
+
     using problem_t  = MyProblem;
     using state_t    = typename problem_t::state_type;
 
     problem_t sys;
     state_t y;
     MyLinSolver ls{};
-    auto nonLinSolver = create_newton_solver(sys, ls);
+    auto nonLinSolver = pnonls::create_newton_solver(sys, ls);
     nonLinSolver.solve(y);
     (void)y;
   }
