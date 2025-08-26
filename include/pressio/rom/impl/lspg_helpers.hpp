@@ -77,13 +77,8 @@ FOM system does not meet the required SteadyFomWithJacobianAction concept.");
 
 template<typename T>
 void steady_lspg_static_check_api_return_type(){
-  static constexpr bool val =
-#ifdef PRESSIO_ENABLE_CXX20
-    nlsol::NonlinearSystemFusingResidualAndJacobian<T>;
-#else
-  nlsol::NonlinearSystemFusingResidualAndJacobian<T>::value;
-#endif
-  static_assert(val,
+  static_assert(
+    PRESSIO_VALUE_OF(nlsol::NonlinearSystemFusingResidualAndJacobian<T>),
 		"The return type must satisify the NonlinearSystemFusingResidualAndJacobian concept.");
 }
 
