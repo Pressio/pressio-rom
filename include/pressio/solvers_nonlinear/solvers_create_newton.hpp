@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/root_finder.hpp"
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 /*To solve a determined system of nonlinear equations:
   r(x) = 0, for r \in R^n and x \in R^n.
@@ -143,5 +143,5 @@ auto create_matrixfree_newtonkrylov_solver(const SystemType & system)
 }
 }
 
-}} //end namespace pressio::nonlinearsolvers
+}} //end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_

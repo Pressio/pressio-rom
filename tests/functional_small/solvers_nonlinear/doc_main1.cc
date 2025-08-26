@@ -110,7 +110,7 @@ int main()
 {
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::sparse);
 
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   MyProblem problem;
   MyLinearSolver linSolver;

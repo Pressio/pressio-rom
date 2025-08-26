@@ -10,7 +10,6 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::info);
 
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
 
   Eigen::Vector4d state;
 
@@ -26,7 +25,7 @@ int main()
   using lin_solver_t = linsol::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
 
-  auto GNSolver = pnonls::create_gauss_newton_solver(problem, linSolver);
+  auto GNSolver = nlsol::create_gauss_newton_solver(problem, linSolver);
   GNSolver.setStopTolerance(1e-5);
   GNSolver.solve(problem, x);
   std::cout << std::setprecision(14) << x << std::endl;

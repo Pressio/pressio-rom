@@ -57,7 +57,7 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
   {
     using namespace pressio;
-    namespace pnonls = pressio::nonlinearsolvers;
+    namespace pnonls = pressio::nlsol;
 
     using problem_t  = MyProblem;
     using state_t    = typename problem_t::state_type;

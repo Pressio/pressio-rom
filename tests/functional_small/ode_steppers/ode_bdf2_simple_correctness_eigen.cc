@@ -8,7 +8,6 @@
 TEST(ode, implicit_bdf2_policy_default_created)
 {
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
 
   using problem_t = ode::testing::AppEigenB;
   using state_t = typename problem_t::state_type;
@@ -20,7 +19,7 @@ TEST(ode, implicit_bdf2_policy_default_created)
   using jac_t = typename problem_t::jacobian_type;
   using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
-  auto NonLinSolver = pnonls::create_newton_solver(stepperObj,linSolverObj);
+  auto NonLinSolver = nlsol::create_newton_solver(stepperObj,linSolverObj);
 
   // integrate in time
   double dt = 0.01;
@@ -39,7 +38,6 @@ TEST(ode, implicit_bdf2_policy_default_created)
 TEST(ode, implicit_bdf2_custom_policy)
 {
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
 
   using problem_t = ode::testing::AppEigenB;
   using time_type = typename problem_t::independent_variable_type;
@@ -55,7 +53,7 @@ TEST(ode, implicit_bdf2_custom_policy)
 
   using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
-  auto NonLinSolver = pnonls::create_newton_solver(stepperObj,linSolverObj);
+  auto NonLinSolver = nlsol::create_newton_solver(stepperObj,linSolverObj);
 
   // integrate in time
   double dt = 0.01;

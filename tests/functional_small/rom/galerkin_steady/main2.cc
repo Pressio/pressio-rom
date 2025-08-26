@@ -49,7 +49,7 @@ TEST(rom_galerkin_steady, default_matrix_free)
   */
 
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   constexpr int N = 8;
   using fom_t = MyFom;

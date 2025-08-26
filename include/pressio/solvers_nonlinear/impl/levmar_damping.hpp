@@ -50,7 +50,7 @@
 #define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_LEVMAR_DAMPING_HPP_
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 template<class T>

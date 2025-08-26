@@ -52,7 +52,6 @@ int main()
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
   {
     using namespace pressio;
-    namespace pnonls = pressio::nonlinearsolvers;
 
     using problem_t  = MyProblem;
     using state_t    = typename problem_t::state_type;
@@ -60,7 +59,7 @@ int main()
     problem_t sys;
     state_t y;
     MyLinSolver ls{};
-    auto solver = pnonls::create_levenberg_marquardt_solver(sys, ls);
+    auto solver = nlsol::create_levenberg_marquardt_solver(sys, ls);
     solver.solve(y);
     (void)y;
     std::cout << "PASSED" << std::endl;

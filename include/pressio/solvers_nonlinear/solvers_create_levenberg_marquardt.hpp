@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/nonlinear_least_squares.hpp"
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 /*
   LM minimizes the sum of squares: S(x) = (1/2) * \sum r_i(x)*r_i(x)
@@ -114,5 +114,5 @@ auto create_levenberg_marquardt_solver(const SystemType & system,
     (tag{}, defaultDiagnostics, system, linSolver);
 }
 
-}} // end namespace pressio::nonlinearsolvers
+}} // end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_LEVENBERG_MARQUARDT_HPP_

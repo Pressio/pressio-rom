@@ -49,7 +49,7 @@
 #ifndef PRESSIOROM_SOLVERS_NONLINEAR_IMPL_INSTANCE_OR_REFERENCE_WRAPPER_HPP_
 #define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_INSTANCE_OR_REFERENCE_WRAPPER_HPP_
 
-namespace pressio{ namespace nonlinearsolvers{ namespace impl{
+namespace pressio{ namespace nlsol{ namespace impl{
 
 template <class T>
 class InstanceOrReferenceWrapper;
@@ -124,5 +124,5 @@ public:
   T const& get() const { return refObj_.get(); }
 };
 
-}}} // end of namespace pressio::nonlinearsolvers::impl
+}}} // end of namespace pressio::nlsol::impl
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_IMPL_INSTANCE_OR_REFERENCE_WRAPPER_HPP_

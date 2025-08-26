@@ -88,7 +88,6 @@ template <FailType failType>
 void run_impl()
 {
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
 
   using problem_t  = AdaptedProblem1<failType>;
   using state_t    = typename problem_t::state_type;
@@ -99,7 +98,7 @@ void run_impl()
 
   problem_t sys;
   state_t y(2);
-  auto nonLinSolver = pnonls::create_newton_solver(sys, linearSolverObj);
+  auto nonLinSolver = nlsol::create_newton_solver(sys, linearSolverObj);
 
   if constexpr (failType == FailType::MaximumIterations) {
     // The max iteration will be hit immediately.
@@ -108,13 +107,13 @@ void run_impl()
     // First we make sure we are using an Updater that can throw this
     // exception. Then we make the backtrack condition tiny, so alpha
     // keeps getting smaller and smaller until the exception is thrown.
-    const auto updateMethod = nonlinearsolvers::Update::BacktrackStrictlyDecreasingObjective;
+    const auto updateMethod = nlsol::Update::BacktrackStrictlyDecreasingObjective;
     nonLinSolver.setUpdateCriterion(updateMethod);
     nonLinSolver.addLineSearchParameter(1e-10);
   } else if constexpr (failType == FailType::LineSearchObjFunctionChangeTooSmall) {
     // Armijo is the only updater that can throw this exception.
     // The rest of the failure should be caused by residualAndJacobian function.
-    const auto updateMethod = nonlinearsolvers::Update::Armijo;
+    const auto updateMethod = nlsol::Update::Armijo;
     nonLinSolver.setUpdateCriterion(updateMethod);
   } else {
     // Standard values from Problem1 test

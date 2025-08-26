@@ -51,7 +51,7 @@
 
 #include "./solvers_predicates.hpp"
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 #ifdef PRESSIO_ENABLE_CXX20
 
@@ -88,11 +88,11 @@ struct NonlinearSystem<
     && std::is_copy_constructible<typename T::state_type>::value
     && std::is_copy_constructible<typename T::residual_type>::value
     //
-    && ::pressio::nonlinearsolvers::has_const_create_state_method_return_result<
+    && has_const_create_state_method_return_result<
       T, typename T::state_type>::value
-    && ::pressio::nonlinearsolvers::has_const_create_residual_method_return_result<
+    && has_const_create_residual_method_return_result<
       T, typename T::residual_type>::value
-    && ::pressio::nonlinearsolvers::has_const_residual_method_accept_state_result_return_void<
+    && has_const_residual_method_accept_state_result_return_void<
       T, typename T::state_type, typename T::residual_type>::value
    >
   > : std::true_type{};
@@ -150,13 +150,13 @@ struct NonlinearSystemFusingResidualAndJacobian<
     && std::is_copy_constructible<typename T::state_type>::value
     && std::is_copy_constructible<typename T::residual_type>::value
     && std::is_copy_constructible<typename T::jacobian_type>::value
-    && ::pressio::nonlinearsolvers::has_const_create_state_method_return_result<
+    && has_const_create_state_method_return_result<
       T, typename T::state_type>::value
-    && ::pressio::nonlinearsolvers::has_const_create_residual_method_return_result<
+    && has_const_create_residual_method_return_result<
       T, typename T::residual_type>::value
-    && ::pressio::nonlinearsolvers::has_const_create_jacobian_method_return_result<
+    && has_const_create_jacobian_method_return_result<
       T, typename T::jacobian_type>::value
-    && ::pressio::nonlinearsolvers::has_const_residualandjacobian_method_accept_state_result_return_void<
+    && has_const_residualandjacobian_method_accept_state_result_return_void<
       T, typename T::state_type, typename T::residual_type, typename T::jacobian_type>::value
    >
   > : std::true_type{};
@@ -192,5 +192,5 @@ struct system_scalar<
 template <class T>
 using system_scalar_t = typename system_scalar<T>::type;
 
-}} // end namespace pressio::nonlinearsolvers
+}} // end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_

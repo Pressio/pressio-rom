@@ -51,7 +51,7 @@
 
 #include <fstream>
 
-namespace pressio{ namespace nonlinearsolvers{ namespace impl{
+namespace pressio{ namespace nlsol{ namespace impl{
 
 #ifdef PRESSIO_ENABLE_CXX20
   template<class RegistryType, class StateType, class SystemType>

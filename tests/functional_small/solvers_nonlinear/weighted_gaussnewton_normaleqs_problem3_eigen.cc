@@ -37,7 +37,7 @@ void testC2(std::string & sentinel,
             state_t & x,
             solver & GNSolver)
 {
-  using namespace pressio::nonlinearsolvers;
+  using namespace pressio::nlsol;
   auto criterion = Stop::WhenAbsolutel2NormOfGradientBelowTolerance;
   // 1e3 is chosen to test the convergence condition
   GNSolver.setStopCriterion(criterion);
@@ -56,7 +56,7 @@ void testC3(std::string & sentinel,
             state_t & x,
             solver & GNSolver)
 {
-  using namespace pressio::nonlinearsolvers;
+  using namespace pressio::nlsol;
   auto criterion = Stop::WhenRelativel2NormOfGradientBelowTolerance;
   GNSolver.setStopCriterion(criterion);
   GNSolver.setStopTolerance(1e-5);
@@ -74,7 +74,7 @@ int main()
 
   std::string sentinel = "PASSED";
   using namespace pressio;
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   using problem_t   = solvers::test::Problem3<double>;
   using state_t	    = typename problem_t::state_type;

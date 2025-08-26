@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 
   namespace pode = pressio::ode;
   namespace plins  = pressio::linsol;
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   // create stepper
   constexpr auto scheme = pode::StepScheme::BDF2;
