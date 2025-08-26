@@ -60,7 +60,7 @@
 #include <unsupported/Eigen/IterativeSolvers>
 #endif
 
-namespace pressio{ namespace linearsolvers{
+namespace pressio{ namespace linsol{
 
 template <typename T>
 struct Traits {
@@ -75,7 +75,7 @@ struct Traits {
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::iterative::GMRES>
+struct Traits<::pressio::linsol::iterative::GMRES>
 {
   static constexpr bool direct        = false;
   static constexpr bool iterative     = true;
@@ -92,7 +92,7 @@ struct Traits<::pressio::linearsolvers::iterative::GMRES>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::iterative::CG>
+struct Traits<::pressio::linsol::iterative::CG>
 {
   static constexpr bool direct        = false;
   static constexpr bool iterative     = true;
@@ -109,7 +109,7 @@ struct Traits<::pressio::linearsolvers::iterative::CG>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::iterative::Bicgstab>
+struct Traits<::pressio::linsol::iterative::Bicgstab>
 {
   static constexpr bool direct        = false;
   static constexpr bool iterative     = true;
@@ -126,7 +126,7 @@ struct Traits<::pressio::linearsolvers::iterative::Bicgstab>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::iterative::LSCG>
+struct Traits<::pressio::linsol::iterative::LSCG>
 {
   static constexpr bool direct        = false;
   static constexpr bool iterative     = true;
@@ -143,7 +143,7 @@ struct Traits<::pressio::linearsolvers::iterative::LSCG>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::direct::ColPivHouseholderQR>
+struct Traits<::pressio::linsol::direct::ColPivHouseholderQR>
 {
 
   static constexpr bool iterative = false;
@@ -171,7 +171,7 @@ struct Traits<::pressio::linearsolvers::direct::ColPivHouseholderQR>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::direct::HouseholderQR>
+struct Traits<::pressio::linsol::direct::HouseholderQR>
 {
   static constexpr bool iterative = false;
   static constexpr bool direct = true;
@@ -185,7 +185,7 @@ struct Traits<::pressio::linearsolvers::direct::HouseholderQR>
 };
 
 template <>
-struct Traits<::pressio::linearsolvers::direct::PartialPivLU>
+struct Traits<::pressio::linsol::direct::PartialPivLU>
 {
   static constexpr bool iterative = false;
   static constexpr bool direct = true;

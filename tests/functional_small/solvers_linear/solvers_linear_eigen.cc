@@ -18,8 +18,8 @@ TEST(solvers_linear_eigen, sparse_iterative_lscg)
   A.insert(1, 1) +=  3.0;
 
   vector_t y(2);
-  using tag = pressio::linearsolvers::iterative::LSCG;
-  using solver_t = pressio::linearsolvers::Solver<tag, matrix_t>;
+  using tag = pressio::linsol::iterative::LSCG;
+  using solver_t = pressio::linsol::Solver<tag, matrix_t>;
   solver_t solver;
   solver.solve(A,b,y);
 
@@ -41,7 +41,7 @@ TEST(solvers_linear_eigen, sparse_iterative_lscg)
   A(2, 0) = 1.0;\
   A(2, 1) = 6.0;\
   vector_t y(2);\
-  using solver_t = pressio::linearsolvers::Solver<TAGIN, matrix_t>;\
+  using solver_t = pressio::linsol::Solver<TAGIN, matrix_t>;\
   solver_t solver;\
   solver.solve(A,b,y); \
   const auto e1 = std::abs(y(0) - (-0.377)); \
@@ -51,31 +51,31 @@ TEST(solvers_linear_eigen, sparse_iterative_lscg)
 
 TEST(solvers_linear_eigen, dense_iterative_lscg)
 {
-  using tag = pressio::linearsolvers::iterative::LSCG;
+  using tag = pressio::linsol::iterative::LSCG;
   PRESSIO_SOLVERS_LINEAR_EIGEN_DENSE_UTEST(tag);
 }
 
 TEST(solvers_linear_eigen, dense_direct_colpivqr)
 {
-  using tag = pressio::linearsolvers::direct::ColPivHouseholderQR;
+  using tag = pressio::linsol::direct::ColPivHouseholderQR;
   PRESSIO_SOLVERS_LINEAR_EIGEN_DENSE_UTEST(tag);
 }
 
 TEST(solvers_linear_eigen, dense_direct_houseqr)
 {
-  using tag = pressio::linearsolvers::direct::HouseholderQR;
+  using tag = pressio::linsol::direct::HouseholderQR;
   PRESSIO_SOLVERS_LINEAR_EIGEN_DENSE_UTEST(tag);
 }
 
 
 // Define all tags we want to test
 using SolverTags = ::testing::Types<
-  pressio::linearsolvers::iterative::CG,
-  pressio::linearsolvers::iterative::LSCG,
-  pressio::linearsolvers::iterative::Bicgstab,
-  pressio::linearsolvers::direct::HouseholderQR,
-  pressio::linearsolvers::direct::ColPivHouseholderQR,
-  pressio::linearsolvers::direct::PartialPivLU
+  pressio::linsol::iterative::CG,
+  pressio::linsol::iterative::LSCG,
+  pressio::linsol::iterative::Bicgstab,
+  pressio::linsol::direct::HouseholderQR,
+  pressio::linsol::direct::ColPivHouseholderQR,
+  pressio::linsol::direct::PartialPivLU
 >;
 
 // Define typed test fixture
@@ -88,7 +88,7 @@ TYPED_TEST_SUITE(LinearSolverDefaultConstructibilityTest, SolverTags);
 TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible)
 {
   using TagType = TypeParam;
-  using Solver = pressio::linearsolvers::Solver<TagType, Eigen::MatrixXd>;
+  using Solver = pressio::linsol::Solver<TagType, Eigen::MatrixXd>;
   static_assert(std::is_default_constructible<Solver>::value,
 		"Solver is not default constructible");
   Solver solver;  // actually default construct it
@@ -98,7 +98,7 @@ TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible)
 TYPED_TEST(LinearSolverDefaultConstructibilityTest, IsDefaultConstructible2)
 {
   using TagType = TypeParam;
-  using Solver = pressio::linearsolvers::Solver<TagType, Eigen::SparseMatrix<double>>;
+  using Solver = pressio::linsol::Solver<TagType, Eigen::SparseMatrix<double>>;
   static_assert(std::is_default_constructible<Solver>::value,
 		"Solver is not default constructible");
   Solver solver;  // actually default construct it

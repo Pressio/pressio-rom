@@ -64,7 +64,7 @@ TEST(rom_galerkin_steady, default_matrix_free)
 
   auto problem = rom::galerkin::create_steady_problem(space, fomSystem);
 
-  using tag = linearsolvers::iterative::GMRES;
+  using tag = linsol::iterative::GMRES;
   auto nonLinSolver = pnonls::experimental::create_matrixfree_newtonkrylov_solver<tag>(problem);
 
   auto romState = space.createReducedState();

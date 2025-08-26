@@ -18,7 +18,7 @@ void run_impl(int reps, bool logOn = false, bool callSolveWithJustState = true)
   using state_t    = typename problem_t::state_type;
   using jacobian_t = typename problem_t::jacobian_type;
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::LSCG, jacobian_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::LSCG, jacobian_t>;
   lin_solver_t linearSolverObj;
 
   problem_t sys;
@@ -86,7 +86,7 @@ TEST(solvers_nonlinear, move)
   using state_t    = typename problem_t::state_type;
   using jacobian_t = typename problem_t::jacobian_type;
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::LSCG, jacobian_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::LSCG, jacobian_t>;
   lin_solver_t linearSolverObj;
 
   problem_t sys;

@@ -53,7 +53,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
-namespace pressio { namespace linearsolvers{
+namespace pressio { namespace linsol{
 
 template<typename UserDefinedLinearOperatorType>
 class OperatorWrapper;
@@ -63,7 +63,7 @@ class OperatorWrapper;
 namespace Eigen {
   namespace internal {
     template<typename UserDefinedLinearOperatorType>
-    struct traits< pressio::linearsolvers::OperatorWrapper<UserDefinedLinearOperatorType> >
+    struct traits< pressio::linsol::OperatorWrapper<UserDefinedLinearOperatorType> >
       : public Eigen::internal::traits<
       Eigen::Matrix<typename UserDefinedLinearOperatorType::scalar_type,-1,-1>
       >
@@ -71,7 +71,7 @@ namespace Eigen {
   }
 }
 
-namespace pressio { namespace linearsolvers{
+namespace pressio { namespace linsol{
 
 template<typename UserDefinedLinearOperatorType>
 class OperatorWrapper :
@@ -120,30 +120,30 @@ private:
   UserDefinedLinearOperatorType const *m_userOperator = nullptr;
 };
 
-}} // end namespace pressio::linearsolvers
+}} // end namespace pressio::linsol
 
 namespace Eigen {
   namespace internal {
 
     template<typename Rhs, typename UserDefinedOpT>
     struct generic_product_impl<
-      pressio::linearsolvers::OperatorWrapper<UserDefinedOpT>,
+      pressio::linsol::OperatorWrapper<UserDefinedOpT>,
       Rhs, DenseShape, DenseShape, GemvProduct
       >
       : generic_product_impl_base<
-        pressio::linearsolvers::OperatorWrapper<UserDefinedOpT>, Rhs,
-        generic_product_impl<pressio::linearsolvers::OperatorWrapper<UserDefinedOpT>, Rhs>
+        pressio::linsol::OperatorWrapper<UserDefinedOpT>, Rhs,
+        generic_product_impl<pressio::linsol::OperatorWrapper<UserDefinedOpT>, Rhs>
       >
     {
       using Scalar = typename Product<
-	pressio::linearsolvers::OperatorWrapper<UserDefinedOpT>,
+	pressio::linsol::OperatorWrapper<UserDefinedOpT>,
 	Rhs
 	>::Scalar;
 
       template<typename Dest>
       static void scaleAndAddTo(
 	 Dest& dst,
-	 const pressio::linearsolvers::OperatorWrapper<UserDefinedOpT> & lhs,
+	 const pressio::linsol::OperatorWrapper<UserDefinedOpT> & lhs,
 	 const Rhs& rhs,
 	 const Scalar& alpha)
       {
@@ -159,7 +159,7 @@ namespace Eigen {
   }
 }
 
-namespace pressio { namespace linearsolvers{ namespace impl{
+namespace pressio { namespace linsol{ namespace impl{
 
 template<typename TagType, typename UserDefinedLinearOperatorType>
 class EigenIterativeMatrixFreeWrapper
@@ -168,7 +168,7 @@ class EigenIterativeMatrixFreeWrapper
   >
 {
   using this_type = EigenIterativeMatrixFreeWrapper<TagType, UserDefinedLinearOperatorType>;
-  using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
+  using solver_traits = ::pressio::linsol::Traits<TagType>;
   using op_wrapper_t = OperatorWrapper<UserDefinedLinearOperatorType>;
   using native_solver_type = typename solver_traits::template eigen_solver_type<op_wrapper_t>;
   using base_iterative_type = IterativeBase<this_type>;
