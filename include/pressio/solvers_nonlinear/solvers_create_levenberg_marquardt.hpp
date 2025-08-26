@@ -86,7 +86,7 @@ template<class SystemType, class LinearSolverType>
 	      nonlinearsolvers::normal_eqs_default_gradient_t<typename SystemType::state_type> & g,
 	      LinearSolverType & linSolver)
   {
-    { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
+    { ::pressio::ops::norm2(r) } -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
     { ::pressio::ops::product(transpose(), nontranspose(), 1, J, 0, H) };
     { ::pressio::ops::product(transpose(), 1, J, r, 0, g) };
     { linSolver.solve(std::as_const(H), std::as_const(g), x) };
@@ -110,7 +110,7 @@ auto create_levenberg_marquardt_solver(const SystemType & system,
   using tag      = nonlinearsolvers::impl::LevenbergMarquardtNormalEqTag;
   using state_t  = typename SystemType::state_type;
   using reg_t    = nonlinearsolvers::impl::RegistryLevMarNormalEqs<SystemType, LinearSolverType>;
-  using scalar_t = nonlinearsolvers::scalar_of_t<SystemType>;
+  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
   return nonlinearsolvers::impl::NonLinLeastSquares<tag, state_t, reg_t, scalar_t>
     (tag{}, defaultDiagnostics, system, linSolver);
 }

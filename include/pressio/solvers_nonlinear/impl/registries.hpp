@@ -424,7 +424,7 @@ public:
 template<class SystemType, class InnSolverType>
 class RegistryLevMarNormalEqs
 {
-  using scalar_t   = scalar_of_t<SystemType>;
+  using scalar_t   = system_scalar_t<SystemType>;
   using state_t    = typename SystemType::state_type;
   using r_t        = typename SystemType::residual_type;
   using j_t        = typename SystemType::jacobian_type;

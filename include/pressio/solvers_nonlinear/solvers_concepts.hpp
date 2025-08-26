@@ -53,6 +53,29 @@
 
 namespace pressio{ namespace nonlinearsolvers{
 
+#ifdef PRESSIO_ENABLE_CXX20
+
+template <class T>
+concept NonlinearSystem =
+     std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::residual_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      typename T::residual_type & r)
+  {
+    { A.createState()       } -> std::same_as<typename T::state_type>;
+    { A.createResidual()    } -> std::same_as<typename T::residual_type>;
+    { A.residual(state, r)  } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedNonlinearSystem =
+  NonlinearSystem<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::residual_type> >;
+
+#else
+
 template<class T, class enable = void>
 struct NonlinearSystem : std::false_type{};
 
@@ -73,6 +96,46 @@ struct NonlinearSystem<
       T, typename T::state_type, typename T::residual_type>::value
    >
   > : std::true_type{};
+
+template<class T, class = void> struct RealValuedNonlinearSystem : std::false_type{};
+template<class T> struct RealValuedNonlinearSystem<
+  T,
+  std::enable_if_t<
+    NonlinearSystem<T>::value
+    && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
+    && std::is_floating_point< scalar_trait_t<typename T::residual_type> >::value
+    >
+  > : std::true_type{};
+
+#endif
+
+
+#ifdef PRESSIO_ENABLE_CXX20
+
+template <class T>
+concept NonlinearSystemFusingResidualAndJacobian =
+     std::copy_constructible<typename T::state_type>
+  && std::copy_constructible<typename T::residual_type>
+  && std::copy_constructible<typename T::jacobian_type>
+  && requires(const T & A,
+	      const typename T::state_type & state,
+	      typename T::residual_type & r,
+	      std::optional<typename T::jacobian_type*> j)
+  {
+    { A.createState()       } -> std::same_as<typename T::state_type>;
+    { A.createResidual()    } -> std::same_as<typename T::residual_type>;
+    { A.createJacobian()    } -> std::same_as<typename T::jacobian_type>;
+    { A.residualAndJacobian(state, r, j)  } -> std::same_as<void>;
+  };
+
+template <class T>
+concept RealValuedNonlinearSystemFusingResidualAndJacobian =
+  NonlinearSystemFusingResidualAndJacobian<T>
+  && std::floating_point< scalar_trait_t<typename T::state_type> >
+  && std::floating_point< scalar_trait_t<typename T::residual_type> >
+  && std::floating_point< scalar_trait_t<typename T::jacobian_type> >;
+
+#else
 
 template<class T, class enable = void>
 struct NonlinearSystemFusingResidualAndJacobian : std::false_type{};
@@ -98,17 +161,6 @@ struct NonlinearSystemFusingResidualAndJacobian<
    >
   > : std::true_type{};
 
-
-template<class T, class = void> struct RealValuedNonlinearSystem : std::false_type{};
-template<class T> struct RealValuedNonlinearSystem<
-  T,
-  std::enable_if_t<
-    NonlinearSystem<T>::value
-    && std::is_floating_point< scalar_trait_t<typename T::state_type> >::value
-    && std::is_floating_point< scalar_trait_t<typename T::residual_type> >::value
-    >
-  > : std::true_type{};
-
 template<class T, class = void> struct RealValuedNonlinearSystemFusingResidualAndJacobian : std::false_type{};
 template<class T> struct RealValuedNonlinearSystemFusingResidualAndJacobian<
   T,
@@ -120,25 +172,25 @@ template<class T> struct RealValuedNonlinearSystemFusingResidualAndJacobian<
     >
   > : std::true_type{};
 
+#endif
 
 //
-// auxiliary stuff
+// auxiliary trait to get the scalar_type of the state of a nonlinear system
 //
-template <class T, class = void> struct scalar_of;
+template <class T, class = void> struct system_scalar;
 
 template <class T>
-struct scalar_of<
+struct system_scalar<
   T, std::enable_if_t<
-       RealValuedNonlinearSystem<T>::value
-       || RealValuedNonlinearSystemFusingResidualAndJacobian<T>::value>
+       PRESSIO_VALUE_OF(NonlinearSystem<T>) ||
+       PRESSIO_VALUE_OF(NonlinearSystemFusingResidualAndJacobian<T>)>
   >
 {
   using type = scalar_trait_t< typename T::state_type >;
 };
 
 template <class T>
-using scalar_of_t = typename scalar_of<T>::type;
-
+using system_scalar_t = typename system_scalar<T>::type;
 
 }} // end namespace pressio::nonlinearsolvers
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CONCEPTS_HPP_

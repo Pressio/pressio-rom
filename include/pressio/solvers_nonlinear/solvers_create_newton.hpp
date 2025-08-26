@@ -88,15 +88,15 @@ template<class SystemType, class LinearSolverType>
 	      typename SystemType::state_type    & c,
 	      typename SystemType::residual_type & r,
 	      typename SystemType::jacobian_type & J,
-	      nonlinearsolvers::scalar_of_t<SystemType> alpha,
-	      nonlinearsolvers::scalar_of_t<SystemType> beta,
-	      nonlinearsolvers::scalar_of_t<SystemType> gamma,
+	      nonlinearsolvers::system_scalar_t<SystemType> alpha,
+	      nonlinearsolvers::system_scalar_t<SystemType> beta,
+	      nonlinearsolvers::system_scalar_t<SystemType> gamma,
 	      LinearSolverType && linSolver)
   {
     { ::pressio::ops::norm2(std::as_const(a)) }
-      -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
+      -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
     { ::pressio::ops::norm2(std::as_const(r)) }
-      -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
+      -> std::same_as< nonlinearsolvers::system_scalar_t<SystemType> >;
 
     { ::pressio::ops::deep_copy(b, std::as_const(a)) };
     { ::pressio::ops::scale (a, alpha) };
@@ -119,7 +119,7 @@ auto create_newton_solver(const SystemType & system,
   using tag      = nonlinearsolvers::impl::NewtonTag;
   using state_t  = typename SystemType::state_type;
   using reg_t    = nonlinearsolvers::impl::RegistryNewton<SystemType, LinearSolverType>;
-  using scalar_t = nonlinearsolvers::scalar_of_t<SystemType>;
+  using scalar_t = nonlinearsolvers::system_scalar_t<SystemType>;
   return nonlinearsolvers::impl::RootFinder<tag, state_t, reg_t, scalar_t>
     (tag{}, diagnostics, system, linSolver);
 }
