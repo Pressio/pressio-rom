@@ -52,7 +52,7 @@
 #include "pressio/ops_macros.hpp"
 
 #define PRESSIO_MAJOR_VERSION 0
-#define PRESSIO_MINOR_VERSION 16
+#define PRESSIO_MINOR_VERSION 17
 #define PRESSIO_PATCH_VERSION 0
 
 #ifdef PRESSIO_ENABLE_LOGGING
