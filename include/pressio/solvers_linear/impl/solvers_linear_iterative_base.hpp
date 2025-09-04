@@ -49,7 +49,7 @@
 #ifndef PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
 #define PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_ITERATIVE_BASE_HPP_
 
-namespace pressio { namespace linearsolvers{ namespace impl{
+namespace pressio { namespace linsol{ namespace impl{
 
 template<typename DerivedType>
 struct IterativeBase

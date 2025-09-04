@@ -50,7 +50,7 @@
 #define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_DEFAULT_TYPES_HPP_
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 
 template<class T, class = void>
 struct normal_eqs_default_types{

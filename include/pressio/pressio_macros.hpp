@@ -52,7 +52,7 @@
 #include "pressio/ops_macros.hpp"
 
 #define PRESSIO_MAJOR_VERSION 0
-#define PRESSIO_MINOR_VERSION 16
+#define PRESSIO_MINOR_VERSION 17
 #define PRESSIO_PATCH_VERSION 0
 
 #ifdef PRESSIO_ENABLE_LOGGING
@@ -64,6 +64,19 @@
     #define PRESSIOLOG_DEBUG(...)   do {} while (0)
     #define PRESSIOLOG_WARNING(...) do {} while (0)
     #define PRESSIOLOG_ERROR(...)   do {} while (0)
+#endif
+
+// Turn a concept (C++20) or a trait with ::value (pre-C++20) into a bool.
+// Variadic allows to write:
+//      PRESSIO_VALUE_OF(FullyDiscreteSystemWithJacobian<T, 2>)
+// without extra parentheses.
+
+#ifndef PRESSIO_VALUE_OF
+  #ifdef PRESSIO_ENABLE_CXX20
+    #define PRESSIO_VALUE_OF(...) (__VA_ARGS__)
+  #else
+    #define PRESSIO_VALUE_OF(...) (__VA_ARGS__::value)
+  #endif
 #endif
 
 #endif

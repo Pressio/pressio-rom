@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 struct MyApp2WithMM
@@ -210,7 +210,8 @@ struct FakeNonLinearSolver2{
     FakeNonLinearSolver1 solver(numFakeSolverIterations, MM,		\
 				odeSchemeResidualsToCompare,		\
 				odeSchemeJacobiansToCompare);		\
-    ode::advance_n_steps(stepperObj, y0, 0.0, dt, nsteps, solver);	\
+    auto policy = ode::steps_fixed_dt(0.0, nsteps, dt); \
+    ode::advance(stepperObj, y0, policy, solver);	\
     EXPECT_TRUE(solver.count()== nsteps.get()*numFakeSolverIterations); \
   }									\
   std::cout << "y0 : \n" << y0 << " \n";				\
@@ -226,7 +227,8 @@ struct FakeNonLinearSolver2{
     FakeNonLinearSolver2 solver(numFakeSolverIterations,		\
 				odeSchemeResidualsToCompare,		\
 				odeSchemeJacobiansToCompare);		\
-    ode::advance_n_steps(stepperObj, y1, 0.0, dt, nsteps, solver);	\
+    auto policy = ode::steps_fixed_dt(0.0, nsteps, dt); \
+    ode::advance(stepperObj, y1, policy, solver);	\
     EXPECT_TRUE(solver.count() == nsteps.get()*numFakeSolverIterations); \
   }									\
   std::cout << "y1 : \n" << y1 << " \n";				\

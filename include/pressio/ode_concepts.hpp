@@ -59,7 +59,6 @@
 #include "./ode/ode_strong_types.hpp"
 #include "./ode/ode_enum_and_tags.hpp"
 #include "./ode/ode_stencil_containers.hpp"
-#include "./ode/concepts/ode_system.hpp"
-#include "./ode/concepts/ode_others.hpp"
+#include "./ode/ode_concepts.hpp"
 
 #endif

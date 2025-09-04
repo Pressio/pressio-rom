@@ -1,5 +1,4 @@
 
-//#include "pressio/ode_steppers_implicit.hpp"
 #include "pressio/ode_advancers.hpp"
 
 #include <iostream>
@@ -94,8 +93,7 @@ int main()
       }
     };
 
-  pressio::ode::advance_to_target_point_with_step_recovery
-    (stepper, y, 0., 0.5, dtManager, collector, solver);
+  pressio::ode::advance_with_step_recovery(stepper, y, 0., 0.5, dtManager, collector, solver);
 
   if( std::abs(y(0)-1.575) > 1e-10 or
       std::abs(y(1)-2.575) > 1e-10 or

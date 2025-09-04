@@ -58,7 +58,7 @@
 #include "./impl/updaters.hpp"
 #include "./impl/root_finder.hpp"
 
-namespace pressio{
+namespace pressio{ namespace nlsol{
 
 /*To solve a determined system of nonlinear equations:
   r(x) = 0, for r \in R^n and x \in R^n.
@@ -79,7 +79,7 @@ namespace pressio{
 
 template<class SystemType, class LinearSolverType>
 #ifdef PRESSIO_ENABLE_CXX20
-  requires nonlinearsolvers::RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
+  requires RealValuedNonlinearSystemFusingResidualAndJacobian<SystemType>
   && (Traits<typename SystemType::state_type>::rank    == 1)
   && (Traits<typename SystemType::residual_type>::rank == 1)
   && (Traits<typename SystemType::jacobian_type>::rank == 2)
@@ -88,15 +88,15 @@ template<class SystemType, class LinearSolverType>
 	      typename SystemType::state_type    & c,
 	      typename SystemType::residual_type & r,
 	      typename SystemType::jacobian_type & J,
-	      nonlinearsolvers::scalar_of_t<SystemType> alpha,
-	      nonlinearsolvers::scalar_of_t<SystemType> beta,
-	      nonlinearsolvers::scalar_of_t<SystemType> gamma,
+	      system_scalar_t<SystemType> alpha,
+	      system_scalar_t<SystemType> beta,
+	      system_scalar_t<SystemType> gamma,
 	      LinearSolverType && linSolver)
   {
     { ::pressio::ops::norm2(std::as_const(a)) }
-      -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
+      -> std::same_as< system_scalar_t<SystemType> >;
     { ::pressio::ops::norm2(std::as_const(r)) }
-      -> std::same_as< nonlinearsolvers::scalar_of_t<SystemType> >;
+      -> std::same_as< system_scalar_t<SystemType> >;
 
     { ::pressio::ops::deep_copy(b, std::as_const(a)) };
     { ::pressio::ops::scale (a, alpha) };
@@ -109,18 +109,17 @@ template<class SystemType, class LinearSolverType>
 auto create_newton_solver(const SystemType & system,
 			  LinearSolverType & linSolver)
 {
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> diagnostics =
     {Diagnostic::residualAbsolutel2Norm,
      Diagnostic::residualRelativel2Norm,
      Diagnostic::correctionAbsolutel2Norm,
      Diagnostic::correctionRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::NewtonTag;
+  using tag      = impl::NewtonTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryNewton<SystemType, LinearSolverType>;
-  using scalar_t = nonlinearsolvers::scalar_of_t<SystemType>;
-  return nonlinearsolvers::impl::RootFinder<tag, state_t, reg_t, scalar_t>
+  using reg_t    = impl::RegistryNewton<SystemType, LinearSolverType>;
+  using scalar_t = system_scalar_t<SystemType>;
+  return impl::RootFinder<tag, state_t, reg_t, scalar_t>
     (tag{}, diagnostics, system, linSolver);
 }
 
@@ -129,21 +128,20 @@ template<class LinearSolverTag, class SystemType>
 auto create_matrixfree_newtonkrylov_solver(const SystemType & system)
 {
 
-  using nonlinearsolvers::Diagnostic;
   const std::vector<Diagnostic> diagnostics =
     {Diagnostic::residualAbsolutel2Norm,
      Diagnostic::residualRelativel2Norm,
      Diagnostic::correctionAbsolutel2Norm,
      Diagnostic::correctionRelativel2Norm};
 
-  using tag      = nonlinearsolvers::impl::MatrixFreeNewtonTag;
+  using tag      = impl::MatrixFreeNewtonTag;
   using state_t  = typename SystemType::state_type;
-  using reg_t    = nonlinearsolvers::impl::RegistryMatrixFreeNewtonKrylov<SystemType, LinearSolverTag>;
+  using reg_t    = impl::RegistryMatrixFreeNewtonKrylov<SystemType, LinearSolverTag>;
   using scalar_t = scalar_trait_t< typename SystemType::state_type >;
-  return nonlinearsolvers::impl::RootFinder<tag, state_t, reg_t, scalar_t>
+  return impl::RootFinder<tag, state_t, reg_t, scalar_t>
     (tag{}, diagnostics, system);
 }
 }
 
-} //end namespace pressio
+}} //end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_CREATE_NEWTON_HPP_

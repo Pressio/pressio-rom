@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "custom_independent_variable.hpp"
 
@@ -41,7 +41,8 @@ TEST(ode_explicit_steppers, ssprk3_custom_ind_var)
 
   MyCustomTime t0{0.};
   MyCustomTime dt{2.};
-  ode::advance_n_steps(stepperObj, y, t0, dt, pressio::ode::StepCount(1));
+  auto bp = pressio::ode::steps_fixed_dt(t0, pressio::ode::StepCount(1), dt);
+  ode::advance(stepperObj, y, bp);
   EXPECT_DOUBLE_EQ( y(0), 29./3.);
   EXPECT_DOUBLE_EQ( y(1), 48./3.);
   EXPECT_DOUBLE_EQ( y(2), 67./3.);

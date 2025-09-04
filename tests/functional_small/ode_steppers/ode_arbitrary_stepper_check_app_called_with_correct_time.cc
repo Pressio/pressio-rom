@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 namespace
@@ -86,7 +86,8 @@ TEST(ode, mplicit_arbitrary_callWithCorrectTime1)
   using jac_t = typename app_t::discrete_jacobian_type;
   MyFakeSolver3<res_t, jac_t> solver;
   double dt = 2.5;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, ::pressio::ode::StepCount(2), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0.0, ode::StepCount(2), dt);
+  ode::advance(stepperObj, y, policy, solver);
 }
 
 TEST(ode, implicit_arbitrary_callWithCorrectTime2)
@@ -102,7 +103,8 @@ TEST(ode, implicit_arbitrary_callWithCorrectTime2)
   auto stepperObj = ode::create_implicit_stepper<2>(appObj);
   MyFakeSolver3<res_t, jac_t> solver;
   double dt = 2.5;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, ::pressio::ode::StepCount(2), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0.0, ode::StepCount(2), dt);
+  ode::advance(stepperObj, y, policy, solver);
 }
 
 TEST(ode, implicit_arbitrary_callWithCorrectTime3)
@@ -118,5 +120,6 @@ TEST(ode, implicit_arbitrary_callWithCorrectTime3)
   auto stepperObj = ode::create_implicit_stepper<2>(appObj);
   MyFakeSolver3<res_t, jac_t> solver;
   double dt = 2.5;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, ::pressio::ode::StepCount(2), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0.0, ode::StepCount(2), dt);
+  ode::advance(stepperObj, y, policy, solver);
 }

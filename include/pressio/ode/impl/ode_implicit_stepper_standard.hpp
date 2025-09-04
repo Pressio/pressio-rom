@@ -84,7 +84,7 @@ private:
   // for cn  : y_n
   ImplicitStencilStatesDynamicContainer<StateType> stencil_states_;
 
-  ::pressio::nonlinearsolvers::impl::InstanceOrReferenceWrapper<ResidualJacobianPolicyType> rj_policy_;
+  ::pressio::nlsol::impl::InstanceOrReferenceWrapper<ResidualJacobianPolicyType> rj_policy_;
 
   // stencilRightHandSide contains:
   // for bdf1,2: nothing

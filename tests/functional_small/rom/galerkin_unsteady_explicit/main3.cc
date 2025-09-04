@@ -158,8 +158,8 @@ TEST(rom_galerkin_explicit, masked_velo_euler_forward)
 
   const double dt = 1.;
   Observer obs;
-  pressio::ode::advance_n_steps(problem, romState, 0., dt,
-				::pressio::ode::StepCount(2), obs);
+  auto policy = pressio::ode::steps_fixed_dt(0., pressio::ode::StepCount(2), dt);  
+  pressio::ode::advance(problem, romState, policy, obs);
   std::cout << romState << std::endl;
   EXPECT_DOUBLE_EQ(romState[0], 0.);
   EXPECT_DOUBLE_EQ(romState[1], 2611.);

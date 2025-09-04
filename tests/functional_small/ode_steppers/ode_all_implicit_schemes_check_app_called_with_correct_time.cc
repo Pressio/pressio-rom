@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 namespace
@@ -167,7 +167,8 @@ TEST(ode, implicit_euler_appVelocityCalledWithCorrectTime)
   auto stepperObj = ode::create_bdf1_stepper(appObj);
   MyFakeSolver1 solver;
   double dt = 1.1;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, ::pressio::ode::StepCount(1), solver);
+  auto policy = ode::steps_fixed_dt(0.0, ode::StepCount(1), dt);
+  ode::advance(stepperObj, y, policy, solver);
 }
 
 TEST(ode, implicit_bdf2_appVelocityCalledWithCorrectTime)
@@ -187,5 +188,6 @@ TEST(ode, implicit_bdf2_appVelocityCalledWithCorrectTime)
   auto stepperObj = ode::create_bdf2_stepper(appObj);
   MyFakeSolver2 solver;
   double dt = 1.1;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, ::pressio::ode::StepCount(2), solver);
+  auto policy = ode::steps_fixed_dt(0.0, ode::StepCount(2), dt);  
+  ode::advance(stepperObj, y, policy, solver);
 }

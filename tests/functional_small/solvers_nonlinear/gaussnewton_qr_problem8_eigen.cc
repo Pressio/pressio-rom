@@ -52,7 +52,7 @@ int main()
   using qr_solver_type = qr::QRSolver<mat_type, qr::Householder>;
   qr_solver_type qrSolver;
 
-  auto GNSolver = experimental::create_gauss_newton_qr_solver(problem, qrSolver);
+  auto GNSolver = nlsol::experimental::create_gauss_newton_qr_solver(problem, qrSolver);
 
   x(0) = 0.02; x(1) = 4000.0; x(2) = 250.0;
   testC1(sentinel, x, GNSolver);

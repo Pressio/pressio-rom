@@ -1,13 +1,14 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "testing_apps.hpp"
 
 #define TEST_ODE_RK4_NUMERICS(y, stepperObj, appObj) \
   y(0) = 1.; y(1) = 2.; y(2) = 3.; \
   double dt = 0.1;				    \
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, pressio::ode::StepCount(1));  \
+  auto bp = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(1), dt); \
+  ode::advance(stepperObj, y, bp); \
   appObj.analyticAdvanceRK4(dt);		    \
   EXPECT_NEAR(y(0), appObj.y(0), 1e-15); \
   EXPECT_NEAR(y(1), appObj.y(1), 1e-15); \

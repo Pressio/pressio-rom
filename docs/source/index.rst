@@ -56,7 +56,7 @@ Each component (level) of the stack depends on the ones below it.
 
    * - ``ode``
      - concepts :raw-html-m2r:`<br/>` explicit steppers :raw-html-m2r:`<br/>` implicit steppers :raw-html-m2r:`<br/>` ``advance_<*>`` fncs :raw-html-m2r:`<br/>` :raw-html-m2r:`<br/>`
-     - ``<pressio/ode_concepts.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode_steppers_explicit.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode_steppers_implicit.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode_advancers.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode.hpp>`` :small:`includes all`
+     - ``<pressio/ode_concepts.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode_steppers.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode_advancers.hpp>`` :raw-html-m2r:`<br/>` ``<pressio/ode.hpp>`` :small:`includes all`
 
    * - ``solvers_nonlinear``
      - concepts :raw-html-m2r:`<br/>` Newton method :raw-html-m2r:`<br/>` Gauss-Newton :raw-html-m2r:`<br/>` Lev.-Marq. :raw-html-m2r:`<br/>` :raw-html-m2r:`<br/>`

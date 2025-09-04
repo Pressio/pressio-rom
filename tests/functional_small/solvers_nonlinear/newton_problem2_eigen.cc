@@ -9,6 +9,8 @@ TEST(solvers_nonlinear, problem1A)
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::debug);
 
   using namespace pressio;
+  namespace pnonls = pressio::nlsol;
+
   using problem_t  = solvers::test::Problem2;
   using state_t    = problem_t::state_type;
   using jacobian_t = problem_t::jacobian_type;
@@ -17,11 +19,11 @@ TEST(solvers_nonlinear, problem1A)
   state_t y(2);
   y(0) = 0.3; y(1) = 0.4;
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::LSCG, jacobian_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::LSCG, jacobian_t>;
   lin_solver_t linearSolverObj;
 
-  auto NonLinSolver = create_newton_solver(sys, linearSolverObj);
-  const auto updateMethod = nonlinearsolvers::Update::BacktrackStrictlyDecreasingObjective;
+  auto NonLinSolver = pnonls::create_newton_solver(sys, linearSolverObj);
+  const auto updateMethod = pnonls::Update::BacktrackStrictlyDecreasingObjective;
   NonLinSolver.setUpdateCriterion(updateMethod);
   NonLinSolver.solve(y);
 

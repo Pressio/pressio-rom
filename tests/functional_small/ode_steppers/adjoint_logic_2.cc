@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "random"
 #include <iomanip>
@@ -220,9 +220,8 @@ TEST(ode, adjoint_test_2)
     MyFakeSolver solver;
     PrimalObserver obs(finalTime, stepSizes);
     auto stepperObj = pressio::ode::create_implicit_stepper<2>(app);
-    pressio::ode::advance_n_steps(stepperObj, x, 0., dtSetter,
-				  ::pressio::ode::StepCount(_num_steps),
-				  obs, solver);
+    auto policy = pressio::ode::steps(0., pressio::ode::StepCount(_num_steps), dtSetter);
+    pressio::ode::advance(stepperObj, x, policy, solver, obs);
   }
 
   //
@@ -248,9 +247,8 @@ TEST(ode, adjoint_test_2)
     MyFakeSolver solver;
     AdjointObserver obs(finalTime, stepSizes);
     auto stepperObj = pressio::ode::create_implicit_stepper<2>(app);
-    pressio::ode::advance_n_steps(stepperObj, w, finalTime, dtSetter,
-				  ::pressio::ode::StepCount(_num_steps),
-				  obs, solver);
+    auto policy = pressio::ode::steps(finalTime, pressio::ode::StepCount(_num_steps), dtSetter);
+    pressio::ode::advance(stepperObj, w, policy, solver, obs);
   }
 
   const auto lhs = pressio::ops::dot(w, x_0);

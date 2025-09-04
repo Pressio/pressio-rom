@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 struct MyApp
@@ -235,7 +235,8 @@ TEST(ode, implicit_crank_nicolson_correctness_default_policy)
   y(0)=1.; y(1)=2.; y(2)=3.;
 
   auto stepperObj = pressio::ode::create_cranknicolson_stepper(appObj);
-  pressio::ode::advance_n_steps(stepperObj, y, 0., 1.5, pressio::ode::StepCount(3), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(3), 1.5);
+  pressio::ode::advance(stepperObj, y, policy, solver);
   std::cout << y << '\n';
 
   EXPECT_TRUE(y(0)==7.);
@@ -265,7 +266,8 @@ TEST(ode, implicit_crank_nicolson_correctness_custom_policy)
     wrap_type, time_type, state_t, res_t, jac_t>;
 
   auto stepperObj = pressio::ode::create_cranknicolson_stepper_with_custom_policy(pol_t(wrap_type(appObj)));
-  pressio::ode::advance_n_steps(stepperObj, y, 0., 1.5, pressio::ode::StepCount(3), solver);
+  auto policy = pressio::ode::steps_fixed_dt(0.0, pressio::ode::StepCount(3), 1.5);
+  pressio::ode::advance(stepperObj, y, policy, solver);
 
   EXPECT_TRUE(y(0)==7.);
   EXPECT_TRUE(y(1)==8.);

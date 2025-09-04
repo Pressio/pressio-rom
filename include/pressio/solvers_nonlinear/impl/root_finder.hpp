@@ -52,7 +52,7 @@
 #include <utility>
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 template<
@@ -257,7 +257,7 @@ void root_solving_loop_impl(MatrixFreeNewtonTag /*problemTag*/,
   };
 
   using wrapper_t = Wrapper<UserDefinedSystemType>;
-  using linear_solver_t =  pressio::linearsolvers::Solver<
+  using linear_solver_t =  pressio::linsol::Solver<
     typename RegistryType::extended_registry::linear_solver_tag,
     wrapper_t>;
   linear_solver_t linearSolver;

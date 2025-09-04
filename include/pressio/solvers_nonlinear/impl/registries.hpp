@@ -53,7 +53,7 @@
 #include "instance_or_reference_wrapper.hpp"
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 #define GETMETHOD(N) \
@@ -70,11 +70,11 @@ class RegistryNewton
   using r_t        = typename SystemType::residual_type;
   using j_t        = typename SystemType::jacobian_type;
 
-  using Tag1 = nonlinearsolvers::CorrectionTag;
-  using Tag3 = nonlinearsolvers::ResidualTag;
-  using Tag4 = nonlinearsolvers::JacobianTag;
-  using Tag5 = nonlinearsolvers::InnerSolverTag;
-  using Tag6 = nonlinearsolvers::impl::SystemTag;
+  using Tag1 = ::pressio::nlsol::CorrectionTag;
+  using Tag3 = ::pressio::nlsol::ResidualTag;
+  using Tag4 = ::pressio::nlsol::JacobianTag;
+  using Tag5 = ::pressio::nlsol::InnerSolverTag;
+  using Tag6 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -117,9 +117,9 @@ class RegistryMatrixFreeNewtonKrylov
   using state_t    = typename SystemType::state_type;
   using r_t        = typename SystemType::residual_type;
 
-  using Tag1 = nonlinearsolvers::CorrectionTag;
-  using Tag3 = nonlinearsolvers::ResidualTag;
-  using Tag4 = nonlinearsolvers::impl::SystemTag;
+  using Tag1 = ::pressio::nlsol::CorrectionTag;
+  using Tag3 = ::pressio::nlsol::ResidualTag;
+  using Tag4 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -163,13 +163,13 @@ class RegistryGaussNewtonNormalEqs
   using hessian_t  = typename hg_default::hessian_type;
   using gradient_t = typename hg_default::gradient_type;
 
-  using Tag1 = nonlinearsolvers::CorrectionTag;
-  using Tag3 = nonlinearsolvers::ResidualTag;
-  using Tag4 = nonlinearsolvers::JacobianTag;
-  using Tag5 = nonlinearsolvers::GradientTag;
-  using Tag6 = nonlinearsolvers::HessianTag;
-  using Tag7 = nonlinearsolvers::InnerSolverTag;
-  using Tag8 = nonlinearsolvers::impl::SystemTag;
+  using Tag1 = ::pressio::nlsol::CorrectionTag;
+  using Tag3 = ::pressio::nlsol::ResidualTag;
+  using Tag4 = ::pressio::nlsol::JacobianTag;
+  using Tag5 = ::pressio::nlsol::GradientTag;
+  using Tag6 = ::pressio::nlsol::HessianTag;
+  using Tag7 = ::pressio::nlsol::InnerSolverTag;
+  using Tag8 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -222,16 +222,16 @@ class RegistryWeightedGaussNewtonNormalEqs
   using hessian_t  = typename hg_default::hessian_type;
   using gradient_t = typename hg_default::gradient_type;
 
-  using Tag1  = nonlinearsolvers::CorrectionTag;
-  using Tag3  = nonlinearsolvers::ResidualTag;
-  using Tag4  = nonlinearsolvers::JacobianTag;
-  using Tag5  = nonlinearsolvers::WeightedResidualTag;
-  using Tag6  = nonlinearsolvers::WeightedJacobianTag;
-  using Tag7  = nonlinearsolvers::GradientTag;
-  using Tag8  = nonlinearsolvers::HessianTag;
-  using Tag9  = nonlinearsolvers::InnerSolverTag;
-  using Tag10 = nonlinearsolvers::WeightingOperatorTag;
-  using Tag11 = nonlinearsolvers::impl::SystemTag;
+  using Tag1  = ::pressio::nlsol::CorrectionTag;
+  using Tag3  = ::pressio::nlsol::ResidualTag;
+  using Tag4  = ::pressio::nlsol::JacobianTag;
+  using Tag5  = ::pressio::nlsol::WeightedResidualTag;
+  using Tag6  = ::pressio::nlsol::WeightedJacobianTag;
+  using Tag7  = ::pressio::nlsol::GradientTag;
+  using Tag8  = ::pressio::nlsol::HessianTag;
+  using Tag9  = ::pressio::nlsol::InnerSolverTag;
+  using Tag10 = ::pressio::nlsol::WeightingOperatorTag;
+  using Tag11 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -295,16 +295,16 @@ class RegistryCompactWeightedGaussNewtonNormalEqs
   using hessian_t  = typename hg_default::hessian_type;
   using gradient_t = typename hg_default::gradient_type;
 
-  using Tag1  = nonlinearsolvers::CorrectionTag;
-  using Tag3  = nonlinearsolvers::ResidualTag;
-  using Tag4  = nonlinearsolvers::JacobianTag;
-  using Tag5  = nonlinearsolvers::WeightedResidualTag;
-  using Tag6  = nonlinearsolvers::WeightedJacobianTag;
-  using Tag7  = nonlinearsolvers::GradientTag;
-  using Tag8  = nonlinearsolvers::HessianTag;
-  using Tag9  = nonlinearsolvers::InnerSolverTag;
-  using Tag10 = nonlinearsolvers::WeightingOperatorTag;
-  using Tag11 = nonlinearsolvers::impl::SystemTag;
+  using Tag1  = ::pressio::nlsol::CorrectionTag;
+  using Tag3  = ::pressio::nlsol::ResidualTag;
+  using Tag4  = ::pressio::nlsol::JacobianTag;
+  using Tag5  = ::pressio::nlsol::WeightedResidualTag;
+  using Tag6  = ::pressio::nlsol::WeightedJacobianTag;
+  using Tag7  = ::pressio::nlsol::GradientTag;
+  using Tag8  = ::pressio::nlsol::HessianTag;
+  using Tag9  = ::pressio::nlsol::InnerSolverTag;
+  using Tag10 = ::pressio::nlsol::WeightingOperatorTag;
+  using Tag11 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -372,13 +372,13 @@ class RegistryGaussNewtonQr
   using QTr_t      = state_t; // type of Q^T*r
   using gradient_t = state_t; // type of J^T r
 
-  using Tag1 = nonlinearsolvers::CorrectionTag;
-  using Tag3 = nonlinearsolvers::ResidualTag;
-  using Tag4 = nonlinearsolvers::JacobianTag;
-  using Tag5 = nonlinearsolvers::GradientTag;
-  using Tag6 = nonlinearsolvers::impl::QTransposeResidualTag;
-  using Tag7 = nonlinearsolvers::InnerSolverTag;
-  using Tag8 = nonlinearsolvers::impl::SystemTag;
+  using Tag1 = ::pressio::nlsol::CorrectionTag;
+  using Tag3 = ::pressio::nlsol::ResidualTag;
+  using Tag4 = ::pressio::nlsol::JacobianTag;
+  using Tag5 = ::pressio::nlsol::GradientTag;
+  using Tag6 = ::pressio::nlsol::impl::QTransposeResidualTag;
+  using Tag7 = ::pressio::nlsol::InnerSolverTag;
+  using Tag8 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;
@@ -424,7 +424,7 @@ public:
 template<class SystemType, class InnSolverType>
 class RegistryLevMarNormalEqs
 {
-  using scalar_t   = scalar_of_t<SystemType>;
+  using scalar_t   = system_scalar_t<SystemType>;
   using state_t    = typename SystemType::state_type;
   using r_t        = typename SystemType::residual_type;
   using j_t        = typename SystemType::jacobian_type;
@@ -433,15 +433,15 @@ class RegistryLevMarNormalEqs
   using gradient_t = typename hg_default::gradient_type;
   using lm_damp_t  = LevenbergMarquardtDamping<scalar_t>;
 
-  using Tag1 = nonlinearsolvers::CorrectionTag;
-  using Tag3 = nonlinearsolvers::ResidualTag;
-  using Tag4 = nonlinearsolvers::JacobianTag;
-  using Tag5 = nonlinearsolvers::GradientTag;
-  using Tag6 = nonlinearsolvers::HessianTag;
-  using Tag7 = nonlinearsolvers::LevenbergMarquardtUndampedHessianTag;
-  using Tag8 = nonlinearsolvers::LevenbergMarquardtDampingTag;
-  using Tag9 = nonlinearsolvers::InnerSolverTag;
-  using Tag10 = nonlinearsolvers::impl::SystemTag;
+  using Tag1 = ::pressio::nlsol::CorrectionTag;
+  using Tag3 = ::pressio::nlsol::ResidualTag;
+  using Tag4 = ::pressio::nlsol::JacobianTag;
+  using Tag5 = ::pressio::nlsol::GradientTag;
+  using Tag6 = ::pressio::nlsol::HessianTag;
+  using Tag7 = ::pressio::nlsol::LevenbergMarquardtUndampedHessianTag;
+  using Tag8 = ::pressio::nlsol::LevenbergMarquardtDampingTag;
+  using Tag9 = ::pressio::nlsol::InnerSolverTag;
+  using Tag10 = ::pressio::nlsol::impl::SystemTag;
 
   state_t d1_;
   r_t d3_;

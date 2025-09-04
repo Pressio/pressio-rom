@@ -110,11 +110,11 @@ int main()
 {
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::sparse);
 
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pnonls = pressio::nlsol;
 
   MyProblem problem;
   MyLinearSolver linSolver;
-  auto solver = pressio::create_newton_solver(problem, linSolver);
+  auto solver = pnonls::create_newton_solver(problem, linSolver);
   const auto updateMethod = pnonls::Update::BacktrackStrictlyDecreasingObjective;
   solver.setUpdateCriterion(updateMethod);
 

@@ -49,12 +49,12 @@
 #ifndef PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_EIGEN_DIRECT_IMPL_HPP_
 #define PRESSIOROM_SOLVERS_LINEAR_IMPL_SOLVERS_LINEAR_EIGEN_DIRECT_IMPL_HPP_
 
-namespace pressio { namespace linearsolvers{ namespace impl{
+namespace pressio { namespace linsol{ namespace impl{
 
 template<typename TagType, typename MatrixType>
 class EigenDirectWrapper
 {
-  using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
+  using solver_traits   = ::pressio::linsol::Traits<TagType>;
   using native_solver_type = typename solver_traits::template eigen_solver_type<MatrixType>;
 
   static_assert

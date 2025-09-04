@@ -25,7 +25,7 @@ void testC2(std::string & sentinel,
             state_t & x,
             solver & GNSolver)
 {
-  using namespace pressio::nonlinearsolvers;
+  using namespace pressio::nlsol;
   auto criterion = Stop::WhenAbsolutel2NormOfGradientBelowTolerance;
   // 1e3 is chosen to test the convergence condition
   GNSolver.setStopCriterion(criterion);
@@ -44,7 +44,7 @@ void testC3(std::string & sentinel,
             state_t & x,
             solver & GNSolver)
 {
-  using namespace pressio::nonlinearsolvers;
+  using namespace pressio::nlsol;
   auto criterion = Stop::WhenRelativel2NormOfGradientBelowTolerance;
   GNSolver.setStopCriterion(criterion);
   GNSolver.setStopTolerance(1e-5);
@@ -62,6 +62,7 @@ int main()
 
   std::string sentinel = "PASSED";
   using namespace pressio;
+
   using problem_t   = solvers::test::Problem3<double>;
   using state_t	    = typename problem_t::state_type;
   using mat_t   = typename problem_t::jacobian_type;
@@ -71,11 +72,11 @@ int main()
   state_t x(2); x(0) = 2.0; x(1) = 0.25;
 
   // linear solver type
-  using solver_tag	= linearsolvers::iterative::LSCG;
-  using linear_solver_t = linearsolvers::Solver<solver_tag, hessian_t>;
+  using solver_tag	= linsol::iterative::LSCG;
+  using linear_solver_t = linsol::Solver<solver_tag, hessian_t>;
   linear_solver_t linSolver;
 
-  auto GNSolver = create_gauss_newton_solver(problem, linSolver);
+  auto GNSolver = nlsol::create_gauss_newton_solver(problem, linSolver);
 
   x(0) = 2.0; x(1) = 0.25;
   testC1(sentinel, problem, x, GNSolver);

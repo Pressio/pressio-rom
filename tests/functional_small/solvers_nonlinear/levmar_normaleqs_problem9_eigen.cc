@@ -15,7 +15,7 @@ void testC1(std::string & sentinel,
   x << 1.3, 6.5e-1, 6.5e-1, 7.0e-1,
     6.0e-1, 3.0, 5.0, 7.0, 2.0, 4.5, 5.5;
 
-  solver.setUpdateCriterion(nonlinearsolvers::Update::LMSchedule1);
+  solver.setUpdateCriterion(nlsol::Update::LMSchedule1);
   solver.setStopTolerance(1e-6);
   solver.solve(problem, x);
   std::cout << std::setprecision(14) << x << " ";
@@ -43,7 +43,7 @@ void testC2(std::string & sentinel,
   x << 1.3, 6.5e-1, 6.5e-1, 7.0e-1,
     6.0e-1, 3.0, 5.0, 7.0, 2.0, 4.5, 5.5;
 
-  solver.setUpdateCriterion(nonlinearsolvers::Update::LMSchedule2);
+  solver.setUpdateCriterion(nlsol::Update::LMSchedule2);
   solver.setStopTolerance(1e-6);
   solver.solve(problem, x);
   std::cout << std::setprecision(14) << x << " ";
@@ -72,11 +72,11 @@ int main()
 
   problem_t problem;
 
-  using lin_tag      = linearsolvers::direct::HouseholderQR;
-  using lin_solver_t = linearsolvers::Solver<lin_tag, hessian_t>;
+  using lin_tag      = linsol::direct::HouseholderQR;
+  using lin_solver_t = linsol::Solver<lin_tag, hessian_t>;
   lin_solver_t linSolver;
   std::string sentinel = "PASSED";
-  auto solver = pressio::create_levenberg_marquardt_solver(problem, linSolver);
+  auto solver = nlsol::create_levenberg_marquardt_solver(problem, linSolver);
   testC1(sentinel, problem, solver);
   std::cout << "\n" << std::endl;
 

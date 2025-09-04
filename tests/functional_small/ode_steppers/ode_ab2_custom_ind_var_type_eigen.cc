@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "testing_apps.hpp"
 #include "custom_independent_variable.hpp"
@@ -32,7 +32,7 @@ struct Collector
 {
   void operator()(const ::pressio::ode::StepCount & stepIn,
 		  double /*unused*/,
-		  const Eigen::VectorXd & y)
+		  const Eigen::VectorXd & y) const
   {
     const auto step = stepIn.get();
     if (step==0){
@@ -76,5 +76,6 @@ TEST(ode_explicit_steppers, ab2_custom_ind_var)
   MyCustomTime t0{0.};
   MyCustomTime dt{2.};
   Collector C;
-  ode::advance_n_steps(stepperObj, y, t0, dt, pressio::ode::StepCount(3), C);
+  auto bp = pressio::ode::steps_fixed_dt(t0, pressio::ode::StepCount(3), dt);
+  ode::advance(stepperObj, y, bp, C);
 }

@@ -2,7 +2,7 @@
 //@HEADER
 // ************************************************************************
 //
-// ode_steppers_explicit.hpp
+// ode_steppers.hpp
 //                     		  Pressio
 //                             Copyright 2019
 //    National Technology & Engineering Solutions of Sandia, LLC (NTESS)
@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIO_ODE_STEPPERS_EXPLICIT_HPP_
-#define PRESSIO_ODE_STEPPERS_EXPLICIT_HPP_
+#ifndef PRESSIO_ODE_STEPPERS_HPP_
+#define PRESSIO_ODE_STEPPERS_HPP_
 
 // includes from pressio-ops
 #include "pressio/mpl.hpp"
@@ -62,6 +62,6 @@
 #include "./ode/ode_strong_types.hpp"
 #include "./ode/ode_constants.hpp"
 #include "./ode/ode_enum_and_tags.hpp"
-#include "./ode/ode_create_explicit_stepper.hpp"
+#include "./ode/ode_create_stepper.hpp"
 
 #endif

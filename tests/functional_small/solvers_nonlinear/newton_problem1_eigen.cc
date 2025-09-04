@@ -12,16 +12,18 @@ void run_impl(int reps, bool logOn = false, bool callSolveWithJustState = true)
   }
 
   using namespace pressio;
+  namespace pnonls = pressio::nlsol;
+
   using problem_t  = SystemType;
   using state_t    = typename problem_t::state_type;
   using jacobian_t = typename problem_t::jacobian_type;
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::LSCG, jacobian_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::LSCG, jacobian_t>;
   lin_solver_t linearSolverObj;
 
   problem_t sys;
   state_t y(2);
-  auto nonLinSolver = create_newton_solver(sys, linearSolverObj);
+  auto nonLinSolver = pnonls::create_newton_solver(sys, linearSolverObj);
 
   if (reps){
     y(0) = 0.001; y(1) = 0.0001;
@@ -78,11 +80,12 @@ TEST(solvers_nonlinear, problem1_repeated_solve_call_solve_with_only_state){
 TEST(solvers_nonlinear, move)
 {
   using namespace pressio;
+
   using problem_t  = pressio::solvers::test::Problem1;
   using state_t    = typename problem_t::state_type;
   using jacobian_t = typename problem_t::jacobian_type;
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::LSCG, jacobian_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::LSCG, jacobian_t>;
   lin_solver_t linearSolverObj;
 
   problem_t sys;
@@ -97,7 +100,7 @@ TEST(solvers_nonlinear, move)
   };
 
   state_t y(2);
-  auto nls = create_newton_solver(sys, linearSolverObj);
+  auto nls = nlsol::create_newton_solver(sys, linearSolverObj);
   dosolve(y, nls);
 
   auto nls2 = std::move(nls);

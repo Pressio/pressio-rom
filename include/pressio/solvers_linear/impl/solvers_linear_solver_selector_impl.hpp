@@ -60,7 +60,7 @@
 #include "solvers_linear_kokkos_direct_getrs_impl.hpp"
 #endif
 
-namespace pressio{ namespace linearsolvers{ namespace impl{
+namespace pressio{ namespace linsol{ namespace impl{
 
 
 template<typename TagType, typename MatrixType, typename enable = void>
@@ -75,7 +75,7 @@ struct Selector<
   >
 {
   using tag_t = iterative::GMRES;
-  using solver_traits = ::pressio::linearsolvers::Traits<tag_t>;
+  using solver_traits = ::pressio::linsol::Traits<tag_t>;
   using type = EigenIterativeMatrixFreeWrapper<tag_t, UserDefinedLinearOperatorType>;
 };
 
@@ -83,27 +83,27 @@ template<typename TagType, typename MatrixType>
 struct Selector<
   TagType, MatrixType,
   std::enable_if_t<
-    ::pressio::linearsolvers::Traits<TagType>::iterative and
+    ::pressio::linsol::Traits<TagType>::iterative and
     (::pressio::is_dense_matrix_eigen<MatrixType>::value or
      ::pressio::is_sparse_matrix_eigen<MatrixType>::value)
     >
   >
 {
-  using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenIterativeWrapper<TagType, MatrixType>;
+  using solver_traits = ::pressio::linsol::Traits<TagType>;
+  using type = ::pressio::linsol::impl::EigenIterativeWrapper<TagType, MatrixType>;
 };
 
 template<typename TagType, typename MatrixType>
 struct Selector<
   TagType, MatrixType,
   std::enable_if_t<
-    ::pressio::linearsolvers::Traits<TagType>::direct and
+    ::pressio::linsol::Traits<TagType>::direct and
     (::pressio::is_dense_matrix_eigen<MatrixType>::value or
      ::pressio::is_sparse_matrix_eigen<MatrixType>::value)>
   >
 {
-  using solver_traits = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::EigenDirectWrapper<TagType, MatrixType>;
+  using solver_traits = ::pressio::linsol::Traits<TagType>;
+  using type = ::pressio::linsol::impl::EigenDirectWrapper<TagType, MatrixType>;
 };
 #endif
 
@@ -112,13 +112,13 @@ template<typename TagType, typename MatrixType>
 struct Selector<
   TagType, MatrixType,
   std::enable_if_t<
-    ::pressio::linearsolvers::Traits<TagType>::direct and
+    ::pressio::linsol::Traits<TagType>::direct and
     (::pressio::is_dense_matrix_kokkos<MatrixType>::value)
     >
   >
 {
-  using solver_traits   = ::pressio::linearsolvers::Traits<TagType>;
-  using type = ::pressio::linearsolvers::impl::KokkosDirectGETRS<MatrixType>;
+  using solver_traits   = ::pressio::linsol::Traits<TagType>;
+  using type = ::pressio::linsol::impl::KokkosDirectGETRS<MatrixType>;
 };
 #endif
 

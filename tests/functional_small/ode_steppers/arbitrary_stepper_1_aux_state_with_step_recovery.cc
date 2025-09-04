@@ -1,5 +1,5 @@
 
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 struct MyApp
@@ -146,8 +146,7 @@ int main()
   MyFakeSolver solver;
 
   auto stepperObj = pressio::ode::create_implicit_stepper<2>(appObj);
-  pressio::ode::advance_to_target_point_with_step_recovery
-    (stepperObj, y, 0., 0.4, dtManager, solver);
+  pressio::ode::advance_with_step_recovery(stepperObj, y, 0., 0.4, dtManager, solver);
 
   std::cout << checkStr << std::endl;
   PRESSIOLOG_FINALIZE();

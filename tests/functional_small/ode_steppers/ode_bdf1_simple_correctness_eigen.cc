@@ -1,13 +1,14 @@
 
 #include <gtest/gtest.h>
 #include "pressio/solvers.hpp"
-#include "pressio/ode_steppers_implicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 #include "testing_apps.hpp"
 
 TEST(ode, implicit_bdf1_policy_default_created)
 {
   using namespace pressio;
+
   using problem_t   = ode::testing::AppEigenB;
   using state_t = typename problem_t::state_type;
   problem_t problemObj;
@@ -15,13 +16,14 @@ TEST(ode, implicit_bdf1_policy_default_created)
   auto stepperObj = ode::create_implicit_stepper(ode::StepScheme::BDF1, problemObj);
 
   using jac_t = typename problem_t::jacobian_type;
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
-  auto NonLinSolver = create_newton_solver(stepperObj,linSolverObj);
+  auto NonLinSolver = nlsol::create_newton_solver(stepperObj,linSolverObj);
 
   ode::StepCount nSteps(2);
   double dt = 0.01;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, nSteps, NonLinSolver);
+  auto policy = ode::steps_fixed_dt(0.0, nSteps, dt);
+  ode::advance(stepperObj, y, policy, NonLinSolver);
   std::cout << std::setprecision(14) << y << "\n";
 
   problemObj.analyticAdvanceBackEulerNSteps(dt, nSteps.get());
@@ -33,6 +35,7 @@ TEST(ode, implicit_bdf1_policy_default_created)
 TEST(ode, implicit_bdf1_custom_policy)
 {
   using namespace pressio;
+
   using problem_t = ode::testing::AppEigenB;
   using time_type = typename problem_t::independent_variable_type;
   using state_t = typename problem_t::state_type;
@@ -49,13 +52,14 @@ TEST(ode, implicit_bdf1_custom_policy)
   auto stepperObj = ode::create_implicit_stepper_with_custom_policy(ode::StepScheme::BDF1,
 						 rj_pol_t(wrap_type(problemObj)));
 
-  using lin_solver_t = linearsolvers::Solver<linearsolvers::iterative::Bicgstab, jac_t>;
+  using lin_solver_t = linsol::Solver<linsol::iterative::Bicgstab, jac_t>;
   lin_solver_t linSolverObj;
-  auto NonLinSolver = create_newton_solver(stepperObj,linSolverObj);
+  auto NonLinSolver = nlsol::create_newton_solver(stepperObj,linSolverObj);
 
   ode::StepCount nSteps(2);
   double dt = 0.01;
-  ode::advance_n_steps(stepperObj, y, 0.0, dt, nSteps, NonLinSolver);
+  auto policy = ode::steps_fixed_dt(0.0, nSteps, dt);
+  ode::advance(stepperObj, y, policy, NonLinSolver);
   std::cout << std::setprecision(14) << y << "\n";
 
   problemObj.analyticAdvanceBackEulerNSteps(dt, nSteps.get());

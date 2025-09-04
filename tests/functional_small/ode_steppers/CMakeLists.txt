@@ -7,20 +7,20 @@ endif()
 if (PRESSIO_ENABLE_TPL_EIGEN)
   set(name doc_main1)
   add_serial_exe_and_test(
-    ${name} 
+    ${name}
     ode_steppers
     ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
 
   set(name doc_main2)
   add_serial_exe_and_test(
-    ${name} 
-    ode_steppers 
+    ${name}
+    ode_steppers
     ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
 
   set(name doc_main3)
   add_serial_exe_and_test(
-    ${name} 
-    ode_steppers 
+    ${name}
+    ode_steppers
     ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cc "PASSED")
 endif()
 

@@ -108,8 +108,8 @@ int main()
 {
   PRESSIOLOG_INITIALIZE(pressiolog::LogLevel::sparse);
 
-  namespace pls    = pressio::linearsolvers;
-  namespace pnonls = pressio::nonlinearsolvers;
+  namespace pls    = pressio::linsol;
+  namespace pnonls = pressio::nlsol;
 
   MyRosenbrockSystem problem;
 
@@ -122,7 +122,7 @@ int main()
   x0(0) = 0.0; x0(1) = 1.1; x0(2) = 1.2; x0(3) = 1.5;
 
   {
-    auto solver = pressio::create_gauss_newton_solver(problem, linearSolver);
+    auto solver = pnonls::create_gauss_newton_solver(problem, linearSolver);
     solver.setStopTolerance(1e-5);
 
     auto x = pressio::ops::clone(x0);
@@ -141,7 +141,7 @@ int main()
   }
 
   {
-    auto solver = pressio::create_levenberg_marquardt_solver(problem, linearSolver);
+    auto solver = pnonls::create_levenberg_marquardt_solver(problem, linearSolver);
     solver.setStopTolerance(1e-5);
     solver.setUpdateCriterion(pnonls::Update::LMSchedule2);
 

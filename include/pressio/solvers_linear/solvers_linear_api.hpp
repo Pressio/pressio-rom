@@ -54,7 +54,7 @@
 // These tags that can be used to specify the desired
 // solver type when instantiating a solver.
 
-namespace pressio{ namespace linearsolvers{
+namespace pressio{ namespace linsol{
 
 namespace iterative{
 struct CG {};
@@ -95,7 +95,7 @@ struct PartialPivLU {};
  * Dispatch Example
  * -----------------------------------------
  * If you pass:
- *   - `pressio::linearsolvers::iterative::CG` as the solver tag
+ *   - `pressio::linsol::iterative::CG` as the solver tag
  *   - `Eigen::SparseMatrix<double>` as the matrix type
  * Then the selected implementation will be: impl::EigenIterativeWrapper
  * which interally would wrap and use Eigen::ConjugateGradient.
@@ -104,8 +104,8 @@ struct PartialPivLU {};
  * Usage example:
  * -----------------------------------------
  *   using MyMatrixType = ...;
- *   pressio::linearsolvers::Solver<
- *     pressio::linearsolvers::iterative::CG, MyMatrixType
+ *   pressio::linsol::Solver<
+ *     pressio::linsol::iterative::CG, MyMatrixType
  *   > mySolver;
  *
  * ----------------------------------------------------------
@@ -160,7 +160,7 @@ struct PartialPivLU {};
  * They **do not** expose iteration or tolerances, since these are not applicable.
  *
  */
-namespace pressio{ namespace linearsolvers{
+namespace pressio{ namespace linsol{
 
 template<typename TagType, typename MatrixType, typename ... Args>
 using Solver = typename impl::Selector<TagType, MatrixType, Args...>::type;

@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include "pressio/ode_advancers.hpp"
 
 struct MyApp2WithMM
@@ -142,7 +142,8 @@ struct LinearSolver2
     auto stepperObj = ode::create_##NAME##_stepper(appObj);	\
     LinearSolver2 solver;					\
     y0(0) = 1.; y0(1) = 2.; y0(2) = 3.;					\
-    ode::advance_n_steps(stepperObj, y0, 0.0, dt, nsteps, solver);	\
+    auto bp = pressio::ode::steps_fixed_dt(0.0, nsteps, dt); \
+    ode::advance(stepperObj, y0, bp, solver);	\
   }									\
   std::cout << "y0 : \n" << y0 << " \n";				\
   /* solve problem computing modified rhs using mass matrix inverse */	\
@@ -151,7 +152,8 @@ struct LinearSolver2
     MyApp2NoMM appObj(rhs, massMatrices);				\
     auto stepperObj = ode::create_##NAME##_stepper(appObj);		\
     y1(0) = 1.; y1(1) = 2.; y1(2) = 3.;					\
-    ode::advance_n_steps(stepperObj, y1, 0.0, dt, nsteps);		\
+    auto bp = pressio::ode::steps_fixed_dt(0.0, nsteps, dt); \
+    ode::advance(stepperObj, y1, bp); \
   }									\
   std::cout << "y1 : \n" << y1 << " \n";				\
   EXPECT_NEAR( y0(0), y1(0), 1e-12);					\

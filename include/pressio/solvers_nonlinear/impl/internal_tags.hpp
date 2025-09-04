@@ -50,7 +50,7 @@
 #define PRESSIOROM_SOLVERS_NONLINEAR_IMPL_INTERNAL_TAGS_HPP_
 
 namespace pressio{
-namespace nonlinearsolvers{
+namespace nlsol{
 namespace impl{
 
 // this tag is inside the impl namespace because we do NOT want

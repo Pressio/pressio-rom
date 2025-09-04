@@ -46,7 +46,7 @@
 //@HEADER
 */
 #include "pressio/ode_advancers.hpp"
-#include "pressio/ode_steppers_explicit.hpp"
+#include "pressio/ode_steppers.hpp"
 #include <Eigen/Core>
 
 template<class ScalarType>
@@ -99,7 +99,8 @@ int main(int argc, char *argv[])
     y(0) = 1.; y(1) = 2.; y(2) = 3.;
     const scalar_type dt{0.1};
     const scalar_type startTime{0.0};
-    pode::advance_n_steps(stepperObj, y, startTime, dt, pode::StepCount{1});
+    auto policy = pode::steps_fixed_dt(startTime, pressio::ode::StepCount(1), dt);
+    pode::advance(stepperObj, y, policy);
     // check solution
     std::cout << "Computed solution: ["
 	      << y(0) << " " << y(1) << " " << y(2) << "] "
@@ -114,17 +115,18 @@ int main(int argc, char *argv[])
     y(0) = 1.; y(1) = 2.; y(2) = 3.;
     const scalar_type startTime{0.0};
     const scalar_type finalTime{1.0};
-    pode::advance_to_target_point(stepperObj, y, startTime, finalTime,
-				  [](const pode::StepCount & /*unused*/,
-				     const pode::StepStartAt<scalar_type> & /*unused*/,
-				     pode::StepSize<scalar_type> & dt)
+    auto policy = pode::to_time(startTime, finalTime,
+				[](const pode::StepCount & /*unused*/,
+				   const pode::StepStartAt<scalar_type> & /*unused*/,
+				   pode::StepSize<scalar_type> & dt)
 				  {
 				    dt = 0.1;
 				  });
+    pode::advance(stepperObj, y, policy);
     // check solution
     std::cout << "Computed solution: ["
 	      << y(0) << " " << y(1) << " " << y(2) << "] "
-	      << "Expected solution: [1024, 2048, 3074] \n";
+	      << "Expected solution: [1024, 2048, 3072] \n";
   }
 
   std::cout << "PASSED\n";

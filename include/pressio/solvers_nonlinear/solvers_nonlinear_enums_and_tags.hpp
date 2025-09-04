@@ -49,7 +49,7 @@
 #ifndef PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
 #define PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
 
-namespace pressio{ namespace nonlinearsolvers{
+namespace pressio{ namespace nlsol{
 
 enum class Stop{
   WhenAbsolutel2NormOfCorrectionBelowTolerance,
@@ -209,5 +209,5 @@ struct WeightingOperatorTag{};
 struct WeightedResidualTag{};
 struct WeightedJacobianTag{};
 
-}} //end namespace pressio::nonlinearsolvers
+}} //end namespace pressio::nlsol
 #endif  // PRESSIOROM_SOLVERS_NONLINEAR_SOLVERS_NONLINEAR_ENUMS_AND_TAGS_HPP_
