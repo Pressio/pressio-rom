@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>example 1 &mdash; pressio-rom-0.16.0</title>
+  <title>example 1 &mdash; pressio-rom-0.17.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7de89ed4"></script>
+      <script src="../_static/documentation_options.js?v=0c3dd48d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -171,11 +171,11 @@
 <span class="p">{</span>
 <span class="w">  </span><span class="n">PRESSIOLOG_INITIALIZE</span><span class="p">(</span><span class="n">pressiolog</span><span class="o">::</span><span class="n">LogLevel</span><span class="o">::</span><span class="n">sparse</span><span class="p">);</span>
 
-<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pnonls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">nonlinearsolvers</span><span class="p">;</span>
+<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pnonls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">nlsol</span><span class="p">;</span>
 
 <span class="w">  </span><span class="n">MyProblem</span><span class="w"> </span><span class="n">problem</span><span class="p">;</span>
 <span class="w">  </span><span class="n">MyLinearSolver</span><span class="w"> </span><span class="n">linSolver</span><span class="p">;</span>
-<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pressio</span><span class="o">::</span><span class="n">create_newton_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linSolver</span><span class="p">);</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnonls</span><span class="o">::</span><span class="n">create_newton_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linSolver</span><span class="p">);</span>
 <span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">updateMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnonls</span><span class="o">::</span><span class="n">Update</span><span class="o">::</span><span class="n">BacktrackStrictlyDecreasingObjective</span><span class="p">;</span>
 <span class="w">  </span><span class="n">solver</span><span class="p">.</span><span class="n">setUpdateCriterion</span><span class="p">(</span><span class="n">updateMethod</span><span class="p">);</span>
 
@@ -265,8 +265,8 @@
 <span class="p">{</span>
 <span class="w">  </span><span class="n">PRESSIOLOG_INITIALIZE</span><span class="p">(</span><span class="n">pressiolog</span><span class="o">::</span><span class="n">LogLevel</span><span class="o">::</span><span class="n">sparse</span><span class="p">);</span>
 
-<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pls</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">linearsolvers</span><span class="p">;</span>
-<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pnonls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">nonlinearsolvers</span><span class="p">;</span>
+<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pls</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">linsol</span><span class="p">;</span>
+<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">pnonls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pressio</span><span class="o">::</span><span class="nn">nlsol</span><span class="p">;</span>
 
 <span class="w">  </span><span class="n">MyRosenbrockSystem</span><span class="w"> </span><span class="n">problem</span><span class="p">;</span>
 
@@ -279,7 +279,7 @@
 <span class="w">  </span><span class="n">x0</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="n">x0</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1</span><span class="p">;</span><span class="w"> </span><span class="n">x0</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.2</span><span class="p">;</span><span class="w"> </span><span class="n">x0</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
 
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pressio</span><span class="o">::</span><span class="n">create_gauss_newton_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linearSolver</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnonls</span><span class="o">::</span><span class="n">create_gauss_newton_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linearSolver</span><span class="p">);</span>
 <span class="w">    </span><span class="n">solver</span><span class="p">.</span><span class="n">setStopTolerance</span><span class="p">(</span><span class="mf">1e-5</span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pressio</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">clone</span><span class="p">(</span><span class="n">x0</span><span class="p">);</span>
@@ -298,7 +298,7 @@
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pressio</span><span class="o">::</span><span class="n">create_levenberg_marquardt_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linearSolver</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">solver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pnonls</span><span class="o">::</span><span class="n">create_levenberg_marquardt_solver</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span><span class="w"> </span><span class="n">linearSolver</span><span class="p">);</span>
 <span class="w">    </span><span class="n">solver</span><span class="p">.</span><span class="n">setStopTolerance</span><span class="p">(</span><span class="mf">1e-5</span><span class="p">);</span>
 <span class="w">    </span><span class="n">solver</span><span class="p">.</span><span class="n">setUpdateCriterion</span><span class="p">(</span><span class="n">pnonls</span><span class="o">::</span><span class="n">Update</span><span class="o">::</span><span class="n">LMSchedule2</span><span class="p">);</span>
 
@@ -337,7 +337,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, National Technology &amp; Engineering Solutions of Sandia, LLC (NTESS).
-      <span class="lastupdated">Last updated on Jul 16, 2025.
+      <span class="lastupdated">Last updated on Sep 04, 2025.
       </span></p>
   </div>
 

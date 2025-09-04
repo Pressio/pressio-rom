@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Newton-Raphson &mdash; pressio-rom-0.16.0</title>
+  <title>Newton-Raphson &mdash; pressio-rom-0.17.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7de89ed4"></script>
+      <script src="../_static/documentation_options.js?v=0c3dd48d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -112,11 +112,11 @@
 <p>Header: <code class="docutils literal notranslate"><span class="pre">&lt;pressio/solvers_nonlinear_newton.hpp&gt;</span></code></p>
 <section id="api">
 <h2>API<a class="headerlink" href="#api" title="Link to this heading"></a></h2>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">pressio</span><span class="p">{</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">pressio</span><span class="p">{</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">nlsol</span><span class="p">{</span>
 
 <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">SystemType</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">LinearSolverType</span><span class="o">&gt;</span>
 <span class="cp">#ifdef PRESSIO_ENABLE_CXX20</span>
-<span class="w">  </span><span class="k">requires</span><span class="w"> </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">RealValuedNonlinearSystemFusingResidualAndJacobian</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="k">requires</span><span class="w"> </span><span class="n">RealValuedNonlinearSystemFusingResidualAndJacobian</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">Traits</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">state_type</span><span class="o">&gt;::</span><span class="n">rank</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 <span class="w">  </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">Traits</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">residual_type</span><span class="o">&gt;::</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 <span class="w">  </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">Traits</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">jacobian_type</span><span class="o">&gt;::</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
@@ -125,15 +125,15 @@
 <span class="w">	      </span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">state_type</span><span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="n">c</span><span class="p">,</span>
 <span class="w">	      </span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">residual_type</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">r</span><span class="p">,</span>
 <span class="w">	      </span><span class="k">typename</span><span class="w"> </span><span class="nc">SystemType</span><span class="o">::</span><span class="n">jacobian_type</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">J</span><span class="p">,</span>
-<span class="w">	      </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">scalar_of_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span>
-<span class="w">	      </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">scalar_of_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span>
-<span class="w">	      </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">scalar_of_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gamma</span><span class="p">,</span>
+<span class="w">	      </span><span class="n">system_scalar_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span>
+<span class="w">	      </span><span class="n">system_scalar_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span>
+<span class="w">	      </span><span class="n">system_scalar_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gamma</span><span class="p">,</span>
 <span class="w">	      </span><span class="n">LinearSolverType</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">linSolver</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="o">::</span><span class="n">pressio</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">norm2</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">as_const</span><span class="p">(</span><span class="n">a</span><span class="p">))</span><span class="w"> </span><span class="p">}</span>
-<span class="w">      </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="w"> </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">scalar_of_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">      </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="w"> </span><span class="n">system_scalar_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="p">;</span>
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="o">::</span><span class="n">pressio</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">norm2</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">as_const</span><span class="p">(</span><span class="n">r</span><span class="p">))</span><span class="w"> </span><span class="p">}</span>
-<span class="w">      </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="w"> </span><span class="n">nonlinearsolvers</span><span class="o">::</span><span class="n">scalar_of_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">      </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="w"> </span><span class="n">system_scalar_t</span><span class="o">&lt;</span><span class="n">SystemType</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="o">::</span><span class="n">pressio</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">deep_copy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">as_const</span><span class="p">(</span><span class="n">a</span><span class="p">))</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="o">::</span><span class="n">pressio</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">scale</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">)</span><span class="w"> </span><span class="p">};</span>
@@ -145,7 +145,8 @@
 <span class="cp">#endif</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">create_newton_solver</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SystemType</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">system</span><span class="p">,</span>
 <span class="w">			  </span><span class="n">LinearSolverType</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">linSolver</span><span class="p">)</span>
-<span class="p">{</span>
+
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Diagnostic</span><span class="o">&gt;</span><span class="w"> </span><span class="n">diagnostics</span><span class="w"> </span><span class="o">=</span>
 </pre></div>
 </div>
 </section>
@@ -163,7 +164,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2021, National Technology &amp; Engineering Solutions of Sandia, LLC (NTESS).
-      <span class="lastupdated">Last updated on Jul 16, 2025.
+      <span class="lastupdated">Last updated on Sep 04, 2025.
       </span></p>
   </div>
 
