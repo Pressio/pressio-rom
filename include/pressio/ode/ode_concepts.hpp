@@ -46,8 +46,8 @@
 //@HEADER
 */
 
-#ifndef PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
-#define PRESSIOROM_ODE_CONCEPTS_ODE_CONCEPTS_HPP_
+#ifndef PRESSIOROM_ODE_ODE_CONCEPTS_HPP_
+#define PRESSIOROM_ODE_ODE_CONCEPTS_HPP_
 
 #include "./ode_predicates.hpp"
 
@@ -1175,4 +1175,4 @@ struct StepSizePolicyWithReductionScheme<
 #endif
 
 }}
-#endif  // PRESSIOROM_ODE_CONCEPTS_ODE_SYSTEM_HPP_
+#endif  // PRESSIOROM_ODE_ODE_CONCEPTS_HPP_
