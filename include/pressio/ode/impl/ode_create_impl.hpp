@@ -98,4 +98,4 @@ auto create_implicit_stepper_impl(StepScheme name,
 }
 
 }}}
-#endif  // PRESSIOROM_ODE_IMPL_ODE_EXPLICIT_CREATE_IMPL_HPP_
+#endif  // PRESSIOROM_ODE_IMPL_ODE_CREATE_IMPL_HPP_

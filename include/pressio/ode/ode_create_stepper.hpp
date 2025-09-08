@@ -565,4 +565,4 @@ auto create_implicit_stepper(SystemLike&& system_like)
 }
 
 }} // end namespace pressio::ode
-#endif  // PRESSIOROM_ODE_ODE_CREATE_EXPLICIT_STEPPER_HPP_
+#endif  // PRESSIOROM_ODE_ODE_CREATE_STEPPER_HPP_

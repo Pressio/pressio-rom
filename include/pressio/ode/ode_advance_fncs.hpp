@@ -377,4 +377,4 @@ advance_with_step_recovery(StepperType & stepper,
 }
 
 }} //end namespace pressio::ode
-#endif  // PRESSIOROM_ODE_ODE_ADVANCE_N_STEPS_HPP_
+#endif  // PRESSIOROM_ODE_ODE_ADVANCE_FNCS_HPP_
