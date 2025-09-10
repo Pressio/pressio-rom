@@ -120,14 +120,14 @@ public:
   {
 
     if (name == StepScheme::BDF1){
-      (*this).template compute_impl_bdf1
+      this->compute_impl_bdf1
 	(predictedState, stencilStatesManager,
 	 stencilVelocities, rhsEvaluationTime.get(),
 	 dt.get(), step.get(), R, Jo);
     }
 
     else if (name == StepScheme::BDF2){
-      (*this).template compute_impl_bdf2
+      this->compute_impl_bdf2
 	(predictedState, stencilStatesManager,
 	 stencilVelocities, rhsEvaluationTime.get(),
 	 dt.get(), step.get(), R, Jo);
