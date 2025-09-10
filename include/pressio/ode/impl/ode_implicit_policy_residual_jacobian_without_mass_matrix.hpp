@@ -120,11 +120,11 @@ private:
   void trampoline(StepScheme name, Args && ...args) const
   {
     if (name == StepScheme::BDF1){
-      (*this).template compute_impl_bdf1(std::forward<Args>(args)...);
+      this->compute_impl_bdf1(std::forward<Args>(args)...);
     }
 
     else if (name == StepScheme::BDF2){
-      (*this).template compute_impl_bdf2(std::forward<Args>(args)...);
+      this->compute_impl_bdf2(std::forward<Args>(args)...);
     }
 
     else if (name == StepScheme::CrankNicolson){
