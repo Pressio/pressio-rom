@@ -158,6 +158,14 @@ public:
 		  ObjF objective,
 		  ScalarType objectiveValueAtCurrentNewtonStep)
   {
+    /*
+     * Two-phase backtracking line search:
+     *   1) Strictly decreasing objective (zeta = 1.0)
+     *   2) Relaxed decreasing objective (zeta defined by user)
+     *
+     * If Phase 1 (strict) fails, we revert to the previous
+     * trial state and alpha, and attempt Phase 2 (relaxed).
+     */
     using scalar_type = std::remove_const_t<ScalarType>;
     PRESSIOLOG_DEBUG("BacktrackStrictlyDecreasingObjective update");
 
@@ -166,37 +174,71 @@ public:
     const auto & p_k   = reg.template get<CorrectionTag>();
 
     auto alpha = static_cast<scalar_type>(1);
-    constexpr auto alpha_lower_bound = static_cast<scalar_type>(0.001);
+    constexpr auto alphaLowerBound = static_cast<scalar_type>(0.001);
     constexpr auto one  = static_cast<scalar_type>(1);
     constexpr auto zero = static_cast<scalar_type>(0);
 
-    PRESSIOLOG_DEBUG("start backtracking");
-    while (true)
-      {
-	if (std::abs(alpha) <= alpha_lower_bound){
-	  /*
-	    Presently set an exit alpha drops below 0.001; anything smaller
-	    than this is probably unreasonable. Note that this quantity doesn't depend on
-	    the dimension or magnitude of the state
-	  */
-	  const auto msg = ": in BacktrackStrictlyDecreasingObjective: alpha = "
-	    + std::to_string(alpha)
-	    + " <= " + std::to_string(alpha_lower_bound)
-	    + ", too small, exiting line search";
-	  throw ::pressio::eh::LineSearchStepTooSmall(msg);
-	}
+    // Store previous trial state and alpha for multi-phase approach
+    auto prevTrialState = trialState;
+    auto prevAlpha = alpha;
 
-	// update : trialState = state + alpha*p_k
-	::pressio::ops::update(trialState, zero, state, one, p_k, alpha);
-	if (objective(trialState) <= zeta_ * objectiveValueAtCurrentNewtonStep){
-	  PRESSIOLOG_DEBUG("backtrack; condition satisfied with alpha= {:6e}", alpha);
-	  ::pressio::ops::update(state, one, p_k, alpha);
-	  break;
-	}
+    // Main backtracking lambda
+    auto backtrack = [&, this](bool isStrict) -> bool
+    {
+      std::string phaseLabel = isStrict ? "strict" : "relaxed";
+      scalar_type zeta = isStrict ? one : zeta_;
+      PRESSIOLOG_DEBUG("Start " + phaseLabel + " backtracking");
 
-	/* convectional way to backtrack:alpha_l+1 = 0.5 * alpha_l */
-	alpha *= 0.5;
+      while (true) {
+
+        /*
+         * Exit if alpha drops below 0.001; anything smaller
+         * than this is probably unreasonable. Note that this
+         * quantity doesn't depend on the dimension or magnitude
+         * of the state.
+         */
+        if (std::abs(alpha) <= alphaLowerBound) {
+
+          // If the strict phase fails, move on to relaxed phase
+          if (isStrict) {
+            trialState = prevTrialState;
+            alpha = prevAlpha;
+            PRESSIOLOG_INFO("Strict backtrack failed. Trying relaxed phase with alpha={}.", alpha);
+            return false;
+          }
+
+          // If the relaxed phase fails, throw an error
+          const auto msg = ": in BacktrackStrictlyDecreasingObjective: alpha = "
+                         + std::to_string(alpha) + " <= " + std::to_string(alphaLowerBound)
+                         + ", too small, exiting line search.";
+          throw ::pressio::eh::LineSearchStepTooSmall(msg);
+        }
+
+        // During strict phase, store current values for (possible) future use
+        if (isStrict) {
+          prevAlpha = alpha;
+          prevTrialState = trialState;
+        }
+
+        ::pressio::ops::update(trialState, zero, state, one, p_k, alpha);
+
+        if (objective(trialState) <= zeta * objectiveValueAtCurrentNewtonStep){
+          PRESSIOLOG_DEBUG(phaseLabel + " backtrack; condition satisfied with alpha= {:6e}", alpha);
+          ::pressio::ops::update(state, one, p_k, alpha);
+          return true;
+        }
+
+        // Conventional way to backtrack: alpha_l+1 = 0.5 * alpha_l
+        alpha *= 0.5;
       }
+    };
+
+    auto strictBacktrack  = [&, this]() -> bool { return backtrack(true);  };
+    auto relaxedBacktrack = [&, this]() -> bool { return backtrack(false); };
+
+    // Try strict backtracking (zeta=1.0) first
+    auto converged = strictBacktrack();
+    if (!converged) (void)relaxedBacktrack();
   }
 };
 
