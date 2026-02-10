@@ -2,7 +2,7 @@ name: Deploy docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 791-link-to-new-demo-from-documentation ]
 
 jobs:
   build-and-deploy-docs:
