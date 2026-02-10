@@ -110,6 +110,7 @@ open an issue on `github <https://github.com/Pressio/pressio>`_.
    :hidden:
 
    ./components/rom_concepts
+   ./components/burgers_example
 
 .. toctree::
    :caption: ODE

@@ -1,6 +1,6 @@
 
 
-- cd to `pressio-ops/docs`
+- cd to `pressio-rom/docs`
 
 - create a virtual env and activate it
 ```
